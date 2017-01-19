@@ -126,6 +126,97 @@ proto.generate = function() {
 };
 
 
+
+proto.generateClicks = function() {
+
+    // SETUP THIS AUDIO //
+    var seconds = 10;
+    console.log('seconds: '+seconds);
+
+    var l = sampleRate * seconds;
+    var channels = [new Float32Array(l),new Float32Array(l)];
+    var peak = 0;
+
+    // CREATE CLOCK //
+    var clock = new audio.Clock();
+
+
+    // LOOP EACH SAMPLE //
+    for (var i=0; i<l; i++) {
+        var signal = [0,0];
+
+        // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
+        var process = clock(signal,i);
+        signal = signalTest(process,signal);
+
+        // WRITE TO AUDIO CHANNELS //
+        if (channels[0][i]) {
+            channels[0][i] += signal[0];
+        } else {
+            channels[0][i] = signal[0];
+        }
+        if (channels[1][i]) {
+            channels[1][i] += signal[1];
+        } else {
+            channels[1][i] = signal[1];
+        }
+
+        // MEASURE PEAK //
+        var ttl = channels[0][i];
+        if (ttl<0) { ttl = -ttl; }
+        var ttr = channels[1][i];
+        if (ttr<0) { ttr = -ttr; }
+
+        if (ttl > peak) { peak = ttl; }
+        if (ttr > peak) { peak = ttr; }
+    }
+
+
+    // SECOND PASS //
+    var mult = 0.96875/peak;
+    for (i=0; i<l; i++) {
+
+        // GET VALUES //
+        signal[0] = channels[0][i];
+        signal[1] = channels[1][i];
+
+        // NORMALISE //
+        signal[0] *= mult;
+        signal[1] *= mult;
+
+        // FADES //
+        var f = 1;
+        var fade = 2500;
+        if (i<fade) { f = i / fade; }
+        if (i>((l-1)-fade)) { f = ((l-1)-i) / fade; }
+
+        // WRITE VALUES //
+        channels[0][i] = signal[0] * f;
+        channels[1][i] = signal[1] * f;
+    }
+
+    // DONE - ASSEMBLE TRACK DATA //
+    console.log('generated');
+    return {
+        audioData: {
+            sampleRate: sampleRate,
+            channelData: channels
+        },
+        seconds: seconds,
+        id: genChart.generateID(),
+        cat: genChart.generateCat(),
+        date: genChart.generateDate(),
+        time: genChart.generateTime(),
+        frequency: genChart.generateFrequency(),
+        bandwidth: genChart.generateBandWidth(),
+        level: genChart.generateLevel()
+    };
+};
+
+
+
+
+
 // TEST A FILTER'S RETURNED SIGNAL //
 function signalTest(signal,fallback) {
     if (signal!==undefined && signal[0]!==undefined && signal[1]!==undefined && signal[0]==signal[0] && signal[1]==signal[1]) {

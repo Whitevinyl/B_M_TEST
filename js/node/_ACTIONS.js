@@ -54,7 +54,7 @@ proto.init = function(config,soundCloudReady) {
 proto.audio = function() {
 
     // generate audio data //
-    var data = genAudio.generate();
+    var data = genAudio.generateClicks();
 
     // encode audio data to wav //
     //var options = { float: false, bitDepth: 24 }; // pass as 2nd param

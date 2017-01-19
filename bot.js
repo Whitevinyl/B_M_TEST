@@ -90,8 +90,8 @@ function setupConfig() {
 
 // START THE BOT RUNNING //
 function init() {
-    var config = setupConfig();
-    action.init(config,soundCloudReady);
+    //var config = setupConfig();
+    //action.init(config,soundCloudReady);
 
     // IF WE'RE IN A TESTING MODE //
     switch(opMode) {

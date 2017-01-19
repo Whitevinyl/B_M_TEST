@@ -74,6 +74,7 @@ var WalkSmooth = require('./audioComponents/mods/WalkSmooth');
 var ArrayEnvelope = require('./audioComponents/common/ArrayEnvelope');
 var controlRange = require('./audioComponents/common/ControlRange');
 var Combine = require('./audioComponents/common/Combine');
+var Clock = require('./audioComponents/core/Clock');
 
 
 // !!!
@@ -1580,5 +1581,7 @@ module.exports = {
     MoveTo: MoveTo,
     FudgeChance: FudgeChance,
     RangeChance: RangeChance,
-    Takeoff: Takeoff
+    Takeoff: Takeoff,
+
+    Clock: Clock
 };

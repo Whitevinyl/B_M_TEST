@@ -76,14 +76,14 @@ proto.process = function(signal,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (this.measureIndex + marker.time)) {
-            this.clicks.push( new MetroClick(this.adsr,marker.pitch));
+            this.clicks.push( new MetroClick(this.clicks,this.adsr,marker.pitch));
         }
     }
 
 
     // process any active clicks //
-    l = this.clicks.length;
-    for (i=0; i<l; i++) {
+    l = this.clicks.length-1;
+    for (i=l; i>=0; i--) {
         signal = this.clicks.process(signal,index);
     }
 
@@ -100,10 +100,11 @@ proto.process = function(signal,index) {
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function MetroClick(adsr,pitch) {
-    this.a = 0;
+function MetroClick(parentArray,adsr,pitch) {
+    this.parentArray = parentArray;
     this.adsr = adsr || [0,10,1,90];
     this.pitch = pitch || 220;
+    this.a = 0;
     this.voice = new sine();
     this.duration = 5000;
     this.i = 0;
@@ -125,6 +126,7 @@ proto.process = function(input) {
     // envelope //
     this.a = common.ADSREnvelope(this.i,this.duration,this.adsr);
 
+    // voice //
     var signal = this.voice.process(this.pitch);
 
     return [
@@ -139,7 +141,10 @@ proto.process = function(input) {
 //-------------------------------------------------------------------------------------------
 
 proto.kill = function() {
-
+    var index = this.parentArray.indexOf(this);
+    if (index > -1) {
+        this.parentArray.splice(index, 1);
+    }
 };
 
 
