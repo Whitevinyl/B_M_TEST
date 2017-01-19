@@ -130,7 +130,7 @@ proto.generate = function() {
 proto.generateClicks = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 10;
+    var seconds = 20;
     console.log('seconds: '+seconds);
 
     var l = sampleRate * seconds;
@@ -139,6 +139,7 @@ proto.generateClicks = function() {
 
     // CREATE CLOCK //
     var clock = new audio.Clock();
+    clock.setup();
 
 
     // LOOP EACH SAMPLE //
@@ -146,7 +147,7 @@ proto.generateClicks = function() {
         var signal = [0,0];
 
         // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
-        var process = clock(signal,i);
+        var process = clock.process(signal,i);
         signal = signalTest(process,signal);
 
         // WRITE TO AUDIO CHANNELS //
