@@ -1,0 +1,32 @@
+
+// Just using this to combine the requires of commonly used utility components among other
+// components
+
+//-------------------------------------------------------------------------------------------
+//  INIT
+//-------------------------------------------------------------------------------------------
+
+var Add = require('./Add');
+var ADSREnvelope = require('./ADSREnvelope');
+var ArrayEnvelope = require('./ArrayEnvelope');
+var Combine = require('./Combine');
+var ControlRange = require('./ControlRange');
+var Pan = require('./Pan');
+var Repeater = require('./Repeater');
+var ToMono = require('./ToMono');
+var ToStereo = require('./ToStereo');
+
+
+
+module.exports = {
+    add: Add,
+    ADSREnvelope: ADSREnvelope,
+    arrayEnvelope: ArrayEnvelope,
+    combine: Combine,
+    range: ControlRange,
+    pan: Pan,
+    toMono: ToMono,
+    toStereo: ToStereo,
+
+    Repeater: Repeater
+};
