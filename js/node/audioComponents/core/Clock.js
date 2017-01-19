@@ -16,16 +16,17 @@ var sine = require('../voices/Sine');
 //-------------------------------------------------------------------------------------------
 
 function Clock() {
-    this.bpm = 60;
+    this.bpm = 120;
     this.signature = new timeSignature(4,4);
     this.measureIndex = 0;
     this.measureDuration = Math.round((sampleRate * 60) / this.bpm) * this.signature.beats;
 
     this.markers = [];
     this.a = 0;
-    this.adsr = [0,10,1,90];
+    this.adsr = [0.5,10,1,89.5];
     this.clicks = [];
-
+    this.duration = 6000;
+    this.pitch = 3000;
 }
 var proto = Clock.prototype;
 
@@ -46,12 +47,11 @@ proto.setup = function(bpm,beats,division) {
 
 
     // metronome clicks //
-    var pitch = 1000;
     this.markers = [];
-    this.markers.push(new marker(0,1,pitch*2,this.adsr,beatLength));
+    this.markers.push(new marker(0,1,this.pitch*2,this.adsr,this.duration));
 
     for (var i=1; i<this.signature.beats; i++) {
-        this.markers.push(new marker(beatLength*i,1,pitch,this.adsr,beatLength));
+        this.markers.push(new marker(beatLength*i,1,this.pitch,this.adsr,this.duration));
     }
 
 };
@@ -68,12 +68,11 @@ proto.process = function(signal,index) {
     // place new metronome click markers //
     if (index >= this.measureIndex + this.measureDuration) {
         this.measureIndex = index;
-        this.bpm += 20;
         this.setup(this.bpm,this.signature.beats,this.signature.division);
     }
 
 
-    // create clicks //
+    // create clicks when our index matches a marker //
     l = this.markers.length;
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
@@ -142,6 +141,7 @@ proto.process = function(input) {
 //  KILL
 //-------------------------------------------------------------------------------------------
 
+// remove from parent object //
 proto.kill = function() {
     var index = this.parentArray.indexOf(this);
     if (index > -1) {
