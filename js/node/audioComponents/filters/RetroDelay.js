@@ -8,11 +8,13 @@ var lowPass = require('./LowPass');
 //-------------------------------------------------------------------------------------------
 
 function RetroDelay() {
-    this.filter = new lowPass();
+    this.filter = new lowPass.mono();
 }
 
-RetroDelay.prototype.process = function(input,time,feedback,cutoff,res,channel,index) {
+RetroDelay.prototype.process = function(input,time,feedBack,cutoff,res,channel,index) {
     var t = this.calculateTime(time);
+    var delay = feedback.mono(1,t,channel,index);
+    return this.filter.process(cutoff,res,delay);
 };
 
 RetroDelay.prototype.calculateTime = function(time) {
@@ -103,10 +105,10 @@ function StereoRetroDelay() {
     this.d2 = new RetroDelay();
 }
 
-StereoRetroDelay.prototype.process = function(signal,leftTime,rightTime,feedback,cutoff,res,channel,index) {
+StereoRetroDelay.prototype.process = function(signal,mix,leftTime,rightTime,feedback,cutoff,res,channel,index) {
     return [
-        this.d1.process(signal[0],leftTime,feedback,cutoff,res,channel,index),
-        this.d2.process(signal[1],rightTime,feedback,cutoff,res,channel,index)
+        (signal[0] * (1-mix)) + (this.d1.process(signal[0],leftTime,feedback,cutoff,res,channel[1],index) * mix),
+        (signal[1] * (1-mix)) + (this.d2.process(signal[1],rightTime,feedback,cutoff,res,channel[0],index) * mix)
     ];
 };
 

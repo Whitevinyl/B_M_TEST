@@ -31,6 +31,7 @@ var Noise = require('./audioComponents/filters/Noise');
 var MultiPass = require('./audioComponents/filters/MultiPass');
 var Repeater = require('./audioComponents/common/Repeater');
 var Resonant = require('./audioComponents/filters/Resonant');
+var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
 var Tremolo = require('./audioComponents/filters/Tremolo');
 
@@ -1559,6 +1560,8 @@ module.exports = {
     StereoMultiPass: MultiPass.stereo,
     Resonant: Resonant.mono,
     StereoResonant: Resonant.stereo,
+    RetroDelay: RetroDelay.mono,
+    StereoRetroDelay: RetroDelay.stereo,
     ReverbII: ReverbII.mono,
     StereoReverbII: ReverbII.stereo,
     Tremolo: Tremolo.mono,

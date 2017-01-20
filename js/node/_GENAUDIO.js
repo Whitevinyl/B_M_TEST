@@ -147,6 +147,8 @@ proto.generateClicks = function() {
 
     var reverbII = new audio.StereoReverbII();
 
+    var retro = new audio.StereoRetroDelay();
+
 
     // LOOP EACH SAMPLE //
     for (var i=0; i<l; i++) {
@@ -168,9 +170,12 @@ proto.generateClicks = function() {
         /*process = audio.reverb(signal,0.65,4000,20,18,channels,i);
         signal = signalTest(process,signal);*/
 
-        process = reverbII.process(signal,0.5,5000,300,channels,i);
-        signal = signalTest(process,signal);
+        /*process = reverbII.process(signal,0.5,5000,300,channels,i);
+        signal = signalTest(process,signal);*/
 
+        process = retro.process(signal,0.5,"T16","Q16",1,3000,0.6,channels,i);
+        signal = signalTest(process,signal);
+        //signal = process;
 
         // WRITE TO AUDIO CHANNELS //
         if (channels[0][i]) {
