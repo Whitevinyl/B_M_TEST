@@ -11,6 +11,8 @@ var arranger = new Arranger();
 var audio = require('./_AUDIOCOMPONENTS');
 var FilterWrapper = require('./_FILTERWRAPPER');
 
+global.audioClock = null;
+
 // Audio is generated here using javascript components in _AUDIOCOMPONENTS.js. Signals are
 // generated and filtered in sequence and panned between stereo channels. Multiple techniques
 // are used, subtractive & additive synthesis, wavetables, granular self-sampling, IIR & FIR
@@ -138,8 +140,8 @@ proto.generateClicks = function() {
     var peak = 0;
 
     // CREATE CLOCK //
-    var clock = new audio.Clock();
-    clock.setup();
+    audioClock = new audio.Clock();
+    audioClock.setup();
 
     var repeater = new audio.Repeater();
 
@@ -151,7 +153,7 @@ proto.generateClicks = function() {
         var signal = [0,0];
 
         // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
-        var process = clock.process(signal,i);
+        var process = audioClock.process(signal,i);
         signal = signalTest(process,signal);
 
         /*process = audio.foldBackII(signal,0.1,0.9);
@@ -166,7 +168,7 @@ proto.generateClicks = function() {
         /*process = audio.reverb(signal,0.65,4000,20,18,channels,i);
         signal = signalTest(process,signal);*/
 
-        process = reverbII.process(signal,0.6,3000,400,20,channels,i);
+        process = reverbII.process(signal,0.5,5000,300,channels,i);
         signal = signalTest(process,signal);
 
 

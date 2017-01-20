@@ -93,6 +93,10 @@ proto.process = function(signal,index) {
 
 
 
+proto.getBeat = function() {
+    return Math.round((sampleRate * 60) / this.bpm);
+};
+
 
 //-------------------------------------------------------------------------------------------
 //  METRONOME CLICK
