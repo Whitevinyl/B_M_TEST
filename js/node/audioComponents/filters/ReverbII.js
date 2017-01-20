@@ -14,14 +14,15 @@ function ReverbII() {
 }
 
 ReverbII.prototype.process = function(signal,level,predelay,size,reflections,channel,index) {
+    reflections = Math.round(size/35);
     if (reflections>26) reflections = 26;
 
     var r = 1/(reflections*1.3);
     var cutoff = 10000;
     for (var j=0; j<reflections; j++) {
         var reverb = feedback.mono(((level) - (r*j))*0.15,predelay + (this.primes[j]*size),channel,index);
-        cutoff *= 0.95;
-        reverb = this.filter.process(cutoff,0.95,reverb);
+        cutoff *= 0.97;
+        reverb = this.filter.process(cutoff,0.2,reverb);
         signal += reverb;
     }
     return signal;

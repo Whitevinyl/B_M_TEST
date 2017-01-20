@@ -166,7 +166,7 @@ proto.generateClicks = function() {
         /*process = audio.reverb(signal,0.65,4000,20,18,channels,i);
         signal = signalTest(process,signal);*/
 
-        process = reverbII.process(signal,0.6,4000,300,12,channels,i);
+        process = reverbII.process(signal,0.6,3000,400,20,channels,i);
         signal = signalTest(process,signal);
 
 
