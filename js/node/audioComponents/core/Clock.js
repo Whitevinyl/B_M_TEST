@@ -26,7 +26,7 @@ function Clock() {
     this.adsr = [0.5,10,1,89.5];
     this.clicks = [];
     this.duration = 6000;
-    this.pitch = 3000;
+    this.pitch = 1760;
 }
 var proto = Clock.prototype;
 

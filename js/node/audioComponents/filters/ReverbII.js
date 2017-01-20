@@ -1,0 +1,50 @@
+var feedback = require('./Feedback');
+var lowPass = require('./LowPass');
+
+// Not a real reverb, a pretty hacky effect using feedback (if you can make a nice reverb
+// like this let me know!)
+
+//-------------------------------------------------------------------------------------------
+//  MONO
+//-------------------------------------------------------------------------------------------
+
+function ReverbII() {
+    this.filter = new lowPass.mono();
+    this.primes = [0, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101];
+}
+
+ReverbII.prototype.process = function(signal,level,predelay,size,reflections,channel,index) {
+    if (reflections>26) reflections = 26;
+
+    var r = 1/(reflections*1.3);
+    var cutoff = 10000;
+    for (var j=0; j<reflections; j++) {
+        var reverb = feedback.mono(((level) - (r*j))*0.15,predelay + (this.primes[j]*size),channel,index);
+        cutoff *= 0.95;
+        reverb = this.filter.process(cutoff,0.95,reverb);
+        signal += reverb;
+    }
+    return signal;
+};
+
+//-------------------------------------------------------------------------------------------
+//  STEREO
+//-------------------------------------------------------------------------------------------
+
+function StereoReverbII() {
+    this.r1 = new ReverbII();
+    this.r2 = new ReverbII();
+}
+
+StereoReverbII.prototype.process = function(signal,level,predelay,size,reflections,channel,index) {
+    return [
+        this.r1.process(signal[0],level,predelay,size,reflections,channel[1],index),
+        this.r2.process(signal[1],level,predelay,size,reflections,channel[0],index)
+    ];
+};
+
+
+module.exports = {
+    mono: ReverbII,
+    stereo: StereoReverbII
+};

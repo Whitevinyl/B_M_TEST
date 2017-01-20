@@ -141,6 +141,10 @@ proto.generateClicks = function() {
     var clock = new audio.Clock();
     clock.setup();
 
+    var repeater = new audio.Repeater();
+
+    var reverbII = new audio.StereoReverbII();
+
 
     // LOOP EACH SAMPLE //
     for (var i=0; i<l; i++) {
@@ -149,6 +153,22 @@ proto.generateClicks = function() {
         // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
         var process = clock.process(signal,i);
         signal = signalTest(process,signal);
+
+        /*process = audio.foldBackII(signal,0.1,0.9);
+        signal = signalTest(process,signal);
+
+        process = audio.reverseDelay(signal,0.6,1000,40,channels,i);
+        signal = signalTest(process,signal);
+
+        process = repeater.process(signal,2000,0.6,true);
+        signal = signalTest(process,signal);*/
+
+        /*process = audio.reverb(signal,0.65,4000,20,18,channels,i);
+        signal = signalTest(process,signal);*/
+
+        process = reverbII.process(signal,0.6,4000,300,12,channels,i);
+        signal = signalTest(process,signal);
+
 
         // WRITE TO AUDIO CHANNELS //
         if (channels[0][i]) {
