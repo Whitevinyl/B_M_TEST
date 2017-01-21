@@ -142,7 +142,7 @@ function init() {
 
 var samples = ['./samples/hit_xylophone2.wav', './samples/v9_14.wav', './samples/hit_steel_pan1.wav', './samples/hit_cello_pluck.wav', './samples/hit_chime3.wav', './samples/hit_gong.wav', './samples/hit_kalimba1.wav', './samples/hit_tray2.wav', './samples/hit_xylophone1.wav'];
 
-action.getSample(samples[3],action.audio);
+action.getSample(samples[2],action.audio);
 
 
 //-------------------------------------------------------------------------------------------

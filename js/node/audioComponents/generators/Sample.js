@@ -50,7 +50,7 @@ function Sample(parentArray) {
     this.index = 0;
     this.speed = frequencyToRatio(440,frequencyFromInterval(tombola.item([-5,-2,0,3,5,7,10,12])));
     var r = this.speed/(sampleRate*10);
-    this.adjust = tombola.rangeFloat(-r,r);
+    this.drift = tombola.rangeFloat(-r,r);
 }
 proto = Sample.prototype;
 
@@ -58,22 +58,40 @@ proto = Sample.prototype;
 
 proto.process = function(signal,level) {
     this.index += this.speed;
-    this.speed += this.adjust;
+    this.speed += this.drift;
 
-
+    // get indices //
     var ind = Math.round(this.index);
-    var baseSample = Math.floor(this.index);
-    var diff = baseSample - this.index;
+    var baseIndex = Math.floor(this.index);
+    var diff = this.index - baseIndex;
 
+
+    // kill if we're done playing sample //
+    if (ind>=(this.sample[0].length + 1000) || ind<0) {
+        this.kill();
+    }
+
+
+    // allow for zeroed samples at end //
+    var sampleA = [0,0];
+    var sampleB = [0,0];
+
+    if (this.sample[0][baseIndex]) {
+        sampleA = [this.sample[0][baseIndex],this.sample[1][baseIndex]];
+    }
+    if (this.sample[0][baseIndex + 1]) {
+        sampleB = [this.sample[0][baseIndex + 1],this.sample[1][baseIndex + 1]];
+    }
+
+    // create interpolated sample //
     var newSample = [
-        (this.sample[0][baseSample] * (1-diff)) + (this.sample[0][baseSample + 1] * diff),
-        (this.sample[1][baseSample] * (1-diff)) + (this.sample[1][baseSample + 1] * diff)
+        (sampleA[0] * (1-diff)) + (sampleB[0] * diff),
+        (sampleA[1] * (1-diff)) + (sampleB[1] * diff)
     ];
 
 
-    if (ind>=(this.sample[0].length) || ind<0) {
-        this.kill();
-    }
+
+
 
     /*return [
         signal[0] + (this.sample[0][ind]*level),

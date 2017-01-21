@@ -165,8 +165,8 @@ proto.generateClicks = function() {
         /*process = audio.foldBackII(signal,0.1,0.9);
         signal = signalTest(process,signal);*/
 
-        process = audio.reverseDelay(signal,0.5,2000,30,channels,i);
-        signal = signalTest(process,signal);
+        /*process = audio.reverseDelay(signal,0.5,2000,30,channels,i);
+        signal = signalTest(process,signal);*/
 
         /*process = repeater.process(signal,2000,0.6,true);
         signal = signalTest(process,signal);*/
@@ -177,8 +177,8 @@ proto.generateClicks = function() {
         /*process = reverbII.process(signal,0.5,5000,800,channels,i);
         signal = signalTest(process,signal);*/
 
-        process = retro.process(signal,0.5,"T8","Q4",0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);
+        /*process = retro.process(signal,0.5,"T8","Q4",0.3,2500,0.7,channels,i);
+        signal = signalTest(process,signal);*/
         //signal = process;
 
         // WRITE TO AUDIO CHANNELS //
