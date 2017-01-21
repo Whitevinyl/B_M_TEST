@@ -15,7 +15,8 @@ function RetroDelay() {
 RetroDelay.prototype.process = function(input,time,feedBack,cutoff,res,channel,index) {
     var t = this.calculateTime(time);
     var delay = feedback.mono(1,t,channel,index,feedBack,input);
-    var drive = distortion([delay,delay],0.2,10);
+    var drive = [delay,delay];
+    drive = distortion(drive,0.2,10);
     return this.filter.process(cutoff,res,drive[0]);
 };
 

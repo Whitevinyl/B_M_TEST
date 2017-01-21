@@ -144,11 +144,8 @@ proto.generateClicks = function() {
     audioClock.setup();
 
     var repeater = new audio.Repeater();
-
     var reverbII = new audio.StereoReverbII();
-
     var retro = new audio.StereoRetroDelay(l);
-
     var sample = new audio.Sample();
 
 
@@ -168,7 +165,7 @@ proto.generateClicks = function() {
         /*process = audio.foldBackII(signal,0.1,0.9);
         signal = signalTest(process,signal);*/
 
-        process = audio.reverseDelay(signal,0.5,3000,20,channels,i);
+        process = audio.reverseDelay(signal,0.5,4000,20,channels,i);
         signal = signalTest(process,signal);
 
         /*process = repeater.process(signal,2000,0.6,true);
@@ -198,6 +195,18 @@ proto.generateClicks = function() {
 
 
 
+
+    }
+
+
+    // SECOND PASS //
+    for (i=0; i<l; i++) {
+
+
+        // ADD RETRO CHANNEL //
+        channels[0][i] += retro.channel[0][i];
+        channels[1][i] += retro.channel[1][i];
+
         // MEASURE PEAK //
         var ttl = channels[0][i];
         if (ttl<0) { ttl = -ttl; }
@@ -209,14 +218,10 @@ proto.generateClicks = function() {
     }
 
 
-    // SECOND PASS //
+    // THIRD PASS //
     var mult = 0.96875/peak;
     for (i=0; i<l; i++) {
 
-
-        // ADD RETRO CHANNEL //
-        channels[0][i] += retro.channel[0][i];
-        channels[1][i] += retro.channel[1][i];
 
 
         // GET VALUES //

@@ -48,8 +48,8 @@ function Sample(parentArray) {
     this.parentArray = parentArray;
     this.sample = mySample;
     this.index = 0;
-    this.speed = frequencyToRatio(440,frequencyFromInterval(tombola.item([0,3,5,7,10,12])));
-    var r = this.speed/20000;
+    this.speed = frequencyToRatio(440,frequencyFromInterval(tombola.item([-12,-9,-7,-5,-2,0,3,5,7,10,12])));
+    var r = this.speed/(sampleRate*10);
     this.adjust = tombola.rangeFloat(-r,r);
 }
 proto = Sample.prototype;
@@ -58,7 +58,7 @@ proto = Sample.prototype;
 
 proto.process = function(signal,level) {
     this.index += this.speed;
-    //this.speed += this.adjust;
+    this.speed += this.adjust;
     var ind = Math.round(this.index);
     if (ind>=this.sample[0].length || ind<0) {
         this.kill();
