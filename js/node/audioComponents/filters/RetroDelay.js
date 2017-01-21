@@ -1,6 +1,8 @@
 var feedback = require('./Feedback');
 var lowPass = require('./LowPass');
 var distortion = require('./FoldBackII');
+var distortion2 = require('./Invert');
+var distortion3 = require('./Erode');
 
 // Attempt at roughly recreating RetroDelay vst plugin
 
@@ -16,7 +18,9 @@ RetroDelay.prototype.process = function(input,time,feedBack,cutoff,res,channel,i
     var t = this.calculateTime(time);
     var delay = feedback.mono(1,t,channel,index,feedBack,input);
     var drive = [delay,delay];
-    drive = distortion(drive,0.2,10);
+    //drive = distortion(drive,0.01,0.3);
+    //drive = distortion2(drive,0.05,0.4);
+    //drive = distortion3(drive,200,index,0.7);
     return this.filter.process(cutoff,res,drive[0]);
 };
 

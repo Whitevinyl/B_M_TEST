@@ -16,8 +16,8 @@ var sine = require('../voices/Sine');
 //-------------------------------------------------------------------------------------------
 
 function Clock() {
-    this.bpm = 120;
-    this.signature = new timeSignature(2,4);
+    this.bpm = 240;
+    this.signature = new timeSignature(1,4);
     this.measureIndex = 0;
     this.measureDuration = Math.round((sampleRate * 60) / this.bpm) * this.signature.beats;
 
