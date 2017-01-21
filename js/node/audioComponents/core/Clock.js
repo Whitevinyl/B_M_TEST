@@ -77,7 +77,7 @@ proto.process = function(signal,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (this.measureIndex + marker.time)) {
-            this.clicks.push( new MetroClick(this.clicks,marker.adsr,marker.pitch,marker.duration));
+            //this.clicks.push( new MetroClick(this.clicks,marker.adsr,marker.pitch,marker.duration));
         }
     }
 
@@ -97,6 +97,10 @@ proto.getBeat = function() {
     return Math.round((sampleRate * 60) / this.bpm);
 };
 
+
+proto.getMeasureIndex = function() {
+    return this.measureIndex;
+};
 
 //-------------------------------------------------------------------------------------------
 //  METRONOME CLICK

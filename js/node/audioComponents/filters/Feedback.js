@@ -9,10 +9,14 @@ var utils = require('../../lib/utils');
 function feedback(level,delay,channel,index,feedBack,feedSource) {
     feedBack = utils.arg(feedBack,0);
     delay = Math.round(delay);
+    var fb = 0;
+    if (feedSource) {
+        fb = (feedSource[index-delay]*feedBack);
+    }
     if (index<delay) {
         return 0;
     }
-    return (channel[index-delay] + (feedSource[index-delay]*feedBack))*level;
+    return (channel[index-delay] + fb)*level;
 }
 
 //-------------------------------------------------------------------------------------------

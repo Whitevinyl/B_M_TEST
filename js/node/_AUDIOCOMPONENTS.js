@@ -50,6 +50,7 @@ var PatternII = require('./audioComponents/generators/PatternII'); // wip
 var Purr = require('./audioComponents/generators/Purr');
 var Ramp = require('./audioComponents/generators/Ramp');
 var Resampler = require('./audioComponents/generators/Resampler');
+var Sample = require('./audioComponents/generators/Sample');
 var Siren = require('./audioComponents/generators/Siren');
 var Static = require('./audioComponents/generators/Static');
 var Sweep = require('./audioComponents/generators/Sweep');
@@ -1528,6 +1529,7 @@ module.exports = {
     Purr: Purr,
     Ramp: Ramp,
     Resampler: Resampler,
+    Sample: Sample,
     Siren: Siren,
     Static: Static,
     Sweep: Sweep,

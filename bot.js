@@ -140,7 +140,7 @@ function init() {
 }
 //init();
 
-action.getSample('./samples/hit_steel_pan1.wav',action.audio);
+action.getSample('./samples/v9_14.wav',action.audio);
 
 
 //-------------------------------------------------------------------------------------------
