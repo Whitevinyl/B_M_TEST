@@ -2,6 +2,7 @@ var fs = require('fs');
 var utils = require('./lib/utils');
 var SunCalc = require('suncalc');
 var wavEncoder = require('wav-encoder');
+var WavDecoder = require("wav-decoder");
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
@@ -43,6 +44,30 @@ proto.init = function(config,soundCloudReady) {
         soundCloud.init(config.soundcloud,soundCloudReady);
     }
     twitter.init(config.twitter);
+};
+
+
+
+
+const readFile = function(filepath) {
+    return new Promise(function(resolve, reject) {
+            fs.readFile(filepath, function(err, buffer) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(buffer);
+        });
+    });
+};
+
+proto.getSample = function(file,callback) {
+    readFile(file).then(function(buffer) {
+        return WavDecoder.decode(buffer);
+    }).then(function(audioData) {
+        console.log('decoded');
+        mySample = audioData.channelData;
+        callback();
+    });
 };
 
 

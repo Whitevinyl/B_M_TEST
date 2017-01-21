@@ -13,6 +13,7 @@ var action = new Action();
 global.color = new Colorflex();
 global.sampleRate = 44100;
 
+global.mySample = null;
 
 // ARP Observatory by Luke Twyman | t: @whitevinyluk
 // @arpobservatory
@@ -137,7 +138,9 @@ function init() {
             break;
     }
 }
-init();
+//init();
+
+action.getSample('./samples/hit_steel_pan1.wav',action.audio);
 
 
 //-------------------------------------------------------------------------------------------
