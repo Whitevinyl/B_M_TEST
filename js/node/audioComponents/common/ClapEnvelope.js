@@ -15,7 +15,7 @@ function ClapEnvelope(t,d,adsr) {
         var decay = audioClock.millisecondsToSamples(adsr[1]);
         var halfDecay = Math.round(decay/2);
         var sustain = adsr[2];
-        var release = d - (attack + decay);
+        var release = audioClock.millisecondsToSamples(adsr[3]);
 
         if (t<=attack) {
             a = easing.circleIn(t, 0, 1, attack);
@@ -26,7 +26,7 @@ function ClapEnvelope(t,d,adsr) {
         if (t>(attack + halfDecay) && t<=(attack + decay)) {
             a = 1 - (((1-sustain)/halfDecay) * (t-(attack + halfDecay)));
         }
-        if (t>(attack + decay)) {
+        if (t>(attack + decay) && t<=(attack + decay + release)) {
             a = easing.circleOut(t - (attack + decay), 1, -1, release);
         }
         if (t>(attack + decay + release)) {

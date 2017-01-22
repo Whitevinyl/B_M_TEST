@@ -50,10 +50,10 @@ function StereoResonant() {
 //  STEREO PROCESS
 //-------------------------------------------------------------------------------------------
 
-StereoResonant.prototype.process = function(signal, frequency, res, mix) {
+StereoResonant.prototype.process = function(signal, frequency, res, mix, type) {
     return [
-        (signal[0] * (1-mix)) + (this.bp1.process(frequency,res,signal[0]) * mix),
-        (signal[1] * (1-mix)) + (this.bp2.process(frequency,res,signal[1]) * mix)
+        (signal[0] * (1-mix)) + (this.bp1.process(frequency,res,signal[0],type) * mix),
+        (signal[1] * (1-mix)) + (this.bp2.process(frequency,res,signal[1],type) * mix)
     ];
 };
 

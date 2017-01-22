@@ -23,10 +23,11 @@ function foldBackII(input,threshold, power) {
 //-------------------------------------------------------------------------------------------
 
 
-function stereoFoldBackII(signal,threshold,power) {
+function stereoFoldBackII(signal,threshold,power,mix) {
+    mix = utils.arg(mix,1);
     return [
-        foldBackII(signal[0],threshold,power),
-        foldBackII(signal[1],threshold,power)
+        (signal[0] * (1-mix)) + (foldBackII(signal[0],threshold,power) * mix),
+        (signal[1] * (1-mix)) + (foldBackII(signal[1],threshold,power) * mix)
     ];
 }
 
