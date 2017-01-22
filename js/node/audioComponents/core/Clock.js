@@ -103,6 +103,11 @@ proto.getMeasureIndex = function() {
 };
 
 
+proto.millisecondsToSamples = function(ms) {
+    return Math.round(ms*(sampleRate/1000));
+};
+
+
 proto.getBeatLength = function(time) {
     var beat = this.getBeat();
     var t = beat;

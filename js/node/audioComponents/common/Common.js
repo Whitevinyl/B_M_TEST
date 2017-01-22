@@ -9,6 +9,7 @@
 var Add = require('./Add');
 var ADSREnvelope = require('./ADSREnvelope');
 var ArrayEnvelope = require('./ArrayEnvelope');
+var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
 var Pan = require('./Pan');
@@ -22,6 +23,7 @@ module.exports = {
     add: Add,
     ADSREnvelope: ADSREnvelope,
     arrayEnvelope: ArrayEnvelope,
+    clapEnvelope: ClapEnvelope,
     combine: Combine,
     range: ControlRange,
     pan: Pan,

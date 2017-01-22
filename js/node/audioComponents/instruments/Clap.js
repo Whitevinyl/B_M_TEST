@@ -21,8 +21,9 @@ var Resonant = require('../filters/Resonant');
 function ClapPlayer() {
     this.instances = [];
     this.markers = [];
-    this.adsr = [0.1,7.9,0.3,92];
-    this.markers.push(new marker(audioClock.getBeatLength('2'),1,440,this.adsr,audioClock.getBeatLength('4')));
+    this.adsr = [0,5,0.1,85];
+    this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,audioClock.getBeatLength('4')));
+    this.markers.push(new marker(audioClock.getBeatLength('D2'),1,440,this.adsr,audioClock.getBeatLength('4')));
 }
 var proto = ClapPlayer.prototype;
 
@@ -62,8 +63,7 @@ proto.process = function(signal,level,index) {
 function Clap(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Roar(tombola.rangeFloat(0.3,0.99));
-    //this.voice = tombola.item([new White(),new Roar(0.8)]);
+    this.voice = new Roar(tombola.rangeFloat(0,0.6));
     this.p = tombola.rangeFloat(-0.4,0.4); // panning;
 
     // envelope / duration //
@@ -80,7 +80,7 @@ function Clap(parentArray,adsr,duration) {
     // filter //
     this.bp = new Resonant.mono();
     this.hp = new Resonant.mono();
-    this.resonance = tombola.rangeFloat(0,1);
+    this.resonance = 0.9;
     this.cutoff = 1220;
     this.dest = 600;
 
@@ -102,15 +102,15 @@ proto.process = function(input,level) {
     }
 
     // envelope //
-    this.a = common.ADSREnvelope(this.i,this.duration,this.adsr);
+    this.a = common.clapEnvelope(this.i,this.duration,this.adsr);
 
     // voice //
     var n = this.voice.process();
 
     // filter //
     var cutoff = easing.cubicInOut(this.i,this.cutoff,this.dest-this.cutoff,this.duration);
-    var res = this.bp.process(cutoff,0.7,n,'BP');
-    res = this.hp.process(850,0.6,res,'HP');
+    var res = this.bp.process(5000,0.7,n,'BP');
+    //res = this.hp.process(850,0.6,res,'HP');
     n = (n*(1-this.resonance)) + (res*this.resonance);
 
 
@@ -122,7 +122,7 @@ proto.process = function(input,level) {
     ];
 
     // delay //
-    signal = this.delay.process(signal,this.delayTime,this.delayAmp,true);
+    //signal = this.delay.process(signal,this.delayTime,this.delayAmp,true);
 
 
     // return with ducking //
