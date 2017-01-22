@@ -6,6 +6,7 @@ var tombola = new Tombola();
 var marker = require('../core/Marker');
 var common = require('../common/Common');
 var Roar = require('../voices/Roar');
+var White = require('../voices/White');
 var Repeater = require('../common/Repeater');
 var Tremolo = require('../filters/Tremolo');
 var Resonant = require('../filters/Resonant');
@@ -61,8 +62,9 @@ proto.process = function(signal,level,index) {
 function Clap(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Roar(0.8);
-    this.p = 0; // panning;
+    this.voice = new Roar(tombola.rangeFloat(0.2,0.99));
+    //this.voice = tombola.item([new White(),new Roar(0.8)]);
+    this.p = tombola.rangeFloat(-0.2,0.2); // panning;
 
     // envelope / duration //
     this.i = 0;
@@ -72,13 +74,14 @@ function Clap(parentArray,adsr,duration) {
 
     // delay //
     this.delay = new Repeater();
-    this.delayTime = tombola.range(1600,2600);
+    this.delayTime = tombola.range(2000,3000);
     this.delayAmp = 0.5;
 
     // filter //
     this.bp = new Resonant.mono();
     this.hp = new Resonant.mono();
-    this.cutoff = 1300;
+    this.cutoff = 1200;
+    this.dest = 500;
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -104,12 +107,12 @@ proto.process = function(input,level) {
     var n = this.voice.process();
 
     // filter //
-    var cutoff = easing.cubicOut(this.i,this.cutoff,600,Math.floor(this.duration*0.2));
-    n = this.bp.process(1300,0.7,n,'BP');
+    var cutoff = easing.cubicInOut(this.i,this.cutoff,this.dest-this.cutoff,this.duration);
+    n = this.bp.process(cutoff,0.6,n,'BP');
     n = this.hp.process(850,0.5,n,'HP');
 
     // add panning & amp //
-    var boost = 2;
+    var boost = 4;
     var signal = [
         n * ((1 + -this.p) * (this.a * boost)),
         n * ((1 + this.p) * (this.a * boost))

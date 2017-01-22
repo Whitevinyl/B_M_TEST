@@ -3,6 +3,11 @@
 // here I'm using them as a cheap way to algorithmically draw waveforms (I'm not mathsy
 // enough to do it properly!)
 
+// t = time/index
+// b = beginning value
+// c = change
+// d = duration
+
 //-------------------------------------------------------------------------------------------
 //  CUBIC
 //-------------------------------------------------------------------------------------------
