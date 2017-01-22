@@ -8,6 +8,7 @@
 
 var Add = require('./Add');
 var ADSREnvelope = require('./ADSREnvelope');
+var ADSREnvelopeII = require('./ADSREnvelopeII');
 var ArrayEnvelope = require('./ArrayEnvelope');
 var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
@@ -23,6 +24,7 @@ var ToStereo = require('./ToStereo');
 module.exports = {
     add: Add,
     ADSREnvelope: ADSREnvelope,
+    ADSREnvelopeII: ADSREnvelopeII,
     arrayEnvelope: ArrayEnvelope,
     clapEnvelope: ClapEnvelope,
     combine: Combine,

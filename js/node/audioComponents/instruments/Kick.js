@@ -5,7 +5,7 @@ var tombola = new Tombola();
 
 var marker = require('../core/Marker');
 var common = require('../common/Common');
-var Sine = require('../voices/Sine');
+var Voice = require('../voices/Triangle');
 
 
 //-------------------------------------------------------------------------------------------
@@ -16,9 +16,9 @@ var Sine = require('../voices/Sine');
 function KickPlayer() {
     this.instances = [];
     this.markers = [];
-    this.adsr = [0.1,9.9,0.2,90];
-    this.markers.push(new marker(tombola.weightedItem([0,audioClock.getBeatLength('16')],[2,1]),1,440,this.adsr,audioClock.getBeatLength('16')));
-    this.markers.push(new marker(audioClock.getBeatLength('8') + (audioClock.getBeatLength('16')*(tombola.range(0,11))),1,440,this.adsr,audioClock.getBeatLength('16')));
+    this.adsr = [10,70,0.4,400];
+    this.markers.push(new marker(0,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
 }
 var proto = KickPlayer.prototype;
 
@@ -58,15 +58,15 @@ proto.process = function(signal,level,index) {
 function Kick(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Sine();
-    this.pitch = 50;
+    this.voice = new Voice();
+    this.pitch = 45;
     this.p = 0; // panning;
 
     // envelope / duration //
     this.i = 0;
     this.a = 0;
     this.duration = duration || sampleRate;
-    this.adsr = adsr || [1,10,0.3,89];
+    this.adsr = adsr || [3,10,0.3,89];
 
 
     // where we're stored //
@@ -87,11 +87,11 @@ proto.process = function(input,level) {
     }
 
     // envelope //
-    this.a = common.ADSREnvelope(this.i, this.duration, this.adsr);
+    this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr);
 
     // voice //
-    var n = this.voice.process(this.pitch);
-    this.pitch = common.rampEnvelope(this.i, this.duration, 60, 40, 10, 35,'circleOut');
+    var pb =common.rampEnvelope(this.i, this.duration, this.pitch*1.8, this.pitch, 0, 25,'circleOut');
+    var n = this.voice.process(pb);
 
     var signal = [
         n * ((1 + -this.p) * (this.a)),

@@ -1,6 +1,5 @@
 
-var Tombola = require('tombola');
-var tombola = new Tombola();
+var utils = require('../../lib/utils');
 
 // A simple sine wave voice
 
@@ -8,19 +7,19 @@ var tombola = new Tombola();
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Sine() {
-    this.p = 0;
+function SineII() {
+    this.i = 0;
 }
 
 //-------------------------------------------------------------------------------------------
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-Sine.prototype.process = function(frequency) {
-    frequency = frequency/sampleRate;
-    this.p += (frequency*2);
-    if(this.p > 2) this.p -= 4;
-    return  this.p*(2-Math.abs(this.p));
+SineII.prototype.process = function(frequency) {
+    this.i++;
+    //frequency = frequency/sampleRate;
+    var a1 = frequency * this.i * (utils.TAU/sampleRate);
+    return Math.sin(a1);
 };
 
-module.exports = Sine;
+module.exports = SineII;

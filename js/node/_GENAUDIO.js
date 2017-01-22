@@ -214,7 +214,7 @@ proto.generateClicks = function() {
         // GET VALUES //
         signal[0] = channels[0][i];
         signal[1] = channels[1][i];
-        process = resampler.process(signal,[0,1,2,5],150000,channels,i);
+        process = resampler.process(signal,[0,1,2,5],200000,channels,i);
         signal = signalTest(process,signal);
 
         channels[0][i] = signal[0];

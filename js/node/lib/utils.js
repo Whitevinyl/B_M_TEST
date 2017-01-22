@@ -57,6 +57,7 @@ function arg(a,b) {
 module.exports = {
     Point: Point,
     Vector: Vector,
+    TAU: 2*Math.PI,
 
     logPosition: logPosition,
     valueInRange: valueInRange,
