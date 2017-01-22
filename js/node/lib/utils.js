@@ -29,6 +29,12 @@ function valueInRange(value,floor,ceiling) {
 }
 
 
+// LERP TWEEN / EASE //
+function lerp(current,destination,speed) {
+    return current + (((destination-current)/100) * speed);
+}
+
+
 function stripUriMeta(uri) {
     return uri.split(',')[1];
 }
@@ -54,6 +60,7 @@ module.exports = {
 
     logPosition: logPosition,
     valueInRange: valueInRange,
+    lerp: lerp,
     stripUriMeta: stripUriMeta,
     fmod: fmod,
     arg: arg

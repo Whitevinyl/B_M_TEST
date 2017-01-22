@@ -1,4 +1,5 @@
 var utils = require('../../lib/utils');
+var easing = require('../../lib/easing');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
@@ -17,10 +18,10 @@ var Resonant = require('../filters/Resonant');
 
 
 function ClapPlayer() {
-    this.samples = [];
+    this.instances = [];
     this.markers = [];
-    this.adsr = [1,10,0.3,89];
-    this.markers.push(new marker(audioClock.getBeat('2'),1,440,this.adsr,audioClock.getBeat('4')));
+    this.adsr = [0.1,7.9,0.3,92];
+    this.markers.push(new marker(audioClock.getBeatLength('2'),1,440,this.adsr,audioClock.getBeatLength('4')));
 }
 var proto = ClapPlayer.prototype;
 
@@ -33,19 +34,19 @@ var proto = ClapPlayer.prototype;
 proto.process = function(signal,level,index) {
     var l,i;
 
-    // add sample if we hit a marker //
+    // add instance if we hit a marker //
     l = this.markers.length;
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.samples.push( new Clap(this.samples,marker.adsr,marker.duration));
+            this.instances.push( new Clap(this.instances,marker.adsr,marker.duration));
         }
     }
 
-    // process any active samples //
-    l = this.samples.length-1;
+    // process any active instances //
+    l = this.instances.length-1;
     for (i=l; i>=0; i--) {
-        signal = this.samples[i].process(signal,level);
+        signal = this.instances[i].process(signal,level);
     }
 
     return signal;
@@ -58,17 +59,28 @@ proto.process = function(signal,level,index) {
 //-------------------------------------------------------------------------------------------
 
 function Clap(parentArray,adsr,duration) {
+
+    // voice //
     this.voice = new Roar(0.8);
-    this.a = 0; // amp
     this.p = 0; // panning;
-    this.i = 0; // count
+
+    // envelope / duration //
+    this.i = 0;
+    this.a = 0;
     this.duration = duration || sampleRate;
     this.adsr = adsr || [1,10,0.3,89];
 
+    // delay //
     this.delay = new Repeater();
-    this.delayTime = 1;
-    this.delayAmp = 1;
+    this.delayTime = tombola.range(1600,2600);
+    this.delayAmp = 0.5;
 
+    // filter //
+    this.bp = new Resonant.mono();
+    this.hp = new Resonant.mono();
+    this.cutoff = 1300;
+
+    // where we're stored //
     this.parentArray = parentArray;
 }
 proto = Clap.prototype;
@@ -91,15 +103,20 @@ proto.process = function(input,level) {
     // voice //
     var n = this.voice.process();
 
+    // filter //
+    var cutoff = easing.cubicOut(this.i,this.cutoff,600,Math.floor(this.duration*0.2));
+    n = this.bp.process(1300,0.7,n,'BP');
+    n = this.hp.process(850,0.5,n,'HP');
 
     // add panning & amp //
+    var boost = 2;
     var signal = [
-        n * ((1 + -this.p) * this.a),
-        n * ((1 + this.p) * this.a)
+        n * ((1 + -this.p) * (this.a * boost)),
+        n * ((1 + this.p) * (this.a * boost))
     ];
 
     // delay //
-    signal = this.delay.process(signal,this.delayTime,this.delayAmp);
+    signal = this.delay.process(signal,this.delayTime,this.delayAmp,true);
 
 
     // return with ducking //

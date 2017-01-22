@@ -16,8 +16,8 @@ var sine = require('../voices/Sine');
 //-------------------------------------------------------------------------------------------
 
 function Clock() {
-    this.bpm = 240;
-    this.signature = new timeSignature(1,4);
+    this.bpm = 110;
+    this.signature = new timeSignature(4,4);
     this.measureIndex = 0;
     this.measureDuration = Math.round((sampleRate * 60) / this.bpm) * this.signature.beats;
 
@@ -100,6 +100,109 @@ proto.getBeat = function() {
 
 proto.getMeasureIndex = function() {
     return this.measureIndex;
+};
+
+
+proto.getBeatLength = function(time) {
+    var beat = this.getBeat();
+    var t = beat;
+
+    switch (time) {
+
+        // straight //
+        case '64':
+            t = beat/16;
+            break;
+        case '32':
+            t = beat/8;
+            break;
+        case '16':
+            t = beat/4;
+            break;
+        case '8':
+            t = beat/2;
+            break;
+        case '4':
+            t = beat;
+            break;
+        case '2':
+            t = beat*2;
+            break;
+        case '1':
+            t = beat*4;
+            break;
+
+        // triplets //
+        case 'T64':
+            t = (beat/8)/3;
+            break;
+        case 'T32':
+            t = (beat/4)/3;
+            break;
+        case 'T16':
+            t = (beat/2)/3;
+            break;
+        case 'T8':
+            t = beat/3;
+            break;
+        case 'T4':
+            t = (beat*2)/3;
+            break;
+        case 'T2':
+            t = (beat*4)/3;
+            break;
+        case 'T1':
+            t = (beat*8)/3;
+            break;
+
+        // quintuplets //
+        case 'Q64':
+            t = (beat/8)/5;
+            break;
+        case 'Q32':
+            t = (beat/4)/5;
+            break;
+        case 'Q16':
+            t = (beat/2)/5;
+            break;
+        case 'Q8':
+            t = beat/5;
+            break;
+        case 'Q4':
+            t = (beat*2)/5;
+            break;
+        case 'Q2':
+            t = (beat*4)/5;
+            break;
+        case 'Q1':
+            t = (beat*8)/5;
+            break;
+
+        // dotted //
+        case 'D64':
+            t = (beat/16)*1.5;
+            break;
+        case 'D32':
+            t = (beat/8)*1.5;
+            break;
+        case 'D16':
+            t = (beat/4)*1.5;
+            break;
+        case 'D8':
+            t = (beat/2)*1.5;
+            break;
+        case 'D4':
+            t = (beat)*1.5;
+            break;
+        case 'D2':
+            t = (beat*2)*1.5;
+            break;
+        case 'D1':
+            t = (beat*4)*1.5;
+            break;
+    }
+
+    return Math.round(t);
 };
 
 //-------------------------------------------------------------------------------------------

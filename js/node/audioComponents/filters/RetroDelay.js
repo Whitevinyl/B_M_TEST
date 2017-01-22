@@ -15,91 +15,13 @@ function RetroDelay() {
 }
 
 RetroDelay.prototype.process = function(input,time,feedBack,cutoff,res,channel,index) {
-    var t = this.calculateTime(time);
+    var t = audioClock.getBeatLength(time);
     var delay = feedback.mono(1,t,channel,index,feedBack,input);
     var drive = [delay,delay];
     //drive = distortion(drive,0.01,0.3);
     //drive = distortion2(drive,0.05,0.4);
     //drive = distortion3(drive,200,index,0.7);
     return this.filter.process(cutoff,res,drive[0]);
-};
-
-RetroDelay.prototype.calculateTime = function(time) {
-    var beat = audioClock.getBeat();
-    var t = beat;
-
-    switch (time) {
-
-        // straight //
-        case '64':
-            t = beat/16;
-            break;
-        case '32':
-            t = beat/8;
-            break;
-        case '16':
-            t = beat/4;
-            break;
-        case '8':
-            t = beat/2;
-            break;
-        case '4':
-            t = beat;
-            break;
-
-        // triplets //
-        case 'T64':
-            t = (beat/8)/3;
-            break;
-        case 'T32':
-            t = (beat/4)/3;
-            break;
-        case 'T16':
-            t = (beat/2)/3;
-            break;
-        case 'T8':
-            t = beat/3;
-            break;
-        case 'T4':
-            t = (beat*2)/3;
-            break;
-
-        // quintuplets //
-        case 'Q64':
-            t = (beat/8)/5;
-            break;
-        case 'Q32':
-            t = (beat/4)/5;
-            break;
-        case 'Q16':
-            t = (beat/2)/5;
-            break;
-        case 'Q8':
-            t = beat/5;
-            break;
-        case 'Q4':
-            t = (beat*2)/5;
-            break;
-
-        // dotted //
-        case 'D64':
-            t = (beat/16)*1.5;
-            break;
-        case 'D32':
-            t = (beat/8)*1.5;
-            break;
-        case 'D16':
-            t = (beat/4)*1.5;
-            break;
-        case 'D8':
-            t = (beat/2)*1.5;
-            break;
-        case 'D4':
-            t = (beat)*1.5;
-            break;
-    }
-
-    return Math.round(t);
 };
 
 
