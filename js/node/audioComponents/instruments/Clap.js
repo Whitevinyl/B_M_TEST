@@ -62,9 +62,9 @@ proto.process = function(signal,level,index) {
 function Clap(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Roar(tombola.rangeFloat(0.2,0.99));
+    this.voice = new Roar(tombola.rangeFloat(0.3,0.99));
     //this.voice = tombola.item([new White(),new Roar(0.8)]);
-    this.p = tombola.rangeFloat(-0.2,0.2); // panning;
+    this.p = tombola.rangeFloat(-0.4,0.4); // panning;
 
     // envelope / duration //
     this.i = 0;
@@ -80,8 +80,9 @@ function Clap(parentArray,adsr,duration) {
     // filter //
     this.bp = new Resonant.mono();
     this.hp = new Resonant.mono();
-    this.cutoff = 1200;
-    this.dest = 500;
+    this.resonance = tombola.rangeFloat(0,1);
+    this.cutoff = 1220;
+    this.dest = 600;
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -108,11 +109,13 @@ proto.process = function(input,level) {
 
     // filter //
     var cutoff = easing.cubicInOut(this.i,this.cutoff,this.dest-this.cutoff,this.duration);
-    n = this.bp.process(cutoff,0.6,n,'BP');
-    n = this.hp.process(850,0.5,n,'HP');
+    var res = this.bp.process(cutoff,0.7,n,'BP');
+    res = this.hp.process(850,0.6,res,'HP');
+    n = (n*(1-this.resonance)) + (res*this.resonance);
+
 
     // add panning & amp //
-    var boost = 4;
+    var boost = 1 + (this.resonance*3);
     var signal = [
         n * ((1 + -this.p) * (this.a * boost)),
         n * ((1 + this.p) * (this.a * boost))
