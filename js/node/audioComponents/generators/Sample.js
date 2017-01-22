@@ -48,7 +48,7 @@ function Sample(parentArray) {
     this.parentArray = parentArray;
     this.sample = mySample;
     this.index = 0;
-    this.speed = frequencyToRatio(440,frequencyFromInterval(tombola.item([-5,-2,0,3,5,7,10,12])));
+    this.speed = frequencyToRatio(440,frequencyFromInterval(tombola.item([ /*-24,-21,-19,-17,-14,*/ -12,-9,-7, -5,-2,0,3,5,7,10,12, 15,17,19,22,24])));
     var r = this.speed/(sampleRate*10);
     this.drift = tombola.rangeFloat(-r,r);
 }

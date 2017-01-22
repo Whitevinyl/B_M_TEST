@@ -132,7 +132,7 @@ proto.generate = function() {
 proto.generateClicks = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 20;
+    var seconds = 30;
     console.log('seconds: '+seconds);
 
     var l = sampleRate * seconds;
@@ -147,6 +147,9 @@ proto.generateClicks = function() {
     var reverbII = new audio.StereoReverbII();
     var retro = new audio.StereoRetroDelay(l);
     var sample = new audio.Sample();
+    var clap = new audio.ClapPlayer();
+    var resampler = new audio.Resampler();
+    //var resampleMode = tombola.item([0,1,2,3,5]);
 
 
     // LOOP EACH SAMPLE //
@@ -160,13 +163,16 @@ proto.generateClicks = function() {
 
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
-        //signal = process;
+
+
+        process = clap.process(signal,1,i);
+        signal = signalTest(process,signal);
 
         /*process = audio.foldBackII(signal,0.1,0.9);
         signal = signalTest(process,signal);*/
 
-        /*process = audio.reverseDelay(signal,0.5,2000,30,channels,i);
-        signal = signalTest(process,signal);*/
+        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+        signal = signalTest(process,signal);
 
         /*process = repeater.process(signal,2000,0.6,true);
         signal = signalTest(process,signal);*/
@@ -177,9 +183,12 @@ proto.generateClicks = function() {
         /*process = reverbII.process(signal,0.5,5000,800,channels,i);
         signal = signalTest(process,signal);*/
 
-        /*process = retro.process(signal,0.5,"T8","Q4",0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);*/
+        process = retro.process(signal,0.5,"T4","Q4",0.8,2900,0.7,channels,i);
+        signal = signalTest(process,signal);
         //signal = process;
+
+        /*process = resampler.process(signal,5,50000,channels,i);
+        signal = signalTest(process,signal);*/
 
         // WRITE TO AUDIO CHANNELS //
         if (channels[0][i]) {
@@ -206,6 +215,15 @@ proto.generateClicks = function() {
         // ADD RETRO CHANNEL //
         channels[0][i] += retro.channel[0][i];
         channels[1][i] += retro.channel[1][i];
+
+        // GET VALUES //
+        signal[0] = channels[0][i];
+        signal[1] = channels[1][i];
+        process = resampler.process(signal,[0,1,2,5],150000,channels,i);
+        signal = signalTest(process,signal);
+
+        channels[0][i] = signal[0];
+        channels[1][i] = signal[1];
 
         // MEASURE PEAK //
         var ttl = channels[0][i];

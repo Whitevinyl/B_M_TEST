@@ -57,6 +57,9 @@ var Sweep = require('./audioComponents/generators/Sweep');
 var SweepII = require('./audioComponents/generators/SweepII');
 var Testing = require('./audioComponents/generators/Testing');
 
+// INSTRUMENTS //
+var ClapPlayer = require('./audioComponents/instruments/Clap');
+
 // VOICES //
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
 var Perlin = require('./audioComponents/voices/Perlin');
@@ -1534,6 +1537,10 @@ module.exports = {
     Static: Static,
     Sweep: Sweep,
     SweepII: SweepII,
+
+
+    ClapPlayer: ClapPlayer,
+
 
     PhaseSine: PhaseSine,
     PhaseWrapper: PhaseWrapper,

@@ -22,6 +22,7 @@ function Resampler() {
     this.m = [0,0];
     this.mc = 0;
     this.lastInd = -1;
+    this.mode = 0;
 }
 
 //-------------------------------------------------------------------------------------------
@@ -30,6 +31,14 @@ function Resampler() {
 
 Resampler.prototype.process = function(input,mode,chance,channel,index) {
     var ind;
+
+    if (Array.isArray(mode)) {
+        if (this.i<0) {
+            this.mode = tombola.item(mode);
+        }
+        mode = this.mode;
+    }
+
 
     if (mode===0) { // GRAIN BURST //
         if (index>4000 && this.i<0 && tombola.chance(1,chance)) {
