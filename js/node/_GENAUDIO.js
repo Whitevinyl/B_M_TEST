@@ -147,6 +147,7 @@ proto.generateClicks = function() {
     var reverbII = new audio.StereoReverbII();
     var retro = new audio.StereoRetroDelay(l);
     var sample = new audio.Sample();
+    var kick = new audio.KickPlayer();
     var clap = new audio.ClapPlayer();
     var resampler = new audio.Resampler();
     //var resampleMode = tombola.item([0,1,2,3,5]);
@@ -164,6 +165,8 @@ proto.generateClicks = function() {
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
 
+        process = kick.process(signal,1,i);
+        signal = signalTest(process,signal);
 
         process = clap.process(signal,1,i);
         signal = signalTest(process,signal);

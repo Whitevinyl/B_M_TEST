@@ -13,6 +13,7 @@ var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
 var Pan = require('./Pan');
+var RampEnvelope = require('./RampEnvelope');
 var Repeater = require('./Repeater');
 var ToMono = require('./ToMono');
 var ToStereo = require('./ToStereo');
@@ -25,6 +26,7 @@ module.exports = {
     arrayEnvelope: ArrayEnvelope,
     clapEnvelope: ClapEnvelope,
     combine: Combine,
+    rampEnvelope: RampEnvelope,
     range: ControlRange,
     pan: Pan,
     toMono: ToMono,

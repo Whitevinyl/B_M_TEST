@@ -5,7 +5,7 @@ var tombola = new Tombola();
 
 var marker = require('../core/Marker');
 var common = require('../common/Common');
-var Roar = require('../voices/Roar');
+var Sine = require('../voices/Sine');
 
 
 //-------------------------------------------------------------------------------------------
@@ -58,7 +58,8 @@ proto.process = function(signal,level,index) {
 function Kick(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Roar(tombola.rangeFloat(0.2,0.6));
+    this.voice = new Sine();
+    this.pitch = 50;
     this.p = 0; // panning;
 
     // envelope / duration //
@@ -89,7 +90,8 @@ proto.process = function(input,level) {
     this.a = common.ADSREnvelope(this.i, this.duration, this.adsr);
 
     // voice //
-    var n = this.voice.process();
+    var n = this.voice.process(this.pitch);
+    this.pitch = common.rampEnvelope(this.i, this.duration, 60, 40, 10, 35,'circleOut');
 
     var signal = [
         n * ((1 + -this.p) * (this.a)),

@@ -59,6 +59,7 @@ var Testing = require('./audioComponents/generators/Testing');
 
 // INSTRUMENTS //
 var ClapPlayer = require('./audioComponents/instruments/Clap');
+var KickPlayer = require('./audioComponents/instruments/Kick');
 
 // VOICES //
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
@@ -1540,6 +1541,7 @@ module.exports = {
 
 
     ClapPlayer: ClapPlayer,
+    KickPlayer: KickPlayer,
 
 
     PhaseSine: PhaseSine,
