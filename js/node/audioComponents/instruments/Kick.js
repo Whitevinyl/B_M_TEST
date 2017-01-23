@@ -21,27 +21,33 @@ function KickPlayer() {
     this.markers = [];
 
     // voice //
-    this.voice = tombola.weightedItem([Voice,Sine],[1,2]);
-    this.pitch = tombola.rangeFloat(35,65);
-    this.pitchRatio = tombola.rangeFloat(4,13);
-
+    var pitch = tombola.rangeFloat(34, 56);
+    this.voice = {
+        type: tombola.weightedItem([Voice, Sine], [1, 2]),
+        pitch: pitch,
+        ratio: tombola.rangeFloat(4, 13),
+        drift: tombola.rangeFloat(0.82,1.25)
+    };
 
     // envelope & duration //
     this.curves = tombola.item(['linear','quadratic','cubic','quartic','quintic']);
-    this.adsr = [0,tombola.range(50,400),tombola.rangeFloat(0.3,1),tombola.range(100,400)];
+    this.adsr = [0,tombola.range(50,400),tombola.rangeFloat(0.4,1),tombola.range(100,420)];
     var d = this.adsr[0] + this.adsr[1] + this.adsr[3] + 10;
     d = audioClock.millisecondsToSamples(d);
 
 
     // drive //
-    this.threshold = tombola.rangeFloat(0.2,0.5);
     var attack = tombola.range(0,70);
-    this.driveAdsr = [attack,0,1,tombola.range(0,100-attack)];
+    this.drive = {
+        threshold: tombola.rangeFloat(0.2,0.5),
+        power: tombola.range(0,6),
+        envelope: [attack,0,1,tombola.range(0,100-attack)]
+    };
 
     console.log(this.adsr);
     console.log(this.curves);
-    console.log(this.pitch);
-    console.log(this.pitchRatio);
+    console.log(this.voice);
+    console.log(this.drive);
 
     this.markers.push(new marker(0,1,440,this.adsr,d));
     //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,d));
@@ -66,7 +72,7 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio,this.curves,this.driveAdsr,this.threshold,this.voice));
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.curves,this.voice,this.drive));
         }
     }
 
@@ -85,28 +91,34 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration,pitch,ratio,curves,driveAdsr,threshold,voice) {
+function Kick(parentArray,adsr,duration,curves,voice,drive) {
 
-    // voice //
-    this.voice = new voice();
-    this.pitch = pitch;
-    this.pitchRatio = ratio;
-    this.curves = curves;
-    this.p = 0; // panning;
+    // where we're stored //
+    this.parentArray = parentArray;
 
     // envelope / duration //
     this.i = 0;
     this.a = 0;
     this.duration = duration || sampleRate;
     this.adsr = adsr || [3,10,0.3,89];
+    this.curves = curves;
 
+
+    // voice //
+    this.voice = new voice.type();
+    this.pitch = voice.pitch;
+    this.pitchRatio = voice.ratio;
+    this.drift = voice.drift;
+    this.p = 0; // panning;
+
+
+    // expander //
     this.expander = new Expander();
 
-    this.driveAdsr = driveAdsr;
-    this.threshold = threshold;
-
-    // where we're stored //
-    this.parentArray = parentArray;
+    // drive //
+    this.driveAdsr = drive.envelope;
+    this.threshold = drive.threshold;
+    this.power = drive.power;
 }
 proto = Kick.prototype;
 
@@ -122,12 +134,15 @@ proto.process = function(input,level) {
         this.kill();
     }
 
+
     // envelope //
     this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
 
+
     // voice //
-    var pb =common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, 25,'quinticOut');
-    var n = this.voice.process(pb);
+    var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, 25,'quinticOut');
+    var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
+    var n = this.voice.process(pb * pd);
 
 
 
@@ -137,10 +152,12 @@ proto.process = function(input,level) {
         n * ((1 +  this.p) * (this.a * boost))
     ];
 
-    // drive //
 
+    // drive //
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    signal = drive(signal,this.threshold,2,0.5 * da);
+    signal = drive(signal,this.threshold,this.power,0.5 * da);
+
+
     // expander //
     //signal = this.expander.process(signal,20);
 
