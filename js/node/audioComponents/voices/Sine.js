@@ -9,7 +9,7 @@ var tombola = new Tombola();
 //-------------------------------------------------------------------------------------------
 
 function Sine() {
-    this.p = 0;
+    this.p = -2;
 }
 
 //-------------------------------------------------------------------------------------------
@@ -17,7 +17,9 @@ function Sine() {
 //-------------------------------------------------------------------------------------------
 
 Sine.prototype.process = function(frequency) {
-    frequency = frequency/sampleRate;
+    frequency = (frequency*2)/sampleRate;
+
+    frequency *= 2;
 
     var a = this.p*(2-Math.abs(this.p));
 

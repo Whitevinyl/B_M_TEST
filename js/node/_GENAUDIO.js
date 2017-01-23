@@ -132,7 +132,7 @@ proto.generate = function() {
 proto.generateClicks = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 30;
+    var seconds = 3;
     console.log('seconds: '+seconds);
 
     var l = sampleRate * seconds;

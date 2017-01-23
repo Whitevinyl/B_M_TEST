@@ -3,10 +3,46 @@
 // here I'm using them as a cheap way to algorithmically draw waveforms (I'm not mathsy
 // enough to do it properly!)
 
+// http://gizma.com/easing/
+// http://www.timotheegroleau.com/Flash/experiments/easing_function_generator.htm
+
+
 // t = time/index
 // b = beginning value
 // c = change
 // d = duration
+
+
+//-------------------------------------------------------------------------------------------
+//  LINEAR
+//-------------------------------------------------------------------------------------------
+
+
+function linear(t, b, c, d) {
+    return b + ((c/d) * t);
+}
+
+//-------------------------------------------------------------------------------------------
+//  QUADRATIC
+//-------------------------------------------------------------------------------------------
+
+
+function inQuadratic(t, b, c, d) {
+    t /= d;
+    return c*t*t + b;
+}
+
+function outQuadratic(t, b, c, d) {
+    t /= d;
+    return -c * t*(t-2) + b;
+}
+
+function inOutQuadratic(t, b, c, d) {
+    t /= d/2;
+    if (t < 1) return c/2*t*t + b;
+    t--;
+    return -c/2 * (t*(t-2) - 1) + b;
+}
 
 //-------------------------------------------------------------------------------------------
 //  CUBIC
@@ -32,8 +68,55 @@ function inOutCubic(t, b, c, d) {
 }
 
 //-------------------------------------------------------------------------------------------
+//  QUARTIC
+//-------------------------------------------------------------------------------------------
+
+
+function inQuartic(t, b, c, d) {
+    t /= d;
+    return c*t*t*t*t + b;
+}
+
+function outQuartic(t, b, c, d) {
+    t /= d;
+    t--;
+    return -c * (t*t*t*t - 1) + b;
+}
+
+function inOutQuartic(t, b, c, d) {
+    t /= d/2;
+    if (t < 1) return c/2*t*t*t*t + b;
+    t -= 2;
+    return -c/2 * (t*t*t*t - 2) + b;
+}
+
+//-------------------------------------------------------------------------------------------
+//  QUINTIC
+//-------------------------------------------------------------------------------------------
+
+
+function inQuintic(t, b, c, d) {
+    t /= d;
+    return c*t*t*t*t*t + b;
+}
+
+function outQuintic(t, b, c, d) {
+    t /= d;
+    t--;
+    return c*(t*t*t*t*t + 1) + b;
+}
+
+function inOutQuintic(t, b, c, d) {
+    t /= d/2;
+    if (t < 1) return c/2*t*t*t*t*t + b;
+    t -= 2;
+    return c/2*(t*t*t*t*t + 2) + b;
+}
+
+//-------------------------------------------------------------------------------------------
 //  CIRCLE
 //-------------------------------------------------------------------------------------------
+
 
 function inCirc(t, b, c, d) {
     t /= d;
@@ -56,6 +139,7 @@ function inOutCirc(t, b, c, d) {
 //-------------------------------------------------------------------------------------------
 //  CUSTOM
 //-------------------------------------------------------------------------------------------
+
 
 // curves made using:
 // http://www.timotheegroleau.com/Flash/experiments/easing_function_generator.htm
@@ -131,9 +215,25 @@ function custom8(k) {
 
 module.exports = {
 
+    linearIn: linear,
+    linearOut: linear,
+    linearInOut: linear,
+
+    quadraticIn: inQuadratic,
+    quadraticOut: outQuadratic,
+    quadraticInOut: inOutQuadratic,
+
     cubicIn: inCubic,
     cubicOut: outCubic,
     cubicInOut: inOutCubic,
+
+    quarticIn: inQuartic,
+    quarticOut: outQuartic,
+    quarticInOut: inOutQuartic,
+
+    quinticIn: inQuintic,
+    quinticOut: outQuintic,
+    quinticInOut: inOutQuintic,
 
     circleIn: inCirc,
     circleOut: outCirc,

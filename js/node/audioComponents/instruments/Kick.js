@@ -19,12 +19,19 @@ function KickPlayer() {
     this.instances = [];
     this.markers = [];
     this.adsr = [10,70,0.4,400];
-    this.adsr = [10,70,0.4,400];
-    this.markers.push(new marker(0,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
-    this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
-    this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
-    this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.adsr = [100,200,1,200];
+    var d = 600;
+    this.markers.push(new marker(0,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
+    this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,audioClock.millisecondsToSamples(d)));
+    this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
+    this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
     //this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+
+
+    console.log("ease: "+easing.circleIn(0, 1, 0, 50));
+    console.log("ease: "+easing.circleIn(50, 1, 0, 50));
+    console.log("ease: "+easing.circleOut(0, 1, -0, 50));
+    console.log("ease: "+easing.circleOut(50, 1, -0, 50));
 }
 var proto = KickPlayer.prototype;
 
@@ -94,10 +101,10 @@ proto.process = function(input,level) {
     }
 
     // envelope //
-    this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr);
+    this.a = common.ADSREnvelopeII(this.i-1, this.duration, this.adsr);
 
     // voice //
-    var pb =common.rampEnvelope(this.i, this.duration, this.pitch*1.8, this.pitch, 0, 25,'circleOut');
+    var pb =common.rampEnvelope(this.i-1, this.duration, this.pitch*1.8, this.pitch, 0, 25,'circleOut');
     var n = this.voice.process(pb);
 
     var boost = 2;
