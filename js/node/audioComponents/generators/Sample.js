@@ -10,8 +10,8 @@ function SamplePlayer() {
     this.samples = [];
     this.markers = [];
 
-    for (var i=0; i<16; i++) {
-        this.markers.push(new marker(audioClock.getBeatLength('16')*i,1,this.pitch*2,this.adsr,this.duration));
+    for (var i=0; i<6; i++) {
+        this.markers.push(new marker(audioClock.getBeatLength('D8')*i,1,this.pitch*2,this.adsr,this.duration));
     }
 }
 var proto = SamplePlayer.prototype;

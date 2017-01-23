@@ -14,6 +14,7 @@ var tombola = new Tombola();
 
 // INLINE FILTERS //
 var clipping = require('./audioComponents/filters/Clipping');
+var compressor = require('./audioComponents/filters/Compressor');
 var erode = require('./audioComponents/filters/Erode');
 var feedback = require('./audioComponents/filters/Feedback');
 var foldBack = require('./audioComponents/filters/FoldBack');
@@ -1507,7 +1508,9 @@ module.exports = {
     waveSawtooth: waveSawtooth,
     WavePlayer: WavePlayer,
 
+
     clipping: clipping,
+    compressor: compressor,
     erode: erode,
     feedback: feedback.stereo,
     foldBack: foldBack,

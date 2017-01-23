@@ -175,7 +175,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        process = audio.reverseDelay(signal,0.5,300,30,channels,i);
+        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
@@ -236,12 +236,9 @@ proto.generateClicks = function() {
     for (i=0; i<l; i++) {
 
 
-
         // GET VALUES //
         signal[0] = channels[0][i];
         signal[1] = channels[1][i];
-
-
 
 
         // NORMALISE //
@@ -258,6 +255,22 @@ proto.generateClicks = function() {
         channels[0][i] = signal[0] * f;
         channels[1][i] = signal[1] * f;
     }
+
+
+    // FOURTH PASS //
+    for (i=0; i<l; i++) {
+        // GET VALUES //
+        signal[0] = channels[0][i];
+        signal[1] = channels[1][i];
+
+        signal = audio.compressor(signal,0.7,0.3);
+
+        // WRITE VALUES //
+        channels[0][i] = signal[0];
+        channels[1][i] = signal[1];
+    }
+
+
 
     // DONE - ASSEMBLE TRACK DATA //
     console.log('generated');
