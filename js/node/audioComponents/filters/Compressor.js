@@ -8,25 +8,41 @@ var common = require('../common/Common');
 //-------------------------------------------------------------------------------------------
 
 
-function Compressor(signal,threshold,squeeze) {
-    var dif = 0;
-    if (signal > threshold) {
-        dif = signal - threshold;
-        signal = threshold + (dif * squeeze);
+function Compressor(signal,threshold,squeeze,max,mode) {
+
+    if (mode === "compressor") {
+
+        var dif = 0;
+        var range = (1-threshold);
+
+        // over positive threshold //
+        if (signal > threshold) {
+            dif = signal - threshold;
+            signal = threshold + (dif * (squeeze * (dif/range)));
+        }
+
+        // over negative threshold //
+        if (signal < -threshold) {
+            dif = -signal - threshold;
+            signal = -threshold - (dif * (squeeze * (dif/range)));
+        }
+
+        // makeup gain //
+        var level = threshold + (range * squeeze);
+        signal *= (level / (level*level));
+
     }
-    if (signal < -threshold) {
-        dif = signal + threshold;
-        signal = -threshold + (dif * squeeze);
-    }
-    var makeup = 1-squeeze;
-    return (signal * (1+makeup));
+
+    // limit //
+    signal *= max;
+    return signal;
 }
 
-function StereoCompressor(signal,threshold,squeeze) {
+function StereoCompressor(signal,threshold,squeeze,max,mode) {
 
     return [
-        Compressor(signal[0],threshold,squeeze),
-        Compressor(signal[1],threshold,squeeze)
+        Compressor(signal[0],threshold,squeeze,max,mode),
+        Compressor(signal[1],threshold,squeeze,max,mode)
     ];
 
 }

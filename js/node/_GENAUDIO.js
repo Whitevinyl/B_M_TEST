@@ -212,65 +212,61 @@ proto.generateClicks = function() {
         channels[1][i] += retro.channel[1][i];
 
         // GET VALUES //
-        signal[0] = channels[0][i];
-        signal[1] = channels[1][i];
+        signal = readFromChannel(channels,i);
+
+        // RESAMPLER //
         process = resampler.process(signal,[0,1,2,5],200000,channels,i);
         signal = signalTest(process,signal);
 
-        channels[0][i] = signal[0];
-        channels[1][i] = signal[1];
+        // WRITE VALUES //
+        writeToChannel(signal,channels,i);
 
         // MEASURE PEAK //
-        var ttl = channels[0][i];
-        if (ttl<0) { ttl = -ttl; }
-        var ttr = channels[1][i];
-        if (ttr<0) { ttr = -ttr; }
-
-        if (ttl > peak) { peak = ttl; }
-        if (ttr > peak) { peak = ttr; }
+        peak = measurePeak(peak,channels,i);
     }
 
 
+
+
+
     // THIRD PASS //
-    var mult = 0.96875/peak;
+    var norm = 1/peak;
     for (i=0; i<l; i++) {
 
-
         // GET VALUES //
-        signal[0] = channels[0][i];
-        signal[1] = channels[1][i];
-
+        signal = readFromChannel(channels,i);
 
         // NORMALISE //
-        signal[0] *= mult;
-        signal[1] *= mult;
+        signal = multiplySignal(signal,norm);
 
         // FADES //
         var f = 1;
-        var fade = 2500;
+        var fade = 25000;
         if (i<fade) { f = i / fade; }
         if (i>((l-1)-fade)) { f = ((l-1)-i) / fade; }
 
         // WRITE VALUES //
-        channels[0][i] = signal[0] * f;
-        channels[1][i] = signal[1] * f;
+        writeToChannel(multiplySignal(signal,f),channels,i);
     }
+
+
+
 
 
     // FOURTH PASS //
     for (i=0; i<l; i++) {
-        // GET VALUES //
-        signal[0] = channels[0][i];
-        signal[1] = channels[1][i];
 
-        signal = audio.compressor(signal,0.7,0.3);
+        // GET VALUES //
+        signal = readFromChannel(channels,i);
+
+        // COMPRESS //
+        signal = audio.compressor(signal,0.8, 0.9, 0.96875, "max");
 
         // WRITE VALUES //
-        channels[0][i] = signal[0];
-        channels[1][i] = signal[1];
+        writeToChannel(signal,channels,i);
     }
 
-
+    console.log(peak);
 
     // DONE - ASSEMBLE TRACK DATA //
     console.log('generated');
@@ -291,7 +287,36 @@ proto.generateClicks = function() {
 };
 
 
+function readFromChannel(channel,index) {
+    return [
+        channel[0][index],
+        channel[1][index]
+    ];
+}
 
+function writeToChannel(signal,channel,index) {
+    channel[0][index] = signal[0];
+    channel[1][index] = signal[1];
+}
+
+function multiplySignal(signal,m) {
+    return [
+        signal[0] * m,
+        signal[1] * m
+    ];
+}
+
+function measurePeak(peak,channel,index) {
+    var ttl = channel[0][index];
+    if (ttl<0) { ttl = -ttl; }
+    var ttr = channel[1][index];
+    if (ttr<0) { ttr = -ttr; }
+
+    if (ttl > peak) { peak = ttl; }
+    if (ttr > peak) { peak = ttr; }
+
+    return peak;
+}
 
 
 // TEST A FILTER'S RETURNED SIGNAL //
