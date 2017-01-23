@@ -12,6 +12,8 @@ var Tremolo = require('../filters/Tremolo');
 var Resonant = require('../filters/Resonant');
 var drive = require('../filters/FoldBackII');
 
+var Expander = require('../filters/StereoExpander');
+
 // adapted from the clap sound in my (still early WIP) EvolverDrum
 
 //-------------------------------------------------------------------------------------------
@@ -85,6 +87,8 @@ function Clap(parentArray,adsr,duration) {
     this.cutoff = 1220;
     this.dest = 600;
 
+    this.expander = new Expander();
+
     // where we're stored //
     this.parentArray = parentArray;
 }
@@ -138,6 +142,8 @@ proto.process = function(input,level) {
     // delay //
     //signal = this.delay.process(signal,this.delayTime,this.delayAmp,true);
 
+
+    signal = this.expander.process(signal,20);
 
     // return with ducking //
     var ducking = 0.5;

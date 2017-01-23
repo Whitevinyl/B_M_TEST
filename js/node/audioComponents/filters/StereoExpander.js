@@ -19,7 +19,7 @@ var proto = StereoExpander.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,width) {
+proto.process = function(signal,delay) {
 
     // convert delay to samples //
     delay = audioClock.millisecondsToSamples(delay);
@@ -35,7 +35,7 @@ proto.process = function(signal,delay,width) {
         this.memory.shift();
         signal = [
             mono,
-            (mono * (1-width)) + (this.memory[0] * width)
+            mono + this.memory[0]
         ];
     }
     else {

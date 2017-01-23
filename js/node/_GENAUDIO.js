@@ -132,7 +132,7 @@ proto.generate = function() {
 proto.generateClicks = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 3;
+    var seconds = 10;
     console.log('seconds: '+seconds);
 
     var l = sampleRate * seconds;
@@ -162,23 +162,23 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
-        /*process = sample.process(signal,1,i);
-        signal = signalTest(process,signal);*/
+        process = sample.process(signal,1,i);
+        signal = signalTest(process,signal);
 
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
 
-        /*process = clap.process(signal,1,i);
-        signal = signalTest(process,signal);*/
+        process = clap.process(signal,1,i);
+        signal = signalTest(process,signal);
 
 
 
-        /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
         process = retro.process(signal,0.5,"T8","Q8",0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal);
 
 
 
@@ -239,7 +239,7 @@ proto.generateClicks = function() {
 
         // FADES //
         var f = 1;
-        var fade = 25000;
+        var fade = 0;
         if (i<fade) { f = i / fade; }
         if (i>((l-1)-fade)) { f = ((l-1)-i) / fade; }
 
