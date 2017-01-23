@@ -7,8 +7,10 @@ var easing = require('../../lib/easing');
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-function ADSREnvelopeII(t,d,adsr) {
+function ADSREnvelopeII(t, d, adsr, curves) {
     var a = 0;
+
+    var easeType = curves || 'quadratic';
 
     if (t<d) {
 
@@ -23,20 +25,20 @@ function ADSREnvelopeII(t,d,adsr) {
         var stage = 1;
         var start = 0;
 
-        if (t >= attack) {
-            stage +=1;
-            start += attack;
+        if (t >= attack && t < (attack + decay)) {
+            stage = 2;
+            start = attack;
         }
-        if (t >= (decay + start)) {
-            stage +=1;
-            start += decay;
+        if (t >= (attack + decay) && t < (attack + decay + release)) {
+            stage = 3;
+            start = attack + decay;
         }
-        if (t >= (release + start)) {
-            stage +=1;
-            start += release;
+        if (t >= (attack + decay + release)) {
+            stage = 4;
+            start = attack + decay + release;
         }
 
-        var easeType = 'quadratic';
+
 
         var log = {
             t: t,
@@ -60,6 +62,7 @@ function ADSREnvelopeII(t,d,adsr) {
                 break;
 
             case 3:
+                //if (release<200) easeType = 'linear';
                 a = easing[''+easeType+'Out']((t - start), sustain, -sustain, release);
                 break;
 

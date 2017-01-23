@@ -18,12 +18,18 @@ var Expander = require('../filters/StereoExpander');
 function KickPlayer() {
     this.instances = [];
     this.markers = [];
-    this.pitch = tombola.range(40,60);
-    this.pitchRatio = tombola.range(4,12);
-    this.adsr = [0,tombola.range(150,250),tombola.rangeFloat(0.5,1),tombola.range(150,350)];
-    var d = this.adsr[0] + this.adsr[1] + this.adsr[3];
+    this.pitch = tombola.rangeFloat(35,65);
+    this.pitchRatio = tombola.rangeFloat(4,13);
+    this.curves = tombola.item(['linear','quadratic','cubic','quartic','quintic']);
+    this.adsr = [0,tombola.range(100,350),tombola.rangeFloat(0.3,1),tombola.range(100,350)];
+    var d = this.adsr[0] + this.adsr[1] + this.adsr[3] + 10;
     d = audioClock.millisecondsToSamples(d);
 
+
+    console.log(this.adsr);
+    console.log(this.curves);
+    console.log(this.pitch);
+    console.log(this.pitchRatio);
 
     this.markers.push(new marker(0,1,440,this.adsr,d));
     //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,d));
@@ -48,7 +54,7 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio));
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio,this.curves));
         }
     }
 
@@ -67,12 +73,13 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration,pitch,ratio) {
+function Kick(parentArray,adsr,duration,pitch,ratio,curves) {
 
     // voice //
     this.voice = new Sine();
     this.pitch = pitch;
     this.pitchRatio = ratio;
+    this.curves = curves;
     this.p = 0; // panning;
 
     // envelope / duration //
@@ -101,7 +108,7 @@ proto.process = function(input,level) {
     }
 
     // envelope //
-    this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr);
+    this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
 
     // voice //
     var pb =common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, 25,'quinticOut');
