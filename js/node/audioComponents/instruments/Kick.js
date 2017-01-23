@@ -9,6 +9,7 @@ var Voice = require('../voices/Triangle');
 var Sine = require('../voices/Sine');
 var Expander = require('../filters/StereoExpander');
 
+var drive = require('../filters/FoldBackII');
 
 //-------------------------------------------------------------------------------------------
 //  PLAYER INIT
@@ -18,13 +19,24 @@ var Expander = require('../filters/StereoExpander');
 function KickPlayer() {
     this.instances = [];
     this.markers = [];
+
+    // voice //
+    this.voice = tombola.weightedItem([Voice,Sine],[1,2]);
     this.pitch = tombola.rangeFloat(35,65);
     this.pitchRatio = tombola.rangeFloat(4,13);
+
+
+    // envelope & duration //
     this.curves = tombola.item(['linear','quadratic','cubic','quartic','quintic']);
-    this.adsr = [0,tombola.range(100,350),tombola.rangeFloat(0.3,1),tombola.range(100,350)];
+    this.adsr = [0,tombola.range(50,400),tombola.rangeFloat(0.3,1),tombola.range(100,400)];
     var d = this.adsr[0] + this.adsr[1] + this.adsr[3] + 10;
     d = audioClock.millisecondsToSamples(d);
 
+
+    // drive //
+    this.threshold = tombola.rangeFloat(0.2,0.5);
+    var attack = tombola.range(0,70);
+    this.driveAdsr = [attack,0,1,tombola.range(0,100-attack)];
 
     console.log(this.adsr);
     console.log(this.curves);
@@ -54,7 +66,7 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio,this.curves));
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio,this.curves,this.driveAdsr,this.threshold,this.voice));
         }
     }
 
@@ -73,10 +85,10 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration,pitch,ratio,curves) {
+function Kick(parentArray,adsr,duration,pitch,ratio,curves,driveAdsr,threshold,voice) {
 
     // voice //
-    this.voice = new Sine();
+    this.voice = new voice();
     this.pitch = pitch;
     this.pitchRatio = ratio;
     this.curves = curves;
@@ -89,6 +101,9 @@ function Kick(parentArray,adsr,duration,pitch,ratio,curves) {
     this.adsr = adsr || [3,10,0.3,89];
 
     this.expander = new Expander();
+
+    this.driveAdsr = driveAdsr;
+    this.threshold = threshold;
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -114,13 +129,18 @@ proto.process = function(input,level) {
     var pb =common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, 25,'quinticOut');
     var n = this.voice.process(pb);
 
+
+
     var boost = 1;
     var signal = [
         n * ((1 + -this.p) * (this.a * boost)),
         n * ((1 +  this.p) * (this.a * boost))
     ];
 
+    // drive //
 
+    var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
+    signal = drive(signal,this.threshold,2,0.5 * da);
     // expander //
     //signal = this.expander.process(signal,20);
 
