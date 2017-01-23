@@ -33,6 +33,7 @@ var Repeater = require('./audioComponents/common/Repeater');
 var Resonant = require('./audioComponents/filters/Resonant');
 var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
+var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var Tremolo = require('./audioComponents/filters/Tremolo');
 
 // SIGNAL GENERATORS //
@@ -1575,6 +1576,7 @@ module.exports = {
     StereoRetroDelay: RetroDelay.stereo,
     ReverbII: ReverbII.mono,
     StereoReverbII: ReverbII.stereo,
+    StereoExpander: StereoExpander,
     Tremolo: Tremolo.mono,
     StereoTremolo: Tremolo.stereo,
     Noise: Noise.mono,

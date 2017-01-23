@@ -6,6 +6,7 @@ var tombola = new Tombola();
 var marker = require('../core/Marker');
 var common = require('../common/Common');
 var Voice = require('../voices/Triangle');
+var Expander = require('../filters/StereoExpander');
 
 
 //-------------------------------------------------------------------------------------------
@@ -68,6 +69,7 @@ function Kick(parentArray,adsr,duration) {
     this.duration = duration || sampleRate;
     this.adsr = adsr || [3,10,0.3,89];
 
+    this.expander = new Expander();
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -75,7 +77,7 @@ function Kick(parentArray,adsr,duration) {
 proto = Kick.prototype;
 
 //-------------------------------------------------------------------------------------------
-//  CLAP PROCESS
+//  KICK PROCESS
 //-------------------------------------------------------------------------------------------
 
 proto.process = function(input,level) {
@@ -93,14 +95,19 @@ proto.process = function(input,level) {
     var pb =common.rampEnvelope(this.i, this.duration, this.pitch*1.8, this.pitch, 0, 25,'circleOut');
     var n = this.voice.process(pb);
 
+    var boost = 2;
     var signal = [
-        n * ((1 + -this.p) * (this.a)),
-        n * ((1 +  this.p) * (this.a))
+        n * ((1 + -this.p) * (this.a * boost)),
+        n * ((1 +  this.p) * (this.a * boost))
     ];
 
 
+    // expander //
+    signal = this.expander.process(signal,20,1);
+
+
     // return with ducking //
-    var ducking = 0.5;
+    var ducking = 0.8;
     return [
         (input[0] * (1-(this.a * ducking))) + signal[0],
         (input[1] * (1-(this.a * ducking))) + signal[1]
