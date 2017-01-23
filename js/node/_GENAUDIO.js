@@ -132,7 +132,7 @@ proto.generate = function() {
 proto.generateClicks = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 10;
+    var seconds = 30;
     console.log('seconds: '+seconds);
 
     var l = sampleRate * seconds;
@@ -150,6 +150,8 @@ proto.generateClicks = function() {
     var kick = new audio.KickPlayer();
     var clap = new audio.ClapPlayer();
     var resampler = new audio.Resampler();
+
+    var flock = new audio.ChimeCluster();
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
 
@@ -161,6 +163,9 @@ proto.generateClicks = function() {
         var process = audioClock.process(signal,i);
         signal = signalTest(process,signal);
 
+
+        /*process = flock.process(signal,1,600000);
+        signal = signalTest(process,signal);*/
 
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
@@ -213,8 +218,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        /*process = resampler.process(signal,[0,1,2,5],200000,channels,i);
-        signal = signalTest(process,signal);*/
+        process = resampler.process(signal,[0,1,2,5],250000,channels,i);
+        signal = signalTest(process,signal);
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);
@@ -258,7 +263,7 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // COMPRESS //
-        //signal = audio.compressor(signal,0.6, 0.6, 0.96875, "compressor");
+        signal = audio.compressor(signal,0.8, 0.8, 0.96875, "compressor");
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);

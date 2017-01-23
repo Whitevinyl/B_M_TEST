@@ -18,14 +18,18 @@ var Expander = require('../filters/StereoExpander');
 function KickPlayer() {
     this.instances = [];
     this.markers = [];
-    this.adsr = [10,70,0.4,400];
-    this.adsr = [0,200,1,200];
-    var d = 600;
-    this.markers.push(new marker(0,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
-    //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,audioClock.millisecondsToSamples(d)));
-    //this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
-    //this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,audioClock.millisecondsToSamples(d)));
-    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.pitch = tombola.range(40,60);
+    this.pitchRatio = tombola.range(4,12);
+    this.adsr = [0,tombola.range(150,250),tombola.rangeFloat(0.5,1),tombola.range(150,350)];
+    var d = this.adsr[0] + this.adsr[1] + this.adsr[3];
+    d = audioClock.millisecondsToSamples(d);
+
+
+    this.markers.push(new marker(0,1,440,this.adsr,d));
+    //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,d));
+    //this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,d));
+    //this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,d));
+    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,d));
 
 }
 var proto = KickPlayer.prototype;
@@ -44,7 +48,7 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration));
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.pitch,this.pitchRatio));
         }
     }
 
@@ -63,12 +67,12 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration) {
+function Kick(parentArray,adsr,duration,pitch,ratio) {
 
     // voice //
     this.voice = new Sine();
-    this.pitch = 45;
-    this.pitchRatio = 10;
+    this.pitch = pitch;
+    this.pitchRatio = ratio;
     this.p = 0; // panning;
 
     // envelope / duration //
