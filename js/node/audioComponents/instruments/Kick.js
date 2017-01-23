@@ -8,8 +8,8 @@ var common = require('../common/Common');
 var Voice = require('../voices/Triangle');
 var Sine = require('../voices/Sine');
 var Expander = require('../filters/StereoExpander');
-
 var drive = require('../filters/FoldBackII');
+var Q = require('../filters/Q');
 
 //-------------------------------------------------------------------------------------------
 //  PLAYER INIT
@@ -44,10 +44,17 @@ function KickPlayer() {
         envelope: [attack,0,1,tombola.range(0,100-attack)]
     };
 
+    // delay //
+    this.delay = {
+        time: tombola.range(500,2500),
+        mix: tombola.weightedItem([0,tombola.rangeFloat(0.4,1)],[2,10])
+    };
+
     console.log(this.adsr);
     console.log(this.curves);
     console.log(this.voice);
     console.log(this.drive);
+    console.log(this.delay);
 
     this.markers.push(new marker(0,1,440,this.adsr,d));
     //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,d));
@@ -72,7 +79,7 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.curves,this.voice,this.drive));
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.curves,this.voice,this.drive,this.delay));
         }
     }
 
@@ -91,7 +98,7 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration,curves,voice,drive) {
+function Kick(parentArray,adsr,duration,curves,voice,drive,delay) {
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -111,6 +118,9 @@ function Kick(parentArray,adsr,duration,curves,voice,drive) {
     this.drift = voice.drift;
     this.p = 0; // panning;
 
+
+    // filter //
+    this.filter = new Q.stereo();
 
     // expander //
     this.expander = new Expander();
@@ -157,6 +167,9 @@ proto.process = function(input,level) {
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
     signal = drive(signal,this.threshold,this.power,0.5 * da);
 
+
+    // filter //
+    signal = this.filter.process(signal,300,0.8,-0.5);
 
     // expander //
     //signal = this.expander.process(signal,20);

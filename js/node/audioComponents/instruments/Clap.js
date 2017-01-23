@@ -146,7 +146,7 @@ proto.process = function(input,level) {
     signal = this.expander.process(signal,20);
 
     // return with ducking //
-    var ducking = 0.5;
+    var ducking = 0.1;
     return [
         (input[0] * (1-(this.a * ducking))) + signal[0],
         (input[1] * (1-(this.a * ducking))) + signal[1]

@@ -36,6 +36,7 @@ var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var Tremolo = require('./audioComponents/filters/Tremolo');
+var Q = require('./audioComponents/filters/Q');
 
 // SIGNAL GENERATORS //
 var Call = require('./audioComponents/generators/Call'); // wip
@@ -1584,6 +1585,8 @@ module.exports = {
     StereoTremolo: Tremolo.stereo,
     Noise: Noise.mono,
     StereoNoise: Noise.stereo,
+    Q: Q.mono,
+    StereoQ: Q.stereo,
     FilterShear: FilterShear,
 
     controlRange: controlRange,
