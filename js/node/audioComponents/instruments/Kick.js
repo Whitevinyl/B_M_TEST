@@ -6,6 +6,7 @@ var tombola = new Tombola();
 var marker = require('../core/Marker');
 var common = require('../common/Common');
 var Voice = require('../voices/Triangle');
+var Sine = require('../voices/Sine');
 var Expander = require('../filters/StereoExpander');
 
 
@@ -18,8 +19,12 @@ function KickPlayer() {
     this.instances = [];
     this.markers = [];
     this.adsr = [10,70,0.4,400];
+    this.adsr = [10,70,0.4,400];
     this.markers.push(new marker(0,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
-    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,audioClock.millisecondsToSamples(500)));
+    //this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,audioClock.millisecondsToSamples(500)));
 }
 var proto = KickPlayer.prototype;
 
@@ -59,7 +64,7 @@ proto.process = function(signal,level,index) {
 function Kick(parentArray,adsr,duration) {
 
     // voice //
-    this.voice = new Voice();
+    this.voice = new Sine();
     this.pitch = 45;
     this.p = 0; // panning;
 
@@ -103,7 +108,7 @@ proto.process = function(input,level) {
 
 
     // expander //
-    signal = this.expander.process(signal,20,1);
+    //signal = this.expander.process(signal,20,1);
 
 
     // return with ducking //

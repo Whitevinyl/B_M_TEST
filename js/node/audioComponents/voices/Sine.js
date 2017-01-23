@@ -18,9 +18,13 @@ function Sine() {
 
 Sine.prototype.process = function(frequency) {
     frequency = frequency/sampleRate;
+
+    var a = this.p*(2-Math.abs(this.p));
+
     this.p += (frequency*2);
     if(this.p > 2) this.p -= 4;
-    return  this.p*(2-Math.abs(this.p));
+
+    return a;
 };
 
 module.exports = Sine;
