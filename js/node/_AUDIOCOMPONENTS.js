@@ -19,6 +19,7 @@ var erode = require('./audioComponents/filters/Erode');
 var feedback = require('./audioComponents/filters/Feedback');
 var foldBack = require('./audioComponents/filters/FoldBack');
 var foldBackII = require('./audioComponents/filters/FoldBackII');
+var granularChorus = require('./audioComponents/filters/GranularChorus');
 var invert = require('./audioComponents/filters/Invert');
 var panner = require('./audioComponents/filters/Panner');
 var reverb = require('./audioComponents/filters/Reverb');
@@ -1516,6 +1517,7 @@ module.exports = {
     feedback: feedback.stereo,
     foldBack: foldBack,
     foldBackII: foldBackII,
+    granularChorus: granularChorus,
     invert: invert,
     panner: panner,
     reverb: reverb,

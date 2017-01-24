@@ -27,6 +27,13 @@ function Clock() {
     this.clicks = [];
     this.duration = 6000;
     this.pitch = 1760;
+
+    this.beats = [
+         '64', '32', '16', '8', '4', '2', '1',
+        'T64','T32','T16','T8','T4','T2','T1',
+        'Q64','Q32','Q16','Q8','Q4','Q2','Q1',
+        'D64','D32','D16','D8','D4','D2','D1'
+    ];
 }
 var proto = Clock.prototype;
 
@@ -95,6 +102,11 @@ proto.process = function(signal,index) {
 
 proto.getBeat = function() {
     return Math.round((sampleRate * 60) / this.bpm);
+};
+
+
+proto.randomBeat = function() {
+    return tombola.item(this.beats);
 };
 
 

@@ -154,6 +154,8 @@ proto.generateClicks = function() {
     var flock = new audio.ChimeCluster();
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
+    var t1 = audioClock.randomBeat();
+    var t2 = audioClock.randomBeat();
 
     // LOOP EACH SAMPLE //
     for (var i=0; i<l; i++) {
@@ -182,7 +184,8 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
-        process = retro.process(signal,0.5,"T8","Q8",0.3,2500,0.7,channels,i);
+
+        process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
         signal = signalTest(process,signal);
 
 
