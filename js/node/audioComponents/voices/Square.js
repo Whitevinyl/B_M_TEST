@@ -21,8 +21,15 @@ Square.prototype.process = function(frequency) {
     this.p += (frequency*2);
     if(this.p > 2) this.p -= 4;
 
-    if (a>0) return Math.ceil(a);
-    if (a<0) return Math.floor(a);
+    if (a>0) {
+        return Math.ceil(a);
+    }
+    if (a<0) {
+        return Math.floor(a);
+    }
+    else {
+        return 0;
+    }
 };
 
 module.exports = Square;

@@ -7,6 +7,10 @@ var marker = require('../core/Marker');
 var common = require('../common/Common');
 var Voice = require('../voices/Triangle');
 var Sine = require('../voices/Sine');
+var Square = require('../voices/Square');
+var StepSine = require('../voices/StepSine');
+var SineSquare = require('../voices/SineSquare');
+var SineTriangle = require('../voices/SineTriangle');
 var Expander = require('../filters/StereoExpander');
 var drive = require('../filters/FoldBackII');
 var Q = require('../filters/Q');
@@ -21,14 +25,7 @@ function KickPlayer() {
     this.markers = [];
 
     // voice //
-    var pitch = tombola.rangeFloat(34, 56);
-    this.voice = {
-        type: tombola.weightedItem([Voice, Sine], [1, 2]),
-        pitch: pitch,
-        ratio: tombola.rangeFloat(3, 22),
-        decay: tombola.range(10, 28),
-        drift: tombola.rangeFloat(0.75,1.3)
-    };
+    this.voice = this.chooseVoice();
 
     // envelope & duration //
     this.curves = tombola.item(['linear','quadratic','cubic','quartic','quintic']);
@@ -59,6 +56,47 @@ function KickPlayer() {
 
 }
 var proto = KickPlayer.prototype;
+
+
+//-------------------------------------------------------------------------------------------
+//  RANDOMISE SETTINGS
+//-------------------------------------------------------------------------------------------
+
+
+proto.chooseVoice = function() {
+
+    var type = tombola.weightedItem([SineSquare, SineTriangle], [3, 3]);
+    var pitch = tombola.rangeFloat(34, 56);
+
+    // mix between oscillators //
+    var blend1 = tombola.weightedItem([0, 1, tombola.rangeFloat(0,1)],[2,1,1]);
+    var blend2 = blend1;
+
+    if (tombola.percent(50)) {
+        if (blend1 > 0.6) {
+            blend2 = tombola.rangeFloat(0,0.1);
+        }
+        else if (blend1 < 0.3) {
+            blend2 = tombola.rangeFloat(0.9,1);
+        }
+        else {
+            blend2 = tombola.item([tombola.rangeFloat(0,0.1),tombola.rangeFloat(0.9,1)]);
+        }
+    }
+
+
+    // generate object //
+    return {
+        type: type,
+        pitch: pitch,
+        blend1: blend1,
+        blend2: blend2,
+        ratio: tombola.rangeFloat(3, 22),
+        decay: tombola.range(10, 28),
+        drift: tombola.rangeFloat(0.75,1.3)
+    };
+};
+
 
 
 //-------------------------------------------------------------------------------------------
@@ -110,6 +148,8 @@ function Kick(parentArray,adsr,duration,curves,voice,drive) {
     // voice //
     this.voice = new voice.type();
     this.pitch = voice.pitch;
+    this.blend1 = voice.blend1;
+    this.blend2 = voice.blend2;
     this.pitchRatio = voice.ratio;
     this.decay = voice.decay;
     this.drift = voice.drift;
@@ -149,7 +189,8 @@ proto.process = function(input,level) {
     // voice //
     var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, this.decay,'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
-    var n = this.voice.process(pb * pd);
+    var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45,'linearOut');
+    var n = this.voice.process(pb * pd, bl);
 
 
 
@@ -162,7 +203,7 @@ proto.process = function(input,level) {
 
     // drive //
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    signal = drive(signal,this.threshold,this.power,0.5 * da);
+    //signal = drive(signal,this.threshold,this.power,0.5 * da);
 
 
     // filter //

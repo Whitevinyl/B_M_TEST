@@ -18,7 +18,7 @@ function SineTriangle() {
 //-------------------------------------------------------------------------------------------
 
 SineTriangle.prototype.process = function(frequency,blend) {
-    return (this.sine.process(frequency) * (1-blend)) + (this.triangle.process(frequency) * blend);
+    return (this.sine.process(frequency) * (1-blend)) + (-this.triangle.process(frequency) * blend);
 };
 
 module.exports = SineTriangle;

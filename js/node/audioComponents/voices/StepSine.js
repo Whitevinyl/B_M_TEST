@@ -1,25 +1,21 @@
-
 var Sine = require('./Sine');
-var Square = require('./Square');
 
-// A multi-voice oscillator with blend between voices //
+// A rounded sine creating steps
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function SineSquare() {
+function StepSine() {
     this.sine = new Sine();
-    this.square = new Square();
 }
 
 //-------------------------------------------------------------------------------------------
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-SineSquare.prototype.process = function(frequency,blend) {
-    blend *= 0.15;
-    return (this.sine.process(frequency) * (1-blend)) + (this.square.process(frequency) * blend);
+StepSine.prototype.process = function(frequency) {
+    return Math.round(this.sine.process(frequency));
 };
 
-module.exports = SineSquare;
+module.exports = StepSine;
