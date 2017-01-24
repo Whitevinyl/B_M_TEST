@@ -183,17 +183,17 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,0.12,0.5);
         signal = signalTest(process,signal);*/
 
-        process = chorus.process(signal,20,0.1,0.5);
+        process = chorus.process(signal,20,0.2,0.5);
         signal = signalTest(process,signal);
 
 
-        /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
 
         process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal);
 
 
 
@@ -228,8 +228,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        /*process = resampler.process(signal,[0,1,2,5],250000,channels,i);
-        signal = signalTest(process,signal);*/
+        process = resampler.process(signal,[0,1,2,5],250000,channels,i);
+        signal = signalTest(process,signal);
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);

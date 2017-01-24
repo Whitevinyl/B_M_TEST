@@ -1,6 +1,7 @@
 var utils = require('../../lib/utils');
 var common = require('../common/Common');
 var Sine = require('../voices/Sine');
+var Triangle = require('../voices/Triangle');
 var Repeater = require('../common/Repeater');
 
 //-------------------------------------------------------------------------------------------
@@ -11,7 +12,7 @@ var Repeater = require('../common/Repeater');
 function GranularChorusII() {
     this.memory = [[],[]];
     this.playHead = 1;
-    this.osc = new Sine();
+    this.osc = new Triangle();
 }
 var proto = GranularChorusII.prototype;
 
@@ -22,7 +23,7 @@ var proto = GranularChorusII.prototype;
 
 
 proto.process = function(signal,size,rate,mix) {
-    //effect = utils.valueInRange(effect,0,50);
+    rate = (rate/size) * 200;
 
     // record to sample buffer for later //
     this.memory[0].push(signal[0]);
