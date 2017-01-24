@@ -28,6 +28,7 @@ var saturation = require('./audioComponents/filters/Saturation');
 // PERSISTENT FILTERS //
 var GranularChorus = require('./audioComponents/filters/GranularChorus');
 var GranularChorusII = require('./audioComponents/filters/GranularChorusII');
+var GranularChorusIII = require('./audioComponents/filters/GranularChorusIII');
 var LowPass = require('./audioComponents/filters/LowPass');
 var LowPassII = require('./audioComponents/filters/LowPassII');
 var Noise = require('./audioComponents/filters/Noise');
@@ -1572,6 +1573,7 @@ module.exports = {
     Repeater: Repeater,
     GranularChorus: GranularChorus,
     GranularChorusII: GranularChorusII,
+    GranularChorusIII: GranularChorusIII,
     LowPass: LowPass.mono,
     StereoLowPass: LowPass.stereo,
     LowPassII: LowPassII.mono,
