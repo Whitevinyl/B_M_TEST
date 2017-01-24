@@ -151,7 +151,7 @@ proto.generateClicks = function() {
     var clap = new audio.ClapPlayer();
     var resampler = new audio.Resampler();
 
-    var flock = new audio.ChimeCluster();
+    var chorus = new audio.GranularChorus();
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
     var t1 = audioClock.randomBeat();
@@ -166,8 +166,6 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
-        /*process = flock.process(signal,1,600000);
-        signal = signalTest(process,signal);*/
 
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
@@ -179,14 +177,17 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
+        process = chorus.process(signal,1,0.5);
+        signal = signalTest(process,signal);
 
-        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+
+        /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
 
         process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal);*/
 
 
 
@@ -221,8 +222,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        process = resampler.process(signal,[0,1,2,5],250000,channels,i);
-        signal = signalTest(process,signal);
+        /*process = resampler.process(signal,[0,1,2,5],250000,channels,i);
+        signal = signalTest(process,signal);*/
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);

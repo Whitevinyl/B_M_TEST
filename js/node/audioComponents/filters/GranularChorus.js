@@ -9,8 +9,12 @@ var Repeater = require('../common/Repeater');
 
 
 function GranularChorus() {
-    this.memory = [];
-    this.playHead = 0;
+    this.memory = [[],[]];
+    /*var a = [];
+    var b = [];
+    this.memory.push(a);
+    this.memory.push(b);*/
+    this.playHead = 1;
 }
 var proto = GranularChorus.prototype;
 
@@ -20,25 +24,30 @@ var proto = GranularChorus.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,bufferLength,effect,mix) {
+proto.process = function(signal,effect,mix) {
+    effect = utils.valueInRange(effect,0,5);
 
     // record to sample buffer for later //
-    this.memory.push(signal);
+    this.memory[0].push(signal[0]);
+    this.memory[1].push(signal[1]);
 
     // we have enough buffer - let's go //
-    if (this.memory.length>bufferLength) {
+    var bufferLength = Math.round(effect*1000);
+    if (this.memory[0].length>bufferLength) {
 
         // trim memory buffer length //
-        this.memory.shift();
+        while (this.memory[0].length>bufferLength) {
+            this.memory[0].shift();
+            this.memory[1].shift();
+        }
 
-        // normalise effect value //
-        var speed = 1 + (effect*0.1);
-        speed = utils.valueInRange(speed,0.1,5);
 
         // update playhead //
-        this.playHead -= speed;
-        if (this.playHead<0) {
-            this.playHead = this.memory.length - 1;
+        this.playHead += (effect*0.1);
+        var refresh = Math.floor(this.memory[0].length * 0.7);
+        if (this.playHead >= (refresh)) {
+            this.writeFade(refresh-1);
+            this.playHead = 1;
         }
 
         // get sample //
@@ -46,12 +55,24 @@ proto.process = function(signal,bufferLength,effect,mix) {
 
         // mix //
         signal = [
-            (signal[0] * (1-mix)) + (sample[0]*mix),
-            (signal[1] * (1-mix)) + (sample[1]*mix)
+            (signal[0] * (1-mix)) + (sample[1]*mix),
+            (signal[1] * (1-mix)) + (sample[0]*mix)
         ];
     }
 
     return signal;
+};
+
+
+proto.writeFade = function(readIndex) {
+    var fade = 1;
+    var fadeLength = Math.floor(this.memory[0].length * 0.2);
+    for (var h=0; h<fadeLength; h++) {
+        fade = (1 - (h / fadeLength));
+
+        this.memory[0][h] = (this.memory[0][h] * (1-fade)) + (this.memory[0][readIndex + h] * fade);
+        this.memory[1][h] = (this.memory[1][h] * (1-fade)) + (this.memory[1][readIndex + h] * fade);
+    }
 };
 
 
