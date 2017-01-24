@@ -25,8 +25,9 @@ function KickPlayer() {
     this.voice = {
         type: tombola.weightedItem([Voice, Sine], [1, 2]),
         pitch: pitch,
-        ratio: tombola.rangeFloat(4, 13),
-        drift: tombola.rangeFloat(0.82,1.25)
+        ratio: tombola.rangeFloat(3, 22),
+        decay: tombola.range(10, 28),
+        drift: tombola.rangeFloat(0.75,1.3)
     };
 
     // envelope & duration //
@@ -44,17 +45,11 @@ function KickPlayer() {
         envelope: [attack,0,1,tombola.range(0,100-attack)]
     };
 
-    // delay //
-    this.delay = {
-        time: tombola.range(500,2500),
-        mix: tombola.weightedItem([0,tombola.rangeFloat(0.4,1)],[2,10])
-    };
 
     console.log(this.adsr);
     console.log(this.curves);
     console.log(this.voice);
     console.log(this.drive);
-    console.log(this.delay);
 
     this.markers.push(new marker(0,1,440,this.adsr,d));
     //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,d));
@@ -79,7 +74,8 @@ proto.process = function(signal,level,index) {
     for (i=0; i<l; i++) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
-            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.curves,this.voice,this.drive,this.delay));
+            this.instances = []; // clear for mono
+            this.instances.push( new Kick(this.instances,marker.adsr,marker.duration,this.curves,this.voice,this.drive));
         }
     }
 
@@ -98,7 +94,7 @@ proto.process = function(signal,level,index) {
 //  KICK INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,adsr,duration,curves,voice,drive,delay) {
+function Kick(parentArray,adsr,duration,curves,voice,drive) {
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -115,6 +111,7 @@ function Kick(parentArray,adsr,duration,curves,voice,drive,delay) {
     this.voice = new voice.type();
     this.pitch = voice.pitch;
     this.pitchRatio = voice.ratio;
+    this.decay = voice.decay;
     this.drift = voice.drift;
     this.p = 0; // panning;
 
@@ -150,7 +147,7 @@ proto.process = function(input,level) {
 
 
     // voice //
-    var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, 25,'quinticOut');
+    var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, this.decay,'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
     var n = this.voice.process(pb * pd);
 
@@ -169,7 +166,7 @@ proto.process = function(input,level) {
 
 
     // filter //
-    signal = this.filter.process(signal,300,0.8,-0.5);
+    signal = this.filter.process(signal,350,0.8,-0.4);
 
     // expander //
     //signal = this.expander.process(signal,20);
