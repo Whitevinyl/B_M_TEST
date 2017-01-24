@@ -18,6 +18,23 @@ function logPosition(minpos,maxpos,minval,maxval,value) {
 }
 
 
+
+function frequencyFromInterval(interval) {
+    return 440 * Math.pow(1.059463094359,interval);
+}
+
+function frequencyToRatio(root,frequency) {
+    return (frequency/root);
+}
+
+function intervalToRatio(interval) {
+    var root = frequencyFromInterval(0);
+    var int = frequencyFromInterval(interval);
+    return frequencyToRatio(root,int);
+}
+
+
+
 function valueInRange(value,floor,ceiling) {
     if (value < floor) {
         value = floor;
@@ -64,5 +81,8 @@ module.exports = {
     lerp: lerp,
     stripUriMeta: stripUriMeta,
     fmod: fmod,
-    arg: arg
+    arg: arg,
+    frequencyFromInterval: frequencyFromInterval,
+    frequencyToRatio: frequencyToRatio,
+    intervalToRatio: intervalToRatio
 };

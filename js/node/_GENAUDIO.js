@@ -186,7 +186,7 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-        process = chorus.process(signal,1000,500,10,0.5);
+        process = chorus.process(signal,1000,900,utils.intervalToRatio(17)-1,0.3);
         signal = signalTest(process,signal);
 
 

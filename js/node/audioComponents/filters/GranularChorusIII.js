@@ -3,6 +3,10 @@ var common = require('../common/Common');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
+// was intended to be something else bu ended up as a nice granular pitch-shifter. Will
+// keep tweaking as it seems to have a lot of potential.
+
+
 //-------------------------------------------------------------------------------------------
 //  PLAYER INIT
 //-------------------------------------------------------------------------------------------
@@ -23,11 +27,10 @@ var proto = GranularChorusIII.prototype;
 
 proto.process = function(signal,delay,size,speed,mix) {
     var i,l;
-    if (size>(delay*0.75)) {
+    /*if (size>(delay*0.75)) {
         size = delay * 0.75;
-    }
-    var rate = size*0.65;
-    speed *= 0.1;
+    }*/
+    var rate = size*0.3;
 
     // record to sample buffer for later //
     this.memory[0].push(signal[0]);
@@ -51,7 +54,9 @@ proto.process = function(signal,delay,size,speed,mix) {
             if (speed<0) {
                 pos = Math.floor(delay*0.75);
             }
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(pos,(pos + Math.floor(delay*0.25))),size,speed) );
+            var mySpeed = tombola.weightedItem([speed,speed*2,speed*3],[3,2,1]);
+            mySpeed = speed;
+            this.grains.push( new Grain(this.grains,this.memory,tombola.range(pos,(pos + Math.floor(delay*0.25))),size,mySpeed) );
         }
 
 
@@ -101,14 +106,12 @@ proto.process = function(signal,mix) {
     // amp //
     var amp = 1;
     var fade = 0.2;
-    var size = this.size * (this.speed / (this.speed * this.speed));
-    var size = this.size;
-    var l = Math.floor(size * fade);
+    var l = Math.floor(this.size * fade);
     if (this.i < l) {
         amp = (this.i/l);
     }
-    if (this.i > (size - l)) {
-        amp = 1 - ((this.i -(size - l))/l);
+    if (this.i > (this.size - l)) {
+        amp = 1 - ((this.i -(this.size - l))/l);
     }
     amp *= mix;
 
