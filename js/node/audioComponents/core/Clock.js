@@ -119,6 +119,9 @@ proto.millisecondsToSamples = function(ms) {
     return Math.round(ms*(sampleRate/1000));
 };
 
+proto.samplesToMilliseconds = function(samples) {
+    return Math.round(samples/(sampleRate/1000));
+};
 
 proto.getBeatLength = function(time) {
     var beat = this.getBeat();

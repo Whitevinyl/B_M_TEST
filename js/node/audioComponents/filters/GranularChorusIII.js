@@ -8,7 +8,7 @@ var tombola = new Tombola();
 
 
 //-------------------------------------------------------------------------------------------
-//  PLAYER INIT
+//  PITCH-SHIFT INIT
 //-------------------------------------------------------------------------------------------
 
 
@@ -21,26 +21,38 @@ var proto = GranularChorusIII.prototype;
 
 
 //-------------------------------------------------------------------------------------------
-//  PLAYER PROCESS
+//  PITCH-SHIFT PROCESS
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,size,speed,mix) {
+proto.process = function(signal,size,speed,mix) {
     var i,l;
-    /*if (size>(delay*0.75)) {
-        size = delay * 0.75;
-    }*/
+    // size of 900 is good (20.4 milliseconds) //
+
+
+    // convert speed from interval //
+    speed = utils.intervalToRatio(speed)-1;
+
+
+    // calculate required buffer time //
+    var space = 100;
+    var buffer = space + (size*speed);
+
+
+    // set rate of grain creation //
     var rate = size*0.3;
 
-    // record to sample buffer for later //
+
+    // record to sample buffer for the grains to use //
     this.memory[0].push(signal[0]);
     this.memory[1].push(signal[1]);
 
+
     // we have enough buffer - let's go //
-    if (this.memory[0].length>delay) {
+    if (this.memory[0].length>buffer) {
 
         // trim memory buffer length //
-        while (this.memory[0].length > (delay*2)) {
+        while (this.memory[0].length > buffer*2) {
             this.memory[0].shift();
             this.memory[1].shift();
         }
@@ -50,13 +62,13 @@ proto.process = function(signal,delay,size,speed,mix) {
         this.i++;
         if (this.i>rate) {
             this.i = 0;
-            var pos = 0;
+            var position = tombola.range(0,space);
             if (speed<0) {
-                pos = Math.floor(delay*0.75);
+                position = buffer - position;
             }
             var mySpeed = tombola.weightedItem([speed,speed*2,speed*3],[3,2,1]);
             mySpeed = speed;
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(pos,(pos + Math.floor(delay*0.25))),size,mySpeed) );
+            this.grains.push( new Grain(this.grains,this.memory,position,size,mySpeed) );
         }
 
 

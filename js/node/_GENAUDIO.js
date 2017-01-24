@@ -173,6 +173,9 @@ proto.generateClicks = function() {
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
 
+        process = chorus.process(signal,900,5,0.3);
+        signal = signalTest(process,signal);
+
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
 
@@ -186,8 +189,7 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-        process = chorus.process(signal,1000,900,utils.intervalToRatio(17)-1,0.3);
-        signal = signalTest(process,signal);
+
 
 
         /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
