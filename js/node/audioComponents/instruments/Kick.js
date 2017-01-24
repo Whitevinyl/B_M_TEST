@@ -91,6 +91,15 @@ proto.chooseVoice = function() {
         }
     }
 
+    // agressive start more common than end //
+    if (blend1<0.5 && blend2>0.5) {
+        if (tombola.percent(20)) {
+            var b1 = blend1;
+            blend1 = blend2;
+            blend2 = b1;
+        }
+    }
+
 
     // generate object //
     return {
@@ -98,8 +107,8 @@ proto.chooseVoice = function() {
         pitch: pitch,
         blend1: blend1,
         blend2: blend2,
-        ratio: tombola.rangeFloat(3, 22),
-        decay: tombola.range(10, 28),
+        ratio: tombola.rangeFloat(4, 24),
+        decay: tombola.range(5, 28),
         drift: tombola.rangeFloat(0.75,1.3)
     };
 };
@@ -111,9 +120,10 @@ proto.chooseDrive = function() {
 
     // generate object //
     return {
-        threshold: tombola.rangeFloat(0.15,0.6),
-        power: tombola.range(0,6),
-        envelope: [attack,0,1,tombola.range(0,100-attack)]
+        threshold: tombola.rangeFloat(0.1,0.6),
+        power: tombola.range(0,8),
+        envelope: [attack,0,1,tombola.range(0,100-attack)],
+        mix: tombola.rangeFloat(0,0.5)
     };
 };
 
@@ -184,6 +194,7 @@ function Kick(parentArray,adsr,duration,curves,voice,drive) {
     this.driveAdsr = drive.envelope;
     this.threshold = drive.threshold;
     this.power = drive.power;
+    this.driveMix = drive.mix;
 }
 proto = Kick.prototype;
 
@@ -221,7 +232,7 @@ proto.process = function(input,level) {
 
     // drive //
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    signal = drive(signal,this.threshold,this.power,0.5 * da);
+    signal = drive(signal,this.threshold,this.power,da * this.driveMix);
 
 
     // filter //
