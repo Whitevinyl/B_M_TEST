@@ -21,11 +21,13 @@ var proto = GranularChorusIII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,size,rate,speed,mix) {
+proto.process = function(signal,delay,size,speed,mix) {
     var i,l;
     if (size>(delay*0.75)) {
         size = delay * 0.75;
     }
+    var rate = size*0.65;
+    speed *= 0.1;
 
     // record to sample buffer for later //
     this.memory[0].push(signal[0]);
@@ -35,7 +37,7 @@ proto.process = function(signal,delay,size,rate,speed,mix) {
     if (this.memory[0].length>delay) {
 
         // trim memory buffer length //
-        while (this.memory[0].length > delay) {
+        while (this.memory[0].length > (delay*2)) {
             this.memory[0].shift();
             this.memory[1].shift();
         }
@@ -45,7 +47,11 @@ proto.process = function(signal,delay,size,rate,speed,mix) {
         this.i++;
         if (this.i>rate) {
             this.i = 0;
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(0,Math.floor(delay*0.25)),size,speed) );
+            var pos = 0;
+            if (speed<0) {
+                pos = Math.floor(delay*0.75);
+            }
+            this.grains.push( new Grain(this.grains,this.memory,tombola.range(pos,(pos + Math.floor(delay*0.25))),size,speed) );
         }
 
 
@@ -96,6 +102,7 @@ proto.process = function(signal,mix) {
     var amp = 1;
     var fade = 0.2;
     var size = this.size * (this.speed / (this.speed * this.speed));
+    var size = this.size;
     var l = Math.floor(size * fade);
     if (this.i < l) {
         amp = (this.i/l);
