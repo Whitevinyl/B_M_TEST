@@ -151,7 +151,10 @@ proto.generateClicks = function() {
     var clap = new audio.ClapPlayer();
     var resampler = new audio.Resampler();
 
-    var chorus = new audio.GranularChorus();
+    var chorus = new audio.GranularChorusII();
+
+
+
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
     var t1 = audioClock.randomBeat();
@@ -177,7 +180,10 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
-        process = chorus.process(signal,1,0.5);
+        /*process = chorus.process(signal,0.12,0.5);
+        signal = signalTest(process,signal);*/
+
+        process = chorus.process(signal,20,0.1,0.5);
         signal = signalTest(process,signal);
 
 
