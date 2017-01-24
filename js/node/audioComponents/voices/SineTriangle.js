@@ -1,27 +1,24 @@
 
-// A simple sine wave voice
+var Sine = require('./Sine');
+var Triangle = require('./Triangle');
+
+// A multi-voice oscillator with blend between voices //
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Sine() {
-    this.p = 2;
+function SineTriangle() {
+    this.sine = new Sine();
+    this.triangle = new Triangle();
 }
 
 //-------------------------------------------------------------------------------------------
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-Sine.prototype.process = function(frequency) {
-    frequency = (frequency*2)/sampleRate;
-
-    var a = this.p*(2-Math.abs(this.p));
-
-    this.p += (frequency*2);
-    if(this.p > 2) this.p -= 4;
-
-    return a;
+SineTriangle.prototype.process = function(frequency,blend) {
+    return (this.sine.process(frequency) * (1-blend)) + (this.triangle.process(frequency) * blend);
 };
 
-module.exports = Sine;
+module.exports = SineTriangle;

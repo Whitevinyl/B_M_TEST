@@ -1,11 +1,11 @@
 
-// A simple sine wave voice
+// A simple square wave voice
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Sine() {
+function Square() {
     this.p = 2;
 }
 
@@ -13,7 +13,7 @@ function Sine() {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-Sine.prototype.process = function(frequency) {
+Square.prototype.process = function(frequency) {
     frequency = (frequency*2)/sampleRate;
 
     var a = this.p*(2-Math.abs(this.p));
@@ -21,7 +21,8 @@ Sine.prototype.process = function(frequency) {
     this.p += (frequency*2);
     if(this.p > 2) this.p -= 4;
 
-    return a;
+    if (a>0) return Math.ceil(a);
+    if (a<0) return Math.floor(a);
 };
 
-module.exports = Sine;
+module.exports = Square;
