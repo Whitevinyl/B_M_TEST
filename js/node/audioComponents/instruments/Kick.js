@@ -29,18 +29,13 @@ function KickPlayer() {
 
     // envelope & duration //
     this.curves = tombola.item(['linear','quadratic','cubic','quartic','quintic']);
-    this.adsr = [0,tombola.range(50,400),tombola.rangeFloat(0.4,1),tombola.range(100,420)];
+    this.adsr = [0,tombola.range(70,400),tombola.rangeFloat(0.4,1),tombola.range(100,420)];
     var d = this.adsr[0] + this.adsr[1] + this.adsr[3] + 10;
     d = audioClock.millisecondsToSamples(d);
 
 
     // drive //
-    var attack = tombola.range(0,70);
-    this.drive = {
-        threshold: tombola.rangeFloat(0.2,0.5),
-        power: tombola.range(0,6),
-        envelope: [attack,0,1,tombola.range(0,100-attack)]
-    };
+    this.drive = this.chooseDrive();
 
 
     console.log(this.adsr);
@@ -62,25 +57,37 @@ var proto = KickPlayer.prototype;
 //  RANDOMISE SETTINGS
 //-------------------------------------------------------------------------------------------
 
-
+// VOICE //
 proto.chooseVoice = function() {
 
     var type = tombola.weightedItem([SineSquare, SineTriangle], [3, 3]);
     var pitch = tombola.rangeFloat(34, 56);
 
+
     // mix between oscillators //
-    var blend1 = tombola.weightedItem([0, 1, tombola.rangeFloat(0,1)],[2,1,1]);
+    var blend1 = 0;
+    if (type === SineTriangle) {
+        if (tombola.percent(40)) {
+            blend1 = tombola.weightedItem([ tombola.rangeFloat(0,1), 1 ],[2,1]);
+        }
+    }
+    else {
+        if (tombola.percent(30)) {
+            blend1 = tombola.rangeFloat(0,1);
+        }
+    }
     var blend2 = blend1;
 
-    if (tombola.percent(50)) {
+    // change mix over time //
+    if (tombola.percent(50) || (type === SineSquare && blend1 > 0.35)) {
         if (blend1 > 0.6) {
-            blend2 = tombola.rangeFloat(0,0.1);
+            blend2 = tombola.rangeFloat(0,0.3); // down
         }
         else if (blend1 < 0.3) {
-            blend2 = tombola.rangeFloat(0.9,1);
+            blend2 = tombola.rangeFloat(0.6,1); // up
         }
         else {
-            blend2 = tombola.item([tombola.rangeFloat(0,0.1),tombola.rangeFloat(0.9,1)]);
+            blend2 = tombola.item([tombola.rangeFloat(0,0.05),tombola.rangeFloat(0.95,1)]); // either extreme
         }
     }
 
@@ -98,6 +105,17 @@ proto.chooseVoice = function() {
 };
 
 
+// DRIVE //
+proto.chooseDrive = function() {
+    var attack = tombola.range(0,70);
+
+    // generate object //
+    return {
+        threshold: tombola.rangeFloat(0.15,0.6),
+        power: tombola.range(0,6),
+        envelope: [attack,0,1,tombola.range(0,100-attack)]
+    };
+};
 
 //-------------------------------------------------------------------------------------------
 //  PLAYER PROCESS
@@ -203,7 +221,7 @@ proto.process = function(input,level) {
 
     // drive //
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    //signal = drive(signal,this.threshold,this.power,0.5 * da);
+    signal = drive(signal,this.threshold,this.power,0.5 * da);
 
 
     // filter //
