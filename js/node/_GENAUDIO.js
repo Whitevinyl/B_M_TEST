@@ -192,7 +192,7 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-        process = delay.process(signal,25000,45,900,0,1);
+        process = delay.process(signal,25000,15,8000,0,1);
         signal = signalTest(process,signal);
 
 

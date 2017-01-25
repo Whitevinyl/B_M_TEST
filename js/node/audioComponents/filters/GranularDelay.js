@@ -36,7 +36,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     var grainSignal = [0,0];
     // size of 900 is good (20.4 milliseconds) //
 
-    var feedback = 0.8;
+    var feedback = 0.95;
 
     // convert speed from interval //
     speed = utils.intervalToRatio(speed)-1;
@@ -50,14 +50,14 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // set rate of grain creation //
-    var rate = size*0.02;
+    var rate = size*0.1;
 
     // filter incoming before recording //
     var memorySample = [
         signal[0] + (this.feedbackSample[0] * feedback),
         signal[1] + (this.feedbackSample[1] * feedback)
     ];
-    memorySample = this.lp.process(memorySample,9500,0.96);
+    //memorySample = this.lp.process(memorySample,6000,0.95);
 
 
     // record to sample buffer for the grains to use //
@@ -67,10 +67,10 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
     // we have enough buffer - let's go //
     l = this.memory[0].length;
-    if (l>buffer) {
+    if (l>10) {
 
         // trim memory buffer length //
-        while (this.memory[0].length > buffer*2) {
+        while (this.memory[0].length > buffer*1.5) {
             this.memory[0].shift();
             this.memory[1].shift();
         }
@@ -79,22 +79,18 @@ proto.process = function(signal,delay,density,size,speed,mix) {
         this.i++;
         if (this.i>rate  && this.grains.length<density) {
             this.i = 0;
-            var position = tombola.range(buffer, (buffer*2) - 1);
-            if (speed<0) {
-                position = buffer - position;
-            }
-            var bl = this.memory[0].length-1;
-            var sp = speed;
-            if (tombola.percent(10)) {
-                sp *= 2;
-            }
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(bl - delay, bl),size,sp) );
+
+            var pd = 600;
+            var bl = this.memory[0].length-pd-1;
+            var position = tombola.range(bl - Math.min(bl,delay), bl);
+            var orig = bl - Math.min(bl,9000);
+            position = tombola.range(orig, orig + Math.min(bl,4000));
+            this.grains.push( new Grain(this.grains,this.memory,position,size,speed) );
         }
 
 
         // process any active instances //
         l = this.grains.length-1;
-
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
@@ -103,7 +99,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     }
 
     // feedback //
-    grainSignal = this.lp2.process(grainSignal,7200,0.96);
+    grainSignal = this.lp2.process(grainSignal,16000,0.8);
     this.feedbackSample = grainSignal;
 
     // mix //
@@ -128,6 +124,7 @@ function Grain(parentArray,buffer,position,size,speed) {
     this.size = size;
     this.speed = speed;
     this.i = 0;
+    this.pan = tombola.rangeFloat(-1,1);
 }
 proto = Grain.prototype;
 
@@ -149,7 +146,7 @@ proto.process = function(signal,mix) {
 
     // amp //
     var amp = 1;
-    var fade = 0.4;
+    var fade = 0.2;
     var ml = Math.floor(this.size * fade);
     if (this.i < ml) {
         amp = (this.i/ml);
@@ -164,7 +161,9 @@ proto.process = function(signal,mix) {
     var sample = common.interpolate(this.buffer,this.playHead);
 
     // pan //
-    var p = tombola.rangeFloat(-1,1);
+    //sample = common.toMono(sample);
+    sample = common.pan(sample,this.pan);
+
 
     // mix //
     return [
