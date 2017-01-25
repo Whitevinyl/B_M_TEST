@@ -21,7 +21,7 @@ function GranularDelay() {
     this.i = 0;
 
     this.lp = new lowPass.stereo();
-    this.hp = new Resonant.stereo();
+    this.lp2 = new lowPass.stereo();
 }
 var proto = GranularDelay.prototype;
 
@@ -36,7 +36,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     var grainSignal = [0,0];
     // size of 900 is good (20.4 milliseconds) //
 
-    var feedback = 0.7;
+    var feedback = 0.8;
 
     // convert speed from interval //
     speed = utils.intervalToRatio(speed)-1;
@@ -50,14 +50,14 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // set rate of grain creation //
-    var rate = size*0.1;
+    var rate = size*0.02;
 
     // filter incoming before recording //
     var memorySample = [
         signal[0] + (this.feedbackSample[0] * feedback),
         signal[1] + (this.feedbackSample[1] * feedback)
     ];
-    memorySample = this.lp.process(memorySample,6000,0.96);
+    memorySample = this.lp.process(memorySample,9500,0.96);
 
 
     // record to sample buffer for the grains to use //
@@ -84,7 +84,11 @@ proto.process = function(signal,delay,density,size,speed,mix) {
                 position = buffer - position;
             }
             var bl = this.memory[0].length-1;
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(bl - delay, bl),size,speed) );
+            var sp = speed;
+            if (tombola.percent(10)) {
+                sp *= 2;
+            }
+            this.grains.push( new Grain(this.grains,this.memory,tombola.range(bl - delay, bl),size,sp) );
         }
 
 
@@ -94,13 +98,13 @@ proto.process = function(signal,delay,density,size,speed,mix) {
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
-        grainSignal[0] *= (1/(density/3));
-        grainSignal[1] *= (1/(density/3));
+        grainSignal[0] *= (1/(density));
+        grainSignal[1] *= (1/(density));
     }
 
     // feedback //
+    grainSignal = this.lp2.process(grainSignal,7200,0.96);
     this.feedbackSample = grainSignal;
-
 
     // mix //
     return [
@@ -145,7 +149,7 @@ proto.process = function(signal,mix) {
 
     // amp //
     var amp = 1;
-    var fade = 0.25;
+    var fade = 0.4;
     var ml = Math.floor(this.size * fade);
     if (this.i < ml) {
         amp = (this.i/ml);

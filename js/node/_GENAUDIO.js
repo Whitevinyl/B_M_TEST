@@ -192,7 +192,7 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-        process = delay.process(signal,10000,40,20000,0,1);
+        process = delay.process(signal,25000,45,900,0,1);
         signal = signalTest(process,signal);
 
 
@@ -237,8 +237,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        process = resampler.process(signal,[0,1,2,5],250000,channels,i);
-        signal = signalTest(process,signal);
+        /*process = resampler.process(signal,[0,1,2,5],250000,channels,i);
+        signal = signalTest(process,signal);*/
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);
