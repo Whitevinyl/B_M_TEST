@@ -176,8 +176,12 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
         /*var int = audio.controlRange(-5,5,control.process(1.1));
-        process = chorus.process(signal,900,-12,0.4);
+        process = chorus.process(signal,900,17,0.1);
         signal = signalTest(process,signal);*/
+
+
+
+
 
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
@@ -192,8 +196,15 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-        process = delay.process(signal,25000,3,900,0,1);
+
+        process = delay.process(signal,40000,2,8000,12,1);
         signal = signalTest(process,signal);
+
+        /*process = delay.process(signal,8000,3,1470,0,1);
+        signal = signalTest(process,signal);*/
+
+
+
 
 
         /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);

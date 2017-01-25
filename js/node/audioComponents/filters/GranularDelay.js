@@ -4,7 +4,9 @@ var Tombola = require('tombola');
 var tombola = new Tombola();
 
 var Resonant = require('./Resonant');
+var Q = require('./Q');
 var lowPass = require('./LowPass');
+var Perlin = require('../voices/Perlin');
 
 // first attempt at a granular delay
 
@@ -20,8 +22,11 @@ function GranularDelay() {
     this.grains = [];
     this.i = 0;
 
+    this.lp1 = new Resonant.stereo();
     this.lp = new lowPass.stereo();
     this.lp2 = new lowPass.stereo();
+    this.Q = new Q.stereo();
+    this.mod = new Perlin();
 }
 var proto = GranularDelay.prototype;
 
@@ -33,10 +38,7 @@ var proto = GranularDelay.prototype;
 
 proto.process = function(signal,delay,density,size,speed,mix) {
     var i, l;
-    var grainSignal = [0,0];
-    // size of 900 is good (20.4 milliseconds) //
 
-    var feedback = 0.75;
 
     // convert speed from interval //
     speed = utils.intervalToRatio(speed)-1;
@@ -50,7 +52,13 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // set rate of grain creation //
-    var rate = size*0.2;
+    var rate = size/density;
+
+
+
+
+    var feedback = 0.75;
+    var grainSignal = [0,0];
 
     // filter incoming before recording //
     var memorySample = [
@@ -65,26 +73,40 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     this.memory[1].push(memorySample[1]);
 
 
+
+
     // we have enough buffer - let's go //
     l = this.memory[0].length;
-    if (l>10) {
+    if (l>2000) {
 
         // trim memory buffer length //
-        while (this.memory[0].length > buffer*1.5) {
+        while (this.memory[0].length > delay) {
             this.memory[0].shift();
             this.memory[1].shift();
         }
 
+
+        // origin //
+        var bufferLength = Math.min(delay, this.memory[0].length-1);
+        var origin = (bufferLength/2) + ((delay*0.499) * this.mod.process(0.4));
+
+
         // create grains //
         this.i++;
-        if (this.i>rate  && this.grains.length<(density+1)) {
+        if (this.i>rate) {
             this.i = 0;
 
-            var pd = 600;
+            /*var pd = 600;
             var bl = this.memory[0].length-pd-1;
             var position = tombola.range(bl - Math.min(bl,delay), bl);
-            var orig = bl - Math.min(bl,10000);
-            position = tombola.range(orig, orig + Math.min(bl,9000));
+            var orig = bl - Math.min(bl,delay);
+            position = tombola.range(orig, orig + Math.min(bl,Math.round(delay*0.9)));*/
+
+            var range = Math.min(bufferLength/2,2000);
+            //range = 0;
+            var position = tombola.range(origin - range, origin + range);
+
+
             this.grains.push( new Grain(this.grains,this.memory,position,size,speed) );
         }
 
@@ -99,7 +121,10 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     }
 
     // feedback //
-    grainSignal = this.lp2.process(grainSignal,7000,1);
+    //grainSignal = this.lp2.process(grainSignal,4000,1);
+    //grainSignal = this.lp2.process(grainSignal,3000,0.96);
+    grainSignal = this.lp1.process(grainSignal,3100,0.4,0.8,'LP');
+    //grainSignal = this.Q.process(grainSignal, 6000, 0.2, -0.3);
     this.feedbackSample = grainSignal;
 
     // mix //
@@ -124,7 +149,7 @@ function Grain(parentArray,buffer,position,size,speed) {
     this.size = size;
     this.speed = speed;
     this.i = 0;
-    this.pan = tombola.rangeFloat(-1,1);
+    this.pan = tombola.rangeFloat(-0.6,0.6);
 }
 proto = Grain.prototype;
 
@@ -146,7 +171,7 @@ proto.process = function(signal,mix) {
 
     // amp //
     var amp = 1;
-    var fade = 0.1;
+    var fade = 0.4;
     var ml = Math.floor(this.size * fade);
     if (this.i < ml) {
         amp = (this.i/ml);
@@ -167,8 +192,8 @@ proto.process = function(signal,mix) {
 
     // mix //
     return [
-        (signal[0]) + (sample[1] * amp),
-        (signal[1]) + (sample[0] * amp)
+        (signal[0]) + (sample[0] * amp),
+        (signal[1]) + (sample[1] * amp)
     ];
     //  * (1 + -p)
 };
