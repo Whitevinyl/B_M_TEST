@@ -153,7 +153,9 @@ proto.generateClicks = function() {
 
     var chorus = new audio.GranularChorusIII();
 
+    var control = new audio.PerlinMod();
 
+    var delay = new audio.GranularDelay();
 
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
@@ -173,8 +175,9 @@ proto.generateClicks = function() {
         process = sample.process(signal,1,i);
         signal = signalTest(process,signal);
 
-        process = chorus.process(signal,900,5,0.3);
-        signal = signalTest(process,signal);
+        /*var int = audio.controlRange(-5,5,control.process(1.1));
+        process = chorus.process(signal,900,-12,0.4);
+        signal = signalTest(process,signal);*/
 
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
@@ -189,7 +192,8 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,4000,0.2,0.5);
         signal = signalTest(process,signal);*/
 
-
+        process = delay.process(signal,800,40,20000,0,1);
+        signal = signalTest(process,signal);
 
 
         /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
