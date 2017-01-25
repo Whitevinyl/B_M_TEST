@@ -46,7 +46,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     var space = size;
     var s = speed;
     if (s<0) s = -s;
-    var buffer = delay + size;
+    var buffer = delay;
 
 
     // set rate of grain creation //
@@ -84,7 +84,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
                 position = buffer - position;
             }
             var bl = this.memory[0].length-1;
-            this.grains.push( new Grain(this.grains,this.memory,tombola.range(bl - delay - 200, bl - delay),size,speed) );
+            this.grains.push( new Grain(this.grains,this.memory,tombola.range(bl - delay, bl),size,speed) );
         }
 
 
@@ -164,9 +164,10 @@ proto.process = function(signal,mix) {
 
     // mix //
     return [
-        (signal[0]) + (sample[1] * amp * (1 + -p)),
-        (signal[1]) + (sample[0] * amp * (1 + p))
+        (signal[0]) + (sample[1] * amp),
+        (signal[1]) + (sample[0] * amp)
     ];
+    //  * (1 + -p)
 };
 
 //-------------------------------------------------------------------------------------------
