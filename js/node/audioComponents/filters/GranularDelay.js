@@ -48,7 +48,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     var space = size;
     var s = speed;
     if (s<0) s = -s;
-    var buffer = delay;
+    var buffer = delay + (size * s);
 
 
     // set rate of grain creation //
@@ -65,7 +65,6 @@ proto.process = function(signal,delay,density,size,speed,mix) {
         signal[0] + (this.feedbackSample[0] * feedback),
         signal[1] + (this.feedbackSample[1] * feedback)
     ];
-    //memorySample = this.lp.process(memorySample,6000,0.95);
 
 
     // record to sample buffer for the grains to use //
@@ -77,19 +76,21 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
     // we have enough buffer - let's go //
     l = this.memory[0].length;
-    if (l>2000) {
+    if (l>1) {
 
         // trim memory buffer length //
-        while (this.memory[0].length > delay) {
+        while (this.memory[0].length > buffer) {
             this.memory[0].shift();
             this.memory[1].shift();
         }
 
 
         // origin //
-        var bufferLength = Math.min(delay, this.memory[0].length-1);
-        var origin = (bufferLength/2) + ((delay*0.499) * this.mod.process(0.4));
-
+        var bufferLength = Math.min(buffer, this.memory[0].length-1);
+        var origin = ((bufferLength - (size*s))/2) + ((delay/2) * this.mod.process(0.4));
+        if (speed<0) {
+            origin += (size*s);
+        }
 
         // create grains //
         this.i++;
