@@ -84,7 +84,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
             var bl = this.memory[0].length-pd-1;
             var position = tombola.range(bl - Math.min(bl,delay), bl);
             var orig = bl - Math.min(bl,10000);
-            position = tombola.range(orig, orig + Math.min(bl,10000));
+            position = tombola.range(orig, orig + Math.min(bl,9000));
             this.grains.push( new Grain(this.grains,this.memory,position,size,speed) );
         }
 
