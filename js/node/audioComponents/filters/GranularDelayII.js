@@ -8,7 +8,7 @@ var Q = require('./Q');
 var lowPass = require('./LowPass');
 var Perlin = require('../voices/Perlin');
 
-// first attempt at a granular delay
+// second attempt at a granular delay, with multiple moving sources
 
 
 //-------------------------------------------------------------------------------------------
@@ -16,19 +16,16 @@ var Perlin = require('../voices/Perlin');
 //-------------------------------------------------------------------------------------------
 
 
-function GranularDelay() {
+function GranularDelayII() {
     this.memory = [[],[]];
     this.feedbackSample = [0,0];
     this.grains = [];
     this.i = 0;
 
-    this.lp1 = new Resonant.stereo();
-    this.lp = new lowPass.stereo();
-    this.lp2 = new lowPass.stereo();
-    this.Q = new Q.stereo();
+    this.filter = new Resonant.stereo();
     this.mod = new Perlin();
 }
-var proto = GranularDelay.prototype;
+var proto = GranularDelayII.prototype;
 
 
 //-------------------------------------------------------------------------------------------
@@ -36,7 +33,7 @@ var proto = GranularDelay.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,density,size,speed,mix) {
+proto.process = function(signal,delay,overlap,size,speed,mix) {
     var i, l;
 
 
@@ -45,22 +42,18 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // calculate required buffer time //
-    var space = size;
     var s = speed;
     if (s<0) s = -s;
     var buffer = delay + (size * s);
 
 
-    // set rate of grain creation //
-    var rate = size/density;
+    // set rate of grain creation from overlap//
+    var rate = size * (overlap/100);
 
 
-
-
-    var feedback = 0.75;
-    var grainSignal = [0,0];
 
     // filter incoming before recording //
+    var feedback = 0.75;
     var memorySample = [
         signal[0] + (this.feedbackSample[0] * feedback),
         signal[1] + (this.feedbackSample[1] * feedback)
@@ -75,6 +68,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // we have enough buffer - let's go //
+    var grainSignal = [0,0];
     l = this.memory[0].length;
     if (l>1) {
 
@@ -97,14 +91,8 @@ proto.process = function(signal,delay,density,size,speed,mix) {
         if (this.i>rate) {
             this.i = 0;
 
-            /*var pd = 600;
-            var bl = this.memory[0].length-pd-1;
-            var position = tombola.range(bl - Math.min(bl,delay), bl);
-            var orig = bl - Math.min(bl,delay);
-            position = tombola.range(orig, orig + Math.min(bl,Math.round(delay*0.9)));*/
 
             var range = Math.min(bufferLength/2,2000);
-            //range = 0;
             var position = tombola.range(origin - range, origin + range);
 
 
@@ -117,15 +105,12 @@ proto.process = function(signal,delay,density,size,speed,mix) {
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
-        grainSignal[0] *= (1/(density));
-        grainSignal[1] *= (1/(density));
+        grainSignal[0] *= (overlap/100);
+        grainSignal[1] *= (overlap/100);
     }
 
     // feedback //
-    //grainSignal = this.lp2.process(grainSignal,4000,1);
-    //grainSignal = this.lp2.process(grainSignal,3000,0.96);
-    grainSignal = this.lp1.process(grainSignal,3100,0.4,0.8,'LP');
-    //grainSignal = this.Q.process(grainSignal, 6000, 0.2, -0.3);
+    grainSignal = this.filter.process(grainSignal,3100,0.4,0.8,'LP');
     this.feedbackSample = grainSignal;
 
     // mix //
@@ -212,7 +197,8 @@ proto.kill = function() {
 };
 
 
-module.exports = GranularDelay;
+module.exports = GranularDelayII;
+
 
 
 

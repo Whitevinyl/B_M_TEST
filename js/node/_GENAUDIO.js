@@ -152,6 +152,7 @@ proto.generateClicks = function() {
     var resampler = new audio.Resampler();
 
     var chorus = new audio.GranularChorusIII();
+    var chorusPhase = new audio.GranularChorusII();
 
     var control = new audio.PerlinMod();
 
@@ -176,7 +177,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
         /*var int = audio.controlRange(-5,5,control.process(1.1));
-        process = chorus.process(signal,900,17,0.1);
+        process = chorus.process(signal,900,12,1);
         signal = signalTest(process,signal);*/
 
 
@@ -193,12 +194,12 @@ proto.generateClicks = function() {
         /*process = chorus.process(signal,0.12,0.5);
         signal = signalTest(process,signal);*/
 
-        /*process = chorus.process(signal,4000,0.2,0.5);
+        /*process = chorusPhase.process(signal,2000,0.5,0.5);
         signal = signalTest(process,signal);*/
 
-
-        process = delay.process(signal,40000,2,8000,12,1);
+        process = delay.process(signal,40000,2,8000,5,1);
         signal = signalTest(process,signal);
+
 
         /*process = delay.process(signal,8000,3,1470,0,1);
         signal = signalTest(process,signal);*/
