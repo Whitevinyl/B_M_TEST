@@ -35,7 +35,7 @@ var proto = GranularDelayII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,overlap,size,speed,mix) {
+proto.process = function(signal,delay,overlap,size,scatter,rate,speed,mix) {
     var i, l;
 
 
@@ -87,13 +87,13 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
             center += (size*s);
         }
 
-        var origin1 = center + ((delay/2) * this.source1.process(1,25000));
-        var origin2 = center + ((delay/2) * this.source2.process(1,25000));
+        var origin1 = center + ((delay/2) * this.source1.process(rate,120000));
+        var origin2 = center + ((delay/2) * this.source2.process(rate,120000));
 
 
 
 
-        var range = Math.min(bufferLength/2,2000);
+        var range = Math.min(bufferLength/2,scatter*30);
 
 
         var position = 0;
@@ -122,8 +122,8 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
-        grainSignal[0] *= (overlap/100);
-        grainSignal[1] *= (overlap/100);
+        grainSignal[0] *= (overlap/200);
+        grainSignal[1] *= (overlap/200);
     }
 
 

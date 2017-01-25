@@ -182,7 +182,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        process = delay2.process(signal,40000,30,8000,0,1);
+        process = delay2.process(signal,40000,35,8000,10,0.7,0,1);
         signal = signalTest(process,signal);
 
 
