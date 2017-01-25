@@ -36,7 +36,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     var grainSignal = [0,0];
     // size of 900 is good (20.4 milliseconds) //
 
-    var feedback = 0.95;
+    var feedback = 0.75;
 
     // convert speed from interval //
     speed = utils.intervalToRatio(speed)-1;
@@ -50,7 +50,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
 
     // set rate of grain creation //
-    var rate = size*0.1;
+    var rate = size*0.2;
 
     // filter incoming before recording //
     var memorySample = [
@@ -77,14 +77,14 @@ proto.process = function(signal,delay,density,size,speed,mix) {
 
         // create grains //
         this.i++;
-        if (this.i>rate  && this.grains.length<density) {
+        if (this.i>rate  && this.grains.length<(density+1)) {
             this.i = 0;
 
             var pd = 600;
             var bl = this.memory[0].length-pd-1;
             var position = tombola.range(bl - Math.min(bl,delay), bl);
-            var orig = bl - Math.min(bl,9000);
-            position = tombola.range(orig, orig + Math.min(bl,4000));
+            var orig = bl - Math.min(bl,10000);
+            position = tombola.range(orig, orig + Math.min(bl,10000));
             this.grains.push( new Grain(this.grains,this.memory,position,size,speed) );
         }
 
@@ -99,7 +99,7 @@ proto.process = function(signal,delay,density,size,speed,mix) {
     }
 
     // feedback //
-    grainSignal = this.lp2.process(grainSignal,16000,0.8);
+    grainSignal = this.lp2.process(grainSignal,7000,1);
     this.feedbackSample = grainSignal;
 
     // mix //
@@ -146,7 +146,7 @@ proto.process = function(signal,mix) {
 
     // amp //
     var amp = 1;
-    var fade = 0.2;
+    var fade = 0.1;
     var ml = Math.floor(this.size * fade);
     if (this.i < ml) {
         amp = (this.i/ml);
@@ -162,7 +162,7 @@ proto.process = function(signal,mix) {
 
     // pan //
     //sample = common.toMono(sample);
-    sample = common.pan(sample,this.pan);
+    //sample = common.pan(sample,this.pan);
 
 
     // mix //
