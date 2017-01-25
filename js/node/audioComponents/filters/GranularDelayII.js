@@ -4,15 +4,14 @@ var Tombola = require('tombola');
 var tombola = new Tombola();
 
 var Resonant = require('./Resonant');
-var Q = require('./Q');
-var lowPass = require('./LowPass');
 var Perlin = require('../voices/Perlin');
+var Glide = require('../mods/Glide');
 
 // second attempt at a granular delay, with multiple moving sources
 
 
 //-------------------------------------------------------------------------------------------
-//  PITCH-SHIFT INIT
+//  DELAY INIT
 //-------------------------------------------------------------------------------------------
 
 
@@ -24,12 +23,15 @@ function GranularDelayII() {
 
     this.filter = new Resonant.stereo();
     this.mod = new Perlin();
+
+    this.source1 = new Source();
+    this.source2 = new Source();
 }
 var proto = GranularDelayII.prototype;
 
 
 //-------------------------------------------------------------------------------------------
-//  PITCH-SHIFT PROCESS
+//  DELAY PROCESS
 //-------------------------------------------------------------------------------------------
 
 
@@ -48,7 +50,7 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
 
 
     // set rate of grain creation from overlap//
-    var rate = size * (overlap/100);
+    var trigger = size * (overlap/100);
 
 
 
@@ -66,7 +68,6 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
 
 
 
-
     // we have enough buffer - let's go //
     var grainSignal = [0,0];
     l = this.memory[0].length;
@@ -79,28 +80,44 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
         }
 
 
-        // origin //
+        // FIND SAMPLE ORIGIN //
         var bufferLength = Math.min(buffer, this.memory[0].length-1);
-        var origin = ((bufferLength - (size*s))/2) + ((delay/2) * this.mod.process(1));
+        var center = ((bufferLength - (size*s))/2);
         if (speed<0) {
-            origin += (size*s);
+            center += (size*s);
         }
 
-        // create grains //
+        var origin1 = center + ((delay/2) * this.source1.process(1,25000));
+        var origin2 = center + ((delay/2) * this.source2.process(1,25000));
+
+
+
+
+        var range = Math.min(bufferLength/2,2000);
+
+
+        var position = 0;
+
+
+
+        // CREATE GRAINS //
         this.i++;
-        if (this.i>rate) {
+        if (this.i>trigger) {
             this.i = 0;
 
+            // source 1 //
+            position = tombola.range(origin1 - range, origin1 + range);
+            this.grains.push( new Grain(this.grains,this.memory,position,size,speed,overlap/100,this.source1.panning) );
 
-            var range = Math.min(bufferLength/2,2000);
-            var position = tombola.range(origin - range, origin + range);
-
-
-            this.grains.push( new Grain(this.grains,this.memory,position,size,speed) );
+            // source 2 //
+            position = tombola.range(origin2 - range, origin2 + range);
+            this.grains.push( new Grain(this.grains,this.memory,position,size,speed,overlap/100,this.source2.panning) );
         }
 
 
-        // process any active instances //
+
+
+        // PROCESS ACTIVE GRAINS //
         l = this.grains.length-1;
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
@@ -109,11 +126,13 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
         grainSignal[1] *= (overlap/100);
     }
 
-    // feedback //
+
+    // FILTER & FEEDBACK //
     grainSignal = this.filter.process(grainSignal,3100,0.4,0.8,'LP');
     this.feedbackSample = grainSignal;
 
-    // mix //
+
+    // RETURN MIX //
     return [
         (signal[0]) + (grainSignal[0] * mix),
         (signal[1]) + (grainSignal[1] * mix)
@@ -123,19 +142,50 @@ proto.process = function(signal,delay,overlap,size,speed,mix) {
 
 
 //-------------------------------------------------------------------------------------------
+//  SOURCE INIT
+//-------------------------------------------------------------------------------------------
+
+
+function Source() {
+    this.panning = tombola.rangeFloat(-1,1);
+    this.mod = new Glide();
+}
+proto = Source.prototype;
+
+
+//-------------------------------------------------------------------------------------------
+//  SOURCE PROCESS
+//-------------------------------------------------------------------------------------------
+
+
+proto.process = function(rate,chance) {
+
+    // pan //
+    this.panning += tombola.rangeFloat(-0.005,0.005);
+    this.panning = utils.valueInRange(this.panning, -1, 1);
+
+    // position //
+    return this.mod.process(rate,chance);
+};
+
+
+
+
+//-------------------------------------------------------------------------------------------
 //  GRAIN INIT
 //-------------------------------------------------------------------------------------------
 
 
-function Grain(parentArray,buffer,position,size,speed) {
+function Grain(parentArray,buffer,position,size,speed,fade,pan) {
     this.parentArray = parentArray;
     this.buffer = buffer;
     this.origin = position;
     this.playHead = position;
     this.size = size;
     this.speed = speed;
+    this.fade = fade;
+    this.panning = pan;
     this.i = 0;
-    this.pan = tombola.rangeFloat(-0.6,0.6);
 }
 proto = Grain.prototype;
 
@@ -157,8 +207,7 @@ proto.process = function(signal,mix) {
 
     // amp //
     var amp = 1;
-    var fade = 0.4;
-    var ml = Math.floor(this.size * fade);
+    var ml = Math.floor(this.size * this.fade);
     if (this.i < ml) {
         amp = (this.i/ml);
     }
@@ -171,17 +220,15 @@ proto.process = function(signal,mix) {
     // get sample //
     var sample = common.interpolate(this.buffer,this.playHead);
 
-    // pan //
-    //sample = common.toMono(sample);
-    //sample = common.pan(sample,this.pan);
 
+    // pan //
+    sample = common.pan(sample,this.panning);
 
     // mix //
     return [
         (signal[0]) + (sample[0] * amp),
         (signal[1]) + (sample[1] * amp)
     ];
-    //  * (1 + -p)
 };
 
 //-------------------------------------------------------------------------------------------

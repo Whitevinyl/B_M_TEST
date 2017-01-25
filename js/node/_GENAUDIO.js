@@ -157,6 +157,7 @@ proto.generateClicks = function() {
     var control = new audio.PerlinMod();
 
     var delay = new audio.GranularDelay();
+    var delay2 = new audio.GranularDelayII();
 
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
@@ -181,7 +182,8 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-
+        process = delay2.process(signal,40000,30,8000,0,1);
+        signal = signalTest(process,signal);
 
 
         process = kick.process(signal,1,i);
@@ -197,8 +199,8 @@ proto.generateClicks = function() {
         /*process = chorusPhase.process(signal,2000,0.5,0.5);
         signal = signalTest(process,signal);*/
 
-        process = delay.process(signal,40000,2,8000,5,1);
-        signal = signalTest(process,signal);
+        /*process = delay.process(signal,40000,2,8000,5,1);
+        signal = signalTest(process,signal);*/
 
 
         /*process = delay.process(signal,8000,3,1470,0,1);

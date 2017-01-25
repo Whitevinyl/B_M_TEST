@@ -30,6 +30,7 @@ var GranularChorus = require('./audioComponents/filters/GranularChorus');
 var GranularChorusII = require('./audioComponents/filters/GranularChorusII');
 var GranularChorusIII = require('./audioComponents/filters/GranularChorusIII');
 var GranularDelay = require('./audioComponents/filters/GranularDelay');
+var GranularDelayII = require('./audioComponents/filters/GranularDelayII');
 var LowPass = require('./audioComponents/filters/LowPass');
 var LowPassII = require('./audioComponents/filters/LowPassII');
 var Noise = require('./audioComponents/filters/Noise');
@@ -79,6 +80,7 @@ var White = require('./audioComponents/voices/White');
 
 // MODS //
 var FudgeChance = require('./audioComponents/mods/FudgeChance');
+var Glide = require('./audioComponents/mods/Glide');
 var LFO = require('./audioComponents/mods/LFO');
 var MoveTo = require('./audioComponents/mods/MoveTo');
 var PerlinMod = require('./audioComponents/mods/Perlin');
@@ -1409,24 +1411,6 @@ Looper.prototype.process = function(r,g,c) {
 };
 
 
-// GLIDE //
-function Glide() {
-    this.p = tombola.rangeFloat(-1,1);
-    this.v = tombola.rangeFloat(-1,1)/sampleRate;
-}
-Glide.prototype.process = function(r,c,d) {
-    this.p += this.v;
-    if (this.p<-1 || this.p>1 || tombola.chance(1,c) || (d && d>0 && this.v<0) || (d && d<0 && this.v>0)) {
-        var mn = -r;
-        var mx = r;
-        if (d && d>0) mn = 0;
-        if (d && d<0) mx = 0;
-        this.p = tombola.rangeFloat(-1,1);
-        this.v = tombola.rangeFloat(mn,mx)/sampleRate;
-    }
-    return valueInRange(this.p,-1,1);
-};
-
 
 // GLIDE2 //
 function Glide2() {
@@ -1576,6 +1560,7 @@ module.exports = {
     GranularChorusII: GranularChorusII,
     GranularChorusIII: GranularChorusIII,
     GranularDelay: GranularDelay,
+    GranularDelayII: GranularDelayII,
     LowPass: LowPass.mono,
     StereoLowPass: LowPass.stereo,
     LowPassII: LowPassII.mono,
