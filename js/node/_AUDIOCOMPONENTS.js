@@ -26,6 +26,7 @@ var reverseDelay = require('./audioComponents/filters/ReverseDelay');
 var saturation = require('./audioComponents/filters/Saturation');
 
 // PERSISTENT FILTERS //
+var GrainHold = require('./audioComponents/filters/GrainHold');
 var GranularChorus = require('./audioComponents/filters/GranularChorus');
 var GranularChorusII = require('./audioComponents/filters/GranularChorusII');
 var GranularChorusIII = require('./audioComponents/filters/GranularChorusIII');
@@ -1557,6 +1558,7 @@ module.exports = {
     FilterDownSample: FilterDownSample,
     FilterStereoDownSample: FilterStereoDownSample,
     Repeater: Repeater,
+    GrainHold: GrainHold,
     GranularChorus: GranularChorus,
     GranularChorusII: GranularChorusII,
     GranularChorusIII: GranularChorusIII,
