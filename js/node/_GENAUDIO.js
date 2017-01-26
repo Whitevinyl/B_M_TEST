@@ -230,13 +230,13 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
         var gh2 = {
-            hold: 10000,
-            grainSize: 2000,
-            overlap: 200,
+            hold: 25000,
+            grainSize: 4000,
+            overlap: 700,
             pitch: 0,
             reverse: false,
             feedback: 20,
-            mix: 0.5
+            mix: 1
         };
 
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);

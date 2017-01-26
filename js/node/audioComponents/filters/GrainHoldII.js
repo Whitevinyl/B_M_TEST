@@ -41,7 +41,7 @@ proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
     // calculate required buffer time //
     var s = speed;
     if (s<0) s = -s;
-    var buffer = (size * (1+s));
+    var buffer = ((size*3) * (1+s));
 
 
 
@@ -83,9 +83,8 @@ proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
         this.i--;
         if (this.i<1) {
             this.i = tombola.range(20000,50000);
-            this.i = 10000;
 
-            this.grainPlayers.push( new Grain(this.grainPlayers,this.memory,hold,size,overlap,speed,direction) );
+            this.grainPlayers.push( new GrainPlayer(this.grainPlayers,this.memory,hold,size,overlap,speed,direction) );
         }
 
 
@@ -150,7 +149,7 @@ proto.process = function(signal,mix) {
         return signal;
     }
 
-    var i,l;
+    var j,le;
     var grainSignal = [0,0];
     var trigger = this.grainSize - this.overlap;
 
@@ -168,9 +167,9 @@ proto.process = function(signal,mix) {
 
 
     // PROCESS ACTIVE GRAINS //
-    l = this.grains.length-1;
-    for (i=l; i>=0; i--) {
-        grainSignal = this.grains[i].process(grainSignal, 0.5);
+    le = this.grains.length-1;
+    for (j=le; j>=0; j--) {
+        grainSignal = this.grains[j].process(grainSignal, 0.5);
     }
 
 
@@ -254,7 +253,7 @@ proto.process = function(signal,mix) {
 
 
         // AMP / FADES //
-        var amp = common.fadeEnvelope(this.i,this.size,0.4);
+        var amp = common.fadeEnvelope(this.i,this.size,0.2);
 
 
         // GET SAMPLE //
