@@ -197,17 +197,18 @@ proto.generateClicks = function() {
 
 
         var dl = {
-            delayTime: 35000,
+            delayTime: 5000,
             overlap: 10,
-            grainSize: 8000,
-            scatter: 50,
-            movement: 0.1,
-            pitch: 12,
+            grainSize: 9000,
+            scatter: 10,
+            movement: 0.35,
+            pitch: 0,
+            reverse: true,
             feeedback: 100,
             mix: 1
         };
 
-        process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.feeedback,dl.mix);
+        process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.feeedback,dl.mix);
         signal = signalTest(process,signal);
 
 
