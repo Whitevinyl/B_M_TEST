@@ -46,7 +46,7 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
     // calculate required buffer time //
     var s = speed;
     if (s<0) s = -s;
-    var buffer = (size * s);
+    var buffer = ((size * 1.5) * (1+s));
 
 
     // set rate of grain creation from size //
@@ -68,6 +68,7 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
 
 
 
+
     // we have enough buffer - let's go //
     var grainSignal = [0,0];
     l = this.memory[0].length;
@@ -83,9 +84,11 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
         // FIND SAMPLE ORIGIN //
         var bufferLength = this.memory[0].length-1;
         var center = (bufferLength/2);
+        var halfDelay = (delay/2);
+        var preDelay = 100;
 
-        var dl1 = bufferLength - center + ((delay/2) * this.source1.process(movement,120000));
-        var dl2 = bufferLength - center + ((delay/2) * this.source2.process(movement,120000));
+        var dl1 = preDelay + halfDelay + (halfDelay * this.source1.process(movement,120000));
+        var dl2 = preDelay + halfDelay + (halfDelay * this.source2.process(movement,120000));
 
 
 
@@ -101,6 +104,7 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
         this.i++;
         if (this.i>trigger) {
             this.i = 0;
+
 
             // source 1 //
             dl = tombola.range(dl1 - range, dl1 + range);
@@ -119,8 +123,9 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
-        grainSignal[0] *= (1+Math.ceil(overlap/size));
-        grainSignal[1] *= (1+Math.ceil(overlap/size));
+        //console.log(grainSignal);
+        grainSignal[0] *= (1/(3+Math.ceil(overlap/size)));
+        grainSignal[1] *= (1/(3+Math.ceil(overlap/size)));
     }
 
 
@@ -177,11 +182,11 @@ proto.process = function(rate,chance) {
 
 function Grain(parentArray,buffer,delay,size,speed,overlap,pan) {
     this.parentArray = parentArray;
-    this.buffer = [buffer[0].slice(),buffer[1].slice()];
+    this.buffer = [buffer[0].concat(),buffer[1].concat()];
     this.delay = delay;
-    this.playHead = 0;
+    this.playHead = 1;
     this.size = size;
-    this.speed = speed;
+    this.speed = 1 + speed;
     this.overlap = overlap;
     this.panning = pan;
     this.i = 0;
@@ -209,7 +214,7 @@ proto.process = function(signal,mix) {
         var size = (this.size + this.overlap);
 
         this.i++;
-        if (this.i>=(this.size+this.overlap)) {
+        if (this.i>=size) {
             this.kill();
             return signal;
         }
@@ -234,6 +239,7 @@ proto.process = function(signal,mix) {
 
         // pan //
         sample = common.pan(sample,this.panning);
+
 
         // mix //
         return [
