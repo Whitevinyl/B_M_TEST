@@ -19,10 +19,9 @@ function GrainHold() {
     this.memory = [[],[]];
     this.feedbackSample = [0,0];
     this.grains = [];
-    this.i = 0;
+    this.i = 5000;
 
     this.filter = new Resonant.stereo();
-    this.mod = new Perlin();
 }
 var proto = GrainHold.prototype;
 
@@ -32,7 +31,7 @@ var proto = GrainHold.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,size,hold,speed,reverse,mix) {
+proto.process = function(signal,delay,size,hold,speed,reverse,feedback,mix) {
     var i, l;
 
 
@@ -47,10 +46,17 @@ proto.process = function(signal,delay,size,hold,speed,reverse,mix) {
 
 
 
+    // inject stored feedback to buffer //
+    feedback = utils.valueInRange(feedback/100, 0, 0.75);
+    var memorySample = [
+        signal[0] + (this.feedbackSample[0] * feedback),
+        signal[1] + (this.feedbackSample[1] * feedback)
+    ];
+
 
     // record to sample buffer for the grains to use //
-    this.memory[0].push(signal[0]);
-    this.memory[1].push(signal[1]);
+    this.memory[0].push(memorySample[0]);
+    this.memory[1].push(memorySample[1]);
 
 
 
@@ -78,6 +84,7 @@ proto.process = function(signal,delay,size,hold,speed,reverse,mix) {
         this.i--;
         if (this.i<1) {
             this.i = tombola.range(20000,50000);
+            this.i = 10000;
 
             this.grains.push( new Grain(this.grains,this.memory,delay,hold,speed,direction) );
         }
@@ -97,7 +104,7 @@ proto.process = function(signal,delay,size,hold,speed,reverse,mix) {
 
     // FILTER //
     grainSignal = this.filter.process(grainSignal,3100,0.4,0.8,'LP');
-
+    this.feedbackSample = grainSignal;
 
     // RETURN MIX //
     return [
@@ -120,7 +127,7 @@ proto.process = function(signal,delay,size,hold,speed,reverse,mix) {
 function Grain(parentArray,buffer,delay,hold,speed,direction) {
     this.parentArray = parentArray;
     this.buffer = [buffer[0].slice(),buffer[1].slice()];
-    this.fade = Math.round((buffer[0].length-1) * 0.2);
+    this.fade = Math.round((buffer[0].length-1) * 0.5);
     this.delay = delay;
     this.hold = hold;
     this.speed = direction + (speed * direction);
@@ -130,6 +137,7 @@ function Grain(parentArray,buffer,delay,hold,speed,direction) {
     if (direction === -1) this.playHead = buffer[0].length-1;
 
     this.crossFade();
+    //console.log(this.fade);
 }
 proto = Grain.prototype;
 
@@ -149,7 +157,7 @@ proto.process = function(signal,mix) {
 
     // PLAY GRAIN //
     else {
-        var size = this.buffer.length-1;
+        var size = this.buffer[0].length-1;
 
         // COUNT / KILL //
         this.i++;
@@ -159,18 +167,29 @@ proto.process = function(signal,mix) {
         }
 
 
-
-
         // MOVE PLAYHEAD //
         this.playHead += this.speed;
-        if (this.playHead >= (size - this.fade)) {
-            this.playHead = 1;
+
+
+        // LOOP //
+        var a = 1;
+        var b = size - this.fade;
+
+        if (this.speed > 0) {
+            if (this.playHead >= b) {
+                this.playHead = a;
+            }
+        }
+        else {
+            if (this.playHead <= a) {
+                this.playHead = b;
+            }
         }
 
 
         // AMP / FADES //
         var amp = 1;
-        var fade = 0.15;
+        var fade = 0.4;
 
         var ml = Math.floor(this.hold * fade);
         if (this.i < ml) {
@@ -225,7 +244,7 @@ proto.kill = function() {
 };
 
 
-module.exports = GranularDelayIII;
+module.exports = GrainHold;
 
 
 

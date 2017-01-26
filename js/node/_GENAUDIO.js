@@ -160,6 +160,8 @@ proto.generateClicks = function() {
     var delay2 = new audio.GranularDelayII();
     var delay3 = new audio.GranularDelayIII();
 
+    var hold = new audio.GrainHold();
+
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
     var t1 = audioClock.randomBeat();
@@ -196,7 +198,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        var dl = {
+        /*var dl = {
             delayTime: 9000,
             overlap: 10,
             grainSize: 1500,
@@ -210,6 +212,20 @@ proto.generateClicks = function() {
         };
 
         process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.flip,dl.feeedback,dl.mix);
+        signal = signalTest(process,signal);*/
+
+
+        var gh = {
+            delayTime: 100,
+            grainSize: 8000,
+            hold: 10000,
+            pitch: 12,
+            reverse: true,
+            feedback: 90,
+            mix: 0.5
+        };
+
+        process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.feedback,gh.mix);
         signal = signalTest(process,signal);
 
 
