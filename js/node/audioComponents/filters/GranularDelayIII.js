@@ -35,7 +35,7 @@ var proto = GranularDelayIII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,overlap,size,scatter,movement,speed,reverse,feedback,mix) {
+proto.process = function(signal,delay,overlap,size,scatter,movement,speed,reverse,flip,feedback,mix) {
     var i, l;
 
 
@@ -82,7 +82,6 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,revers
 
 
         // FIND DELAY ORIGINS //
-        var bufferLength = this.memory[0].length-1;
         var halfDelay = (delay/2);
         var preDelay = 0;
 
@@ -90,9 +89,6 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,revers
         var dl2 = preDelay + halfDelay + (delay * this.source2.process(movement,120000));
         var dl = 0;
 
-
-        // SCATTER RANGE //
-        var range = Math.min(bufferLength/2,scatter*30);
 
 
         // REVERSE //
@@ -109,12 +105,12 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,revers
 
 
             // source 1 //
-            dl = tombola.range(dl1 - range, dl1 + range);
-            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,direction,overlap,this.source1.panning) );
+            dl = tombola.range(dl1 - scatter, dl1 + scatter);
+            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,direction,flip,overlap,this.source1.panning) );
 
             // source 2 //
-            dl = tombola.range(dl2 - range, dl2 + range);
-            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,direction,overlap,this.source2.panning) );
+            dl = tombola.range(dl2 - scatter, dl2 + scatter);
+            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,direction,flip,overlap,this.source2.panning) );
         }
 
 
@@ -182,13 +178,14 @@ proto.process = function(rate,chance) {
 //-------------------------------------------------------------------------------------------
 
 
-function Grain(parentArray,buffer,delay,size,speed,direction,overlap,pan) {
+function Grain(parentArray,buffer,delay,size,speed,direction,flip,overlap,pan) {
     this.parentArray = parentArray;
     this.buffer = [buffer[0].slice(),buffer[1].slice()];
     this.delay = delay;
     this.size = size;
     this.overlap = overlap;
-    this.speed = direction + speed;
+    this.speed = direction + (speed * direction);
+    this.flip = flip;
     this.panning = pan;
     this.i = 0;
 
@@ -206,25 +203,35 @@ proto = Grain.prototype;
 
 proto.process = function(signal,mix) {
 
-    // counting down delay //
+    // COUNT DOWN DELAY //
     if (this.delay>0) {
         this.delay--;
         return signal;
     }
 
-    // play grain //
+    // PLAY GRAIN //
     else {
-
-        this.playHead += this.speed;
         var size = (this.size + this.overlap);
 
+        // COUNT / KILL //
         this.i++;
         if (this.i>=size) {
             this.kill();
             return signal;
         }
 
-        // amp //
+
+        // DO A KICKFLIP //
+        if (this.flip && this.i === Math.round(size/2)) {
+            this.speed = -this.speed;
+        }
+
+
+        // MOVE PLAYHEAD //
+        this.playHead += this.speed;
+
+
+        // AMP / FADES //
         var amp = 1;
         var fade = 0.15;
 
@@ -238,23 +245,20 @@ proto.process = function(signal,mix) {
         amp *= mix;
 
 
-        // get sample //
+        // GET SAMPLE //
         var sample = common.interpolate(this.buffer,this.playHead);
 
 
-        // pan //
+        // PANNING //
         sample = common.pan(sample,this.panning);
 
 
-        // mix //
+        // RETURN MIX //
         return [
             signal[0] + (sample[0] * amp),
             signal[1] + (sample[1] * amp)
         ];
-
     }
-
-
 };
 
 //-------------------------------------------------------------------------------------------
