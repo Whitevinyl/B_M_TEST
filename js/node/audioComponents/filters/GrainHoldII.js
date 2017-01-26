@@ -30,7 +30,7 @@ var proto = GrainHoldII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
+proto.process = function(signal,hold,size,overlap,jitter,speed,reverse,feedback,mix) {
     var i, l;
 
 
@@ -41,7 +41,7 @@ proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
     // calculate required buffer time //
     var s = speed;
     if (s<0) s = -s;
-    var buffer = ((size*3) * (1+s));
+    var buffer = ((size*4) * (1+s));
 
 
 
@@ -83,8 +83,9 @@ proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
         this.i--;
         if (this.i<1) {
             this.i = tombola.range(20000,50000);
+            //this.i = 5000;
 
-            this.grainPlayers.push( new GrainPlayer(this.grainPlayers,this.memory,hold,size,overlap,speed,direction) );
+            this.grainPlayers.push( new GrainPlayer(this.grainPlayers,this.memory,tombola.range(hold/2,hold*1.5),size,overlap,jitter,speed,direction) );
         }
 
 
@@ -119,7 +120,7 @@ proto.process = function(signal,hold,size,overlap,speed,reverse,feedback,mix) {
 //  GRAIN PLAYER INIT
 //-------------------------------------------------------------------------------------------
 
-function GrainPlayer(parentArray,buffer,hold,grainSize,overlap,speed,direction) {
+function GrainPlayer(parentArray,buffer,hold,grainSize,overlap,jitter,speed,direction) {
     this.grains = [];
 
     this.parentArray = parentArray;
@@ -127,11 +128,15 @@ function GrainPlayer(parentArray,buffer,hold,grainSize,overlap,speed,direction) 
     this.hold = hold;
     this.grainSize = grainSize;
     this.overlap = overlap;
+    this.jitter = Math.min(jitter,grainSize-overlap-100);
     this.speed = speed;
     this.direction = direction;
 
     this.i = 0;
     this.life = 0;
+    this.panning = tombola.rangeFloat(-0.5,0.5);
+    this.adsr = [1,44,1,55];
+    this.trigger = (this.grainSize - this.overlap) + tombola.range(-this.jitter,this.jitter);
 }
 proto = GrainPlayer.prototype;
 
@@ -151,13 +156,14 @@ proto.process = function(signal,mix) {
 
     var j,le;
     var grainSignal = [0,0];
-    var trigger = this.grainSize - this.overlap;
 
 
     // CREATE GRAINS //
     this.i++;
-    if (this.i >= trigger) {
+    if (this.i >= this.trigger) {
         this.i = 0;
+        this.trigger = (this.grainSize - this.overlap) + tombola.range(-this.jitter,this.jitter);
+
         var position = tombola.range(0,(this.buffer[0].length-1) - this.grainSize);
         if (this.direction === -1) {
             position += this.grainSize;
@@ -172,9 +178,12 @@ proto.process = function(signal,mix) {
         grainSignal = this.grains[j].process(grainSignal, 0.5);
     }
 
+    // PANNING //
+    grainSignal = common.pan(grainSignal,this.panning);
+
 
     // ENVELOPE //
-    var amp = common.fadeEnvelope(this.life,this.hold,0.4);
+    var amp = common.ADSREnvelope(this.life,this.hold,this.adsr);
 
 
     // RETURN MIX //
