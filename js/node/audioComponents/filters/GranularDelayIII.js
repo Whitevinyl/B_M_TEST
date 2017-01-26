@@ -46,11 +46,11 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
     // calculate required buffer time //
     var s = speed;
     if (s<0) s = -s;
-    var buffer = ((size * 1.5) * (1+s));
+    var buffer = ((size * 2) * (1+s));
 
 
     // set rate of grain creation from size //
-    var trigger = size;
+    var trigger = size*0.7;
 
 
 
@@ -87,8 +87,8 @@ proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedba
         var halfDelay = (delay/2);
         var preDelay = 100;
 
-        var dl1 = preDelay + halfDelay + (halfDelay * this.source1.process(movement,120000));
-        var dl2 = preDelay + halfDelay + (halfDelay * this.source2.process(movement,120000));
+        var dl1 = preDelay + halfDelay + (delay * this.source1.process(movement,120000));
+        var dl2 = preDelay + halfDelay + (delay * this.source2.process(movement,120000));
 
 
 
@@ -221,7 +221,7 @@ proto.process = function(signal,mix) {
 
         // amp //
         var amp = 1;
-        var fade = 0.35;
+        var fade = 0.15;
 
         var ml = Math.floor(size * fade);
         if (this.i < ml) {
