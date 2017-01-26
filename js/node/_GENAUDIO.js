@@ -234,7 +234,7 @@ proto.generateClicks = function() {
             grainSize: 5000,
             overlap: 2000,
             jitter: 500,
-            pitch: 0.3,
+            pitch: 0.4,
             reverse: false,
             feedback: 100,
             mix: 1
