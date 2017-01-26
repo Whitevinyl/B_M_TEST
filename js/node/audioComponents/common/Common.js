@@ -13,6 +13,7 @@ var ArrayEnvelope = require('./ArrayEnvelope');
 var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
+var FadeEnvelope = require('./FadeEnvelope');
 var Interpolate = require('./Interpolate');
 var Pan = require('./Pan');
 var RampEnvelope = require('./RampEnvelope');
@@ -29,6 +30,7 @@ module.exports = {
     arrayEnvelope: ArrayEnvelope,
     clapEnvelope: ClapEnvelope,
     combine: Combine,
+    fadeEnvelope: FadeEnvelope,
     interpolate: Interpolate,
     rampEnvelope: RampEnvelope,
     range: ControlRange,
