@@ -31,6 +31,7 @@ var GranularChorusII = require('./audioComponents/filters/GranularChorusII');
 var GranularChorusIII = require('./audioComponents/filters/GranularChorusIII');
 var GranularDelay = require('./audioComponents/filters/GranularDelay');
 var GranularDelayII = require('./audioComponents/filters/GranularDelayII');
+var GranularDelayIII = require('./audioComponents/filters/GranularDelayIII');
 var LowPass = require('./audioComponents/filters/LowPass');
 var LowPassII = require('./audioComponents/filters/LowPassII');
 var Noise = require('./audioComponents/filters/Noise');
@@ -1561,6 +1562,7 @@ module.exports = {
     GranularChorusIII: GranularChorusIII,
     GranularDelay: GranularDelay,
     GranularDelayII: GranularDelayII,
+    GranularDelayIII: GranularDelayIII,
     LowPass: LowPass.mono,
     StereoLowPass: LowPass.stereo,
     LowPassII: LowPassII.mono,

@@ -158,6 +158,7 @@ proto.generateClicks = function() {
 
     var delay = new audio.GranularDelay();
     var delay2 = new audio.GranularDelayII();
+    var delay3 = new audio.GranularDelayIII();
 
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
@@ -182,14 +183,19 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        process = delay2.process(signal,40000,35,8000,10,0.7,0,1);
-        signal = signalTest(process,signal);
+
 
 
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
 
         process = clap.process(signal,1,i);
+        signal = signalTest(process,signal);
+
+        /*process = delay2.process(signal,35000,35,8000,10,1.7,0,100,1);
+        signal = signalTest(process,signal);*/
+
+        process = delay3.process(signal,35000,2000,8000,10,1.7,0,100,1);
         signal = signalTest(process,signal);
 
 

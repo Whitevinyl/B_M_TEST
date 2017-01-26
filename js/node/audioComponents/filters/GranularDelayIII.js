@@ -15,7 +15,7 @@ var Glide = require('../mods/Glide');
 //-------------------------------------------------------------------------------------------
 
 
-function GranularDelayII() {
+function GranularDelayIII() {
     this.memory = [[],[]];
     this.feedbackSample = [0,0];
     this.grains = [];
@@ -27,7 +27,7 @@ function GranularDelayII() {
     this.source1 = new Source();
     this.source2 = new Source();
 }
-var proto = GranularDelayII.prototype;
+var proto = GranularDelayIII.prototype;
 
 
 //-------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ var proto = GranularDelayII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,mix) {
+proto.process = function(signal,delay,overlap,size,scatter,movement,speed,feedback,mix) {
     var i, l;
 
 
@@ -46,11 +46,11 @@ proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,m
     // calculate required buffer time //
     var s = speed;
     if (s<0) s = -s;
-    var buffer = delay + (size * s);
+    var buffer = (size * s);
 
 
-    // set rate of grain creation from overlap//
-    var trigger = size * (overlap/100);
+    // set rate of grain creation from size //
+    var trigger = size;
 
 
 
@@ -81,14 +81,11 @@ proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,m
 
 
         // FIND SAMPLE ORIGIN //
-        var bufferLength = Math.min(buffer, this.memory[0].length-1);
-        var center = ((bufferLength - (size*s))/2);
-        if (speed<0) {
-            center += (size*s);
-        }
+        var bufferLength = this.memory[0].length-1;
+        var center = (bufferLength/2);
 
-        var origin1 = center + ((delay/2) * this.source1.process(rate,120000));
-        var origin2 = center + ((delay/2) * this.source2.process(rate,120000));
+        var dl1 = bufferLength - center + ((delay/2) * this.source1.process(movement,120000));
+        var dl2 = bufferLength - center + ((delay/2) * this.source2.process(movement,120000));
 
 
 
@@ -96,7 +93,7 @@ proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,m
         var range = Math.min(bufferLength/2,scatter*30);
 
 
-        var position = 0;
+        var dl = 0;
 
 
 
@@ -106,12 +103,12 @@ proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,m
             this.i = 0;
 
             // source 1 //
-            position = tombola.range(origin1 - range, origin1 + range);
-            this.grains.push( new Grain(this.grains,this.memory,position,size,speed,overlap/100,this.source1.panning) );
+            dl = tombola.range(dl1 - range, dl1 + range);
+            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,overlap,this.source1.panning) );
 
             // source 2 //
-            position = tombola.range(origin2 - range, origin2 + range);
-            this.grains.push( new Grain(this.grains,this.memory,position,size,speed,overlap/100,this.source2.panning) );
+            dl = tombola.range(dl2 - range, dl2 + range);
+            this.grains.push( new Grain(this.grains,this.memory,dl,size,speed,overlap,this.source2.panning) );
         }
 
 
@@ -122,8 +119,8 @@ proto.process = function(signal,delay,overlap,size,scatter,rate,speed,feedback,m
         for (i=l; i>=0; i--) {
             grainSignal = this.grains[i].process(grainSignal, 1);
         }
-        grainSignal[0] *= (overlap/200);
-        grainSignal[1] *= (overlap/200);
+        grainSignal[0] *= (1+Math.ceil(overlap/size));
+        grainSignal[1] *= (1+Math.ceil(overlap/size));
     }
 
 
@@ -178,14 +175,14 @@ proto.process = function(rate,chance) {
 //-------------------------------------------------------------------------------------------
 
 
-function Grain(parentArray,buffer,position,size,speed,fade,pan) {
+function Grain(parentArray,buffer,delay,size,speed,overlap,pan) {
     this.parentArray = parentArray;
-    this.buffer = buffer;
-    this.origin = position;
-    this.playHead = position;
+    this.buffer = [buffer[0].slice(),buffer[1].slice()];
+    this.delay = delay;
+    this.playHead = 0;
     this.size = size;
     this.speed = speed;
-    this.fade = fade;
+    this.overlap = overlap;
     this.panning = pan;
     this.i = 0;
 }
@@ -199,38 +196,54 @@ proto = Grain.prototype;
 
 proto.process = function(signal,mix) {
 
-    this.playHead += this.speed;
-
-    this.i++;
-    if (this.i>=this.size) {
-        this.kill();
+    // counting down delay //
+    if (this.delay>0) {
+        this.delay--;
         return signal;
     }
 
-    // amp //
-    var amp = 1;
-    var ml = Math.floor(this.size * this.fade);
-    if (this.i < ml) {
-        amp = (this.i/ml);
+    // play grain //
+    else {
+
+        this.playHead += this.speed;
+        var size = (this.size + this.overlap);
+
+        this.i++;
+        if (this.i>=(this.size+this.overlap)) {
+            this.kill();
+            return signal;
+        }
+
+        // amp //
+        var amp = 1;
+        var fade = 0.35;
+
+        var ml = Math.floor(size * fade);
+        if (this.i < ml) {
+            amp = (this.i/ml);
+        }
+        if (this.i > (size - ml)) {
+            amp = 1 - ((this.i -(size - ml))/ml);
+        }
+        amp *= mix;
+
+
+        // get sample //
+        var sample = common.interpolate(this.buffer,this.playHead);
+
+
+        // pan //
+        sample = common.pan(sample,this.panning);
+
+        // mix //
+        return [
+            signal[0] + (sample[0] * amp),
+            signal[1] + (sample[1] * amp)
+        ];
+
     }
-    if (this.i > (this.size - ml)) {
-        amp = 1 - ((this.i -(this.size - ml))/ml);
-    }
-    amp *= mix;
 
 
-    // get sample //
-    var sample = common.interpolate(this.buffer,this.playHead);
-
-
-    // pan //
-    sample = common.pan(sample,this.panning);
-
-    // mix //
-    return [
-        (signal[0]) + (sample[0] * amp),
-        (signal[1]) + (sample[1] * amp)
-    ];
 };
 
 //-------------------------------------------------------------------------------------------
@@ -246,7 +259,7 @@ proto.kill = function() {
 };
 
 
-module.exports = GranularDelayII;
+module.exports = GranularDelayIII;
 
 
 
