@@ -21,6 +21,11 @@ function Comb() {
 
 Comb.prototype.process = function(input,size,damp,feedback) {
 
+    // zero as required //
+    if (!this.buffer[this.index] && this.buffer[this.index]!== 0) {
+        this.buffer.push(0);
+    }
+
     var output = this.buffer[this.index];
 
     this.filter = output * (1 - damp) + this.filter * damp;
