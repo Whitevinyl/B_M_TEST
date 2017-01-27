@@ -40,12 +40,13 @@ FreeVerb.prototype.process = function(signal,room,damp) {
     damp = utils.arg(damp,0.5);
     room = utils.arg(room,0.5);
     var i;
+    var output = 0;
 
     // Process comb filters //
-    var output = 0;
+
+    damp *= 0.4;
+    room = room * 0.28 + 0.7;
     for (i=0; i<4; i++) {
-        damp *= 0.4;
-        room = room * 0.28 + 0.7;
         output += this.combsA[i].process(signal,this.combTimesA[i],damp,room);
         output += this.combsB[i].process(signal,this.combTimesB[i],damp,room);
     }

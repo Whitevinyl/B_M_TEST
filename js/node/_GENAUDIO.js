@@ -163,7 +163,7 @@ proto.generateClicks = function() {
     var hold = new audio.GrainHold();
     var hold2 = new audio.GrainHoldII();
 
-    var ap = new audio.StereoAllPass();
+    var free = new audio.StereoFreeVerb();
 
     //var resampleMode = tombola.item([0,1,2,3,5]);
 
@@ -231,6 +231,9 @@ proto.generateClicks = function() {
         process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.feedback,gh.mix);
         signal = signalTest(process,signal);*/
 
+        process = free.process(signal,0.8,0.2,0.4);
+        signal = signalTest(process,signal);
+
         var gh2 = {
             hold: 30000,
             grainSize: 5000,
@@ -245,8 +248,7 @@ proto.generateClicks = function() {
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.jitter,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);
         signal = signalTest(process,signal);
 
-        process = ap.process(signal,2000,0.3);
-        signal = signalTest(process,signal);
+
 
         /*process = chorus.process(signal,0.12,0.5);
         signal = signalTest(process,signal);*/
