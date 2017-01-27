@@ -80,6 +80,7 @@ var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
 var Perlin = require('./audioComponents/voices/Perlin');
 var Roar = require('./audioComponents/voices/Roar');
 var Sine = require('./audioComponents/voices/Sine');
+var Triangle = require('./audioComponents/voices/Triangle');
 var table = require('./audioComponents/voices/Tables');
 var WavePlayer = require('./audioComponents/voices/WavePlayer');
 var White = require('./audioComponents/voices/White');
@@ -1494,6 +1495,7 @@ module.exports = {
     Perlin: Perlin,
     Roar: Roar,
     Sine: Sine,
+    Triangle: Triangle,
     HarmonicSine: HarmonicSine,
 
 

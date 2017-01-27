@@ -30,7 +30,7 @@ AllPass.prototype.process = function(input,size) {
     this.buffer[this.index] = input + (sample * 0.5);
 
     this.index++;
-    if (this.index === size) this.index = 0;
+    if (this.index >= size) this.index = 0;
 
     return output;
 };

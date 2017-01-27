@@ -165,7 +165,7 @@ proto.generateClicks = function() {
 
     var free = new audio.StereoFreeVerb();
 
-    //var resampleMode = tombola.item([0,1,2,3,5]);
+    var tri = new audio.Triangle();
 
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
@@ -231,7 +231,16 @@ proto.generateClicks = function() {
         process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.feedback,gh.mix);
         signal = signalTest(process,signal);*/
 
-        process = free.process(signal,0.8,0.2,0.4);
+        //var triScale = tri.process(0.1);
+
+        var fs = {
+            room: 0.8,
+            damp: 0.6,
+            direction: 0,
+            mix: 0.3
+        };
+
+        process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
         signal = signalTest(process,signal);
 
         var gh2 = {

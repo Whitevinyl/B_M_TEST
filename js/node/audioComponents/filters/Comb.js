@@ -32,7 +32,7 @@ Comb.prototype.process = function(input,size,damp,feedback) {
     this.buffer[this.index] = input * 0.015 + this.filter * feedback;
 
     this.index++;
-    if (this.index === size) this.index = 0;
+    if (this.index >= size) this.index = 0;
 
     return output;
 
