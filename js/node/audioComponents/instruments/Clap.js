@@ -10,6 +10,7 @@ var White = require('../voices/White');
 var Repeater = require('../common/Repeater');
 var Tremolo = require('../filters/Tremolo');
 var Resonant = require('../filters/Resonant');
+var FreeVerb = require('../filters/FreeVerb');
 var drive = require('../filters/FoldBackII');
 
 var Expander = require('../filters/StereoExpander');
@@ -89,6 +90,12 @@ function Clap(parentArray,adsr,duration) {
 
     this.expander = new Expander();
 
+    //reverb //
+    if (tombola.percent(20)) {
+        this.reverb = new FreeVerb.stereo();
+        this.duration *= 3;
+    }
+
     // where we're stored //
     this.parentArray = parentArray;
 }
@@ -144,6 +151,10 @@ proto.process = function(input,level) {
 
 
     signal = this.expander.process(signal,20);
+
+    if (this.reverb) {
+        signal = this.reverb.process(signal,0.7,0.2,0,0.5);
+    }
 
     // return with ducking //
     var ducking = 0.1;

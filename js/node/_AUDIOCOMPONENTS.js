@@ -24,10 +24,12 @@ var panner = require('./audioComponents/filters/Panner');
 var reverb = require('./audioComponents/filters/Reverb');
 var reverseDelay = require('./audioComponents/filters/ReverseDelay');
 var saturation = require('./audioComponents/filters/Saturation');
+var softClip = require('./audioComponents/filters/SoftClip');
 
 // PERSISTENT FILTERS //
 var AllPass = require('./audioComponents/filters/AllPass');
 var Comb = require('./audioComponents/filters/Comb');
+var CompressorII = require('./audioComponents/filters/CompressorII');
 var FreeVerb = require('./audioComponents/filters/Freeverb');
 var GrainHold = require('./audioComponents/filters/GrainHold');
 var GrainHoldII = require('./audioComponents/filters/GrainHoldII');
@@ -48,6 +50,8 @@ var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var Tremolo = require('./audioComponents/filters/Tremolo');
 var Q = require('./audioComponents/filters/Q');
+var Volumizer = require('./audioComponents/filters/Volumizer');
+
 
 // SIGNAL GENERATORS //
 var Call = require('./audioComponents/generators/Call'); // wip
@@ -1517,6 +1521,8 @@ module.exports = {
     reverb: reverb,
     reverseDelay: reverseDelay,
     saturation: saturation,
+    softClip: softClip.stereo,
+
 
 
     Testing: Testing,
@@ -1567,6 +1573,7 @@ module.exports = {
     AllPass: AllPass.mono,
     StereoAllPass: AllPass.stereo,
     Comb: Comb.mono,
+    CompressorII: CompressorII,
     StereoComb: Comb.stereo,
     FreeVerb: FreeVerb.mono,
     StereoFreeVerb: FreeVerb.stereo,
@@ -1597,6 +1604,7 @@ module.exports = {
     StereoNoise: Noise.stereo,
     Q: Q.mono,
     StereoQ: Q.stereo,
+    Volumizer: Volumizer,
     FilterShear: FilterShear,
 
     controlRange: controlRange,

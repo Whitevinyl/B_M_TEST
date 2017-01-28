@@ -18,6 +18,7 @@ var Interpolate = require('./Interpolate');
 var Pan = require('./Pan');
 var RampEnvelope = require('./RampEnvelope');
 var Repeater = require('./Repeater');
+var RMS = require('./RMS');
 var ToMono = require('./ToMono');
 var ToStereo = require('./ToStereo');
 
@@ -34,6 +35,7 @@ module.exports = {
     interpolate: Interpolate,
     rampEnvelope: RampEnvelope,
     range: ControlRange,
+    RMS: RMS,
     pan: Pan,
     toMono: ToMono,
     toStereo: ToStereo,

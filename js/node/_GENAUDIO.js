@@ -167,6 +167,9 @@ proto.generateClicks = function() {
 
     var tri = new audio.Triangle();
 
+    var vol = new audio.Volumizer();
+    var comp = new audio.CompressorII();
+
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
 
@@ -201,21 +204,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        /*var dl = {
-            delayTime: 9000,
-            overlap: 10,
-            grainSize: 1500,
-            scatter: 300,
-            movement: 2,
-            pitch: 0,
-            reverse: false,
-            flip: false,
-            feeedback: 100,
-            mix: 1
-        };
 
-        process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.flip,dl.feeedback,dl.mix);
-        signal = signalTest(process,signal);*/
 
 
         /*var gh = {
@@ -234,21 +223,21 @@ proto.generateClicks = function() {
         //var triScale = tri.process(0.1);
 
         var fs = {
-            room: 0.8,
-            damp: 0.6,
-            direction: 0,
-            mix: 0.3
+            room: 0.2,
+            damp: 0.45,
+            direction: -0.2,
+            mix: 0.2
         };
 
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
         signal = signalTest(process,signal);
 
         var gh2 = {
-            hold: 30000,
+            hold: 40000,
             grainSize: 5000,
             overlap: 2000,
             jitter: 500,
-            pitch: 0.4,
+            pitch: 0.3,
             reverse: false,
             feedback: 100,
             mix: 1
@@ -257,7 +246,21 @@ proto.generateClicks = function() {
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.jitter,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);
         signal = signalTest(process,signal);
 
+        /*var dl = {
+            delayTime: 9000,
+            overlap: 10,
+            grainSize: 1500,
+            scatter: 300,
+            movement: 2,
+            pitch: 0,
+            reverse: false,
+            flip: false,
+            feeedback: 100,
+            mix: 1
+        };
 
+        process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.flip,dl.feeedback,dl.mix);
+        signal = signalTest(process,signal);*/
 
         /*process = chorus.process(signal,0.12,0.5);
         signal = signalTest(process,signal);*/
@@ -362,6 +365,18 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // COMPRESS //
+        /*var reduction = 0.9;
+        var level = 1 - reduction;
+        signal = audio.softClip(signal,reduction);
+        signal = [
+            signal[0] *= (level/(level*level)),
+            signal[1] *= (level/(level*level))
+        ];*/
+        //console.log(signal);
+
+        //signal = vol.process(signal,0.2);
+        signal = comp.process(signal,0.8);
+
         signal = audio.compressor(signal,0.8, 0.8, 0.96875, "max");
 
         // WRITE VALUES //
