@@ -20,15 +20,16 @@ var proto = CompressorII.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,threshold) {
+proto.process = function(signal,threshold,ratio,makeUpGain) {
 
     threshold = threshold || 0.8;
+    makeUpGain = makeUpGain || 0.1;
+    ratio = ratio || 3;
 
-    var window  = 512;
-    var attack  = 0.001;
-    var release = 0.0001;
-    var ratio   = 3;
-    var makeup  = 1.1;
+    var window  = 500;
+    var attack  = 0.00001;
+    var release = 0.00001; //0.000008
+    var makeup  = 1 + makeUpGain;
 
 
     // get root mean square average volume //
@@ -36,7 +37,7 @@ proto.process = function(signal,threshold) {
 
 
     // if it's above the threshold, engage attack //
-    if (rms > threshold) {
+    if (rms > (threshold*0.75)) {
         this.follower += attack;
     }
 
@@ -51,8 +52,10 @@ proto.process = function(signal,threshold) {
 
     // Set gain based on follower & threshold //
     var gain = 1;
+    var overlap = (rms - threshold);
+    var rat = 1 + (ratio-1);
     if (this.follower > 0){
-        gain = threshold + ((rms - threshold)/(1 + (ratio-1)));
+        gain = threshold + (overlap/rat);
     }
 
 

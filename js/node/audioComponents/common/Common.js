@@ -16,6 +16,7 @@ var ControlRange = require('./ControlRange');
 var FadeEnvelope = require('./FadeEnvelope');
 var Interpolate = require('./Interpolate');
 var Pan = require('./Pan');
+var Peak = require('./Peak');
 var RampEnvelope = require('./RampEnvelope');
 var Repeater = require('./Repeater');
 var RMS = require('./RMS');
@@ -37,6 +38,7 @@ module.exports = {
     range: ControlRange,
     RMS: RMS,
     pan: Pan,
+    peak: Peak,
     toMono: ToMono,
     toStereo: ToStereo,
 

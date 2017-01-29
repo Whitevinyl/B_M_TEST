@@ -52,6 +52,9 @@ var Tremolo = require('./audioComponents/filters/Tremolo');
 var Q = require('./audioComponents/filters/Q');
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
+// CHANNEL FILTERS //
+var PeakCompressor = require('./audioComponents/channelFilters/PeakCompressor');
+var RMSCompressor = require('./audioComponents/channelFilters/RMSCompressor');
 
 // SIGNAL GENERATORS //
 var Call = require('./audioComponents/generators/Call'); // wip
@@ -1606,6 +1609,9 @@ module.exports = {
     StereoQ: Q.stereo,
     Volumizer: Volumizer,
     FilterShear: FilterShear,
+
+    RMSCompressor: RMSCompressor,
+    PeakCompressor: PeakCompressor,
 
     controlRange: controlRange,
     ArrayEnvelope: ArrayEnvelope,

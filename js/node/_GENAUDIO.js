@@ -170,6 +170,8 @@ proto.generateClicks = function() {
     var vol = new audio.Volumizer();
     var comp = new audio.CompressorII();
 
+    var noise = new audio.StereoNoise();
+
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
 
@@ -246,6 +248,10 @@ proto.generateClicks = function() {
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.jitter,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);
         signal = signalTest(process,signal);
 
+
+        process = noise.process(signal,0.0001,0.9);
+        signal = signalTest(process,signal);
+
         /*var dl = {
             delayTime: 9000,
             overlap: 10,
@@ -258,6 +264,8 @@ proto.generateClicks = function() {
             feeedback: 100,
             mix: 1
         };
+
+
 
         process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.flip,dl.feeedback,dl.mix);
         signal = signalTest(process,signal);*/
@@ -355,35 +363,44 @@ proto.generateClicks = function() {
     }
 
 
-
+    console.log(peak);
+    peak = 0;
 
 
     // FOURTH PASS //
-    for (i=0; i<l; i++) {
+    /*for (i=0; i<l; i++) {
 
         // GET VALUES //
         signal = readFromChannel(channels,i);
 
         // COMPRESS //
-        /*var reduction = 0.9;
+        /!*var reduction = 0.9;
         var level = 1 - reduction;
         signal = audio.softClip(signal,reduction);
         signal = [
             signal[0] *= (level/(level*level)),
             signal[1] *= (level/(level*level))
-        ];*/
+        ];*!/
         //console.log(signal);
 
         //signal = vol.process(signal,0.2);
-        signal = comp.process(signal,0.8);
+        //signal = comp.process(signal,0.4,4,0);
 
-        signal = audio.compressor(signal,0.8, 0.8, 0.96875, "max");
+        //signal = audio.compressor(signal,0.8, 0.8, 0.96875, "max");
 
         // WRITE VALUES //
         writeToChannel(signal,channels,i);
-    }
 
-    console.log(peak);
+        // MEASURE PEAK //
+        //peak = measurePeak(peak,channels,i);
+    }*/
+
+    audio.PeakCompressor(channels, 7, 10);
+    //audio.RMSCompressor(channels, 0.3, 16);
+
+    normalisePass(channels,0.96875);
+
+    //console.log(peak);
 
     // DONE - ASSEMBLE TRACK DATA //
     console.log('generated');
@@ -402,6 +419,28 @@ proto.generateClicks = function() {
         level: genChart.generateLevel()
     };
 };
+
+
+function normalisePass(channel,max) {
+    console.log("Normalising...");
+    var i;
+    var l = channel[0].length;
+
+    // FIND PEAK //
+    var peak = 0;
+    for (i=0; i<l; i++) {
+        peak = measurePeak(peak,channel,i);
+    }
+
+
+    // WRITE NORMALISED VALUES //
+    var norm = max/peak;
+    for (i=0; i<l; i++) {
+        var signal = readFromChannel(channel,i);
+        writeToChannel(multiplySignal(signal,norm),channel,i);
+    }
+}
+
 
 
 function readFromChannel(channel,index) {
