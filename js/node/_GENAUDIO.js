@@ -172,6 +172,8 @@ proto.generateClicks = function() {
 
     var noise = new audio.StereoNoise();
 
+    var biquad = new audio.StereoBiquad();
+
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
 
@@ -287,15 +289,17 @@ proto.generateClicks = function() {
 
 
 
-        /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
 
         process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal);
 
 
+        process = biquad.process(signal,'lowpass',audio.controlRange(1000,8000,tri.process(0.2)),0.7,0);
+        signal = signalTest(process,signal);
 
 
         // WRITE TO AUDIO CHANNELS //
@@ -337,70 +341,19 @@ proto.generateClicks = function() {
         // MEASURE PEAK //
         peak = measurePeak(peak,channels,i);
     }
-
-
-
-
-
-    // THIRD PASS //
-    var norm = 1/peak;
-    for (i=0; i<l; i++) {
-
-        // GET VALUES //
-        signal = readFromChannel(channels,i);
-
-        // NORMALISE //
-        signal = multiplySignal(signal,norm);
-
-        // FADES //
-        var f = 1;
-        var fade = 0;
-        if (i<fade) { f = i / fade; }
-        if (i>((l-1)-fade)) { f = ((l-1)-i) / fade; }
-
-        // WRITE VALUES //
-        writeToChannel(multiplySignal(signal,f),channels,i);
-    }
-
-
     console.log(peak);
-    peak = 0;
 
 
-    // FOURTH PASS //
-    /*for (i=0; i<l; i++) {
 
-        // GET VALUES //
-        signal = readFromChannel(channels,i);
 
-        // COMPRESS //
-        /!*var reduction = 0.9;
-        var level = 1 - reduction;
-        signal = audio.softClip(signal,reduction);
-        signal = [
-            signal[0] *= (level/(level*level)),
-            signal[1] *= (level/(level*level))
-        ];*!/
-        //console.log(signal);
 
-        //signal = vol.process(signal,0.2);
-        //signal = comp.process(signal,0.4,4,0);
-
-        //signal = audio.compressor(signal,0.8, 0.8, 0.96875, "max");
-
-        // WRITE VALUES //
-        writeToChannel(signal,channels,i);
-
-        // MEASURE PEAK //
-        //peak = measurePeak(peak,channels,i);
-    }*/
-
-    audio.PeakCompressor(channels, 7, 10);
-    //audio.RMSCompressor(channels, 0.3, 16);
-
+    // MASTERING //
+    normalisePass(channels,1);
+    fadePass(channels,0,0);
+    audio.PeakCompressor(channels, 0.6, 2.4);
     normalisePass(channels,0.96875);
 
-    //console.log(peak);
+
 
     // DONE - ASSEMBLE TRACK DATA //
     console.log('generated');
@@ -438,6 +391,27 @@ function normalisePass(channel,max) {
     for (i=0; i<l; i++) {
         var signal = readFromChannel(channel,i);
         writeToChannel(multiplySignal(signal,norm),channel,i);
+    }
+}
+
+
+
+function fadePass(channel,fadeIn,fadeOut) {
+    console.log("Adding Fades...");
+    var i;
+    var l = channel[0].length;
+
+    for (i=0; i<l; i++) {
+        // GET VALUES //
+        var signal = readFromChannel(channel,i);
+
+        // FADES //
+        var f = 1;
+        if (i<fadeIn) { f = i / fadeIn; }
+        if (i>((l-1)-fadeOut)) { f = ((l-1)-i) / fadeOut; }
+
+        // WRITE VALUES //
+        writeToChannel(multiplySignal(signal,f),channel,i);
     }
 }
 

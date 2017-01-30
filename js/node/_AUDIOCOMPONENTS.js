@@ -28,6 +28,7 @@ var softClip = require('./audioComponents/filters/SoftClip');
 
 // PERSISTENT FILTERS //
 var AllPass = require('./audioComponents/filters/AllPass');
+var Biquad = require('./audioComponents/filters/Biquad');
 var Comb = require('./audioComponents/filters/Comb');
 var CompressorII = require('./audioComponents/filters/CompressorII');
 var FreeVerb = require('./audioComponents/filters/Freeverb');
@@ -1575,6 +1576,8 @@ module.exports = {
     Repeater: Repeater,
     AllPass: AllPass.mono,
     StereoAllPass: AllPass.stereo,
+    Biquad: Biquad.mono,
+    StereoBiquad: Biquad.stereo,
     Comb: Comb.mono,
     CompressorII: CompressorII,
     StereoComb: Comb.stereo,
