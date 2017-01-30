@@ -5,6 +5,7 @@ var common = require('../common/Common');
 // and originally from: http://mohayonao.github.io/timbre.js/
 
 // lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass
+// it's set up for larger numbers for Q & gain, 10+
 
 //-------------------------------------------------------------------------------------------
 //  MONO INIT

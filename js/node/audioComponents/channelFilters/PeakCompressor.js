@@ -69,7 +69,7 @@ function PeakCompressor(channel,threshold,ratio) {
     }
 
     // log max peak output //
-    console.log('max peak: '+peakMax);
+    //console.log('max peak: '+peakMax);
 }
 
 module.exports = PeakCompressor;

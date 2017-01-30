@@ -1,32 +1,31 @@
-var Resonant = require('../filters/Resonant');
+var Biquad = require('./Biquad');
 
-
-// simple 3 x filter EQ
+// simple 3 x biquad filter parametric EQ
 
 //-------------------------------------------------------------------------------------------
 //  MONO
 //-------------------------------------------------------------------------------------------
 
-
 function EQ() {
-    this.low = new Resonant.mono();
-    this.mid = new Resonant.mono();
-    this.high = new Resonant.mono();
+    this.low = new Biquad.mono();
+    this.mid = new Biquad.mono();
+    this.high = new Biquad.mono();
 }
 var proto = EQ.prototype;
+
 
 //-------------------------------------------------------------------------------------------
 //  MONO PROCESS
 //-------------------------------------------------------------------------------------------
 
+proto.process = function(signal,f1,g1,f2,Q2,g2,f3,g3) {
 
-proto.process = function(signal,frequency,q,gain) {
+    var filtered;
+    filtered = this.low.process(signal,'lowshelf',f1,0,g1);
+    filtered = this.mid.process(filtered,'peaking',f2,Q2,g2);
+    filtered = this.high.process(filtered,'highshelf',f3,0,g3);
 
-
-    var filtered = this.filter.process(frequency,q,signal,'BP');
-
-
-    return (signal * (1 - (gain/2))) + (filtered * gain);
+    return filtered;
 };
 
 
@@ -34,27 +33,26 @@ proto.process = function(signal,frequency,q,gain) {
 //  STEREO
 //-------------------------------------------------------------------------------------------
 
-
-function StereoQ() {
-    this.Q1 = new Q();
-    this.Q2 = new Q();
+function StereoEQ() {
+    this.EQ1 = new EQ();
+    this.EQ2 = new EQ();
 }
-proto = StereoQ.prototype;
+proto = StereoEQ.prototype;
+
 
 //-------------------------------------------------------------------------------------------
 //  STEREO PROCESS
 //-------------------------------------------------------------------------------------------
 
-
-proto.process = function(signal,frequency,q,gain) {
+proto.process = function(signal,f1,g1,f2,Q2,g2,f3,g3) {
     return [
-        this.Q1.process(signal[0],frequency,q,gain),
-        this.Q2.process(signal[1],frequency,q,gain)
+        this.EQ1.process(signal[0],f1,g1,f2,Q2,g2,f3,g3),
+        this.EQ2.process(signal[1],f1,g1,f2,Q2,g2,f3,g3)
     ];
 };
 
 
 module.exports = {
-    mono: Q,
-    stereo: StereoQ
+    mono: EQ,
+    stereo: StereoEQ
 };

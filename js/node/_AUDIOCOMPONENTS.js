@@ -31,6 +31,7 @@ var AllPass = require('./audioComponents/filters/AllPass');
 var Biquad = require('./audioComponents/filters/Biquad');
 var Comb = require('./audioComponents/filters/Comb');
 var CompressorII = require('./audioComponents/filters/CompressorII');
+var EQ = require('./audioComponents/filters/EQ');
 var FreeVerb = require('./audioComponents/filters/Freeverb');
 var GrainHold = require('./audioComponents/filters/GrainHold');
 var GrainHoldII = require('./audioComponents/filters/GrainHoldII');
@@ -54,6 +55,7 @@ var Q = require('./audioComponents/filters/Q');
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
 // CHANNEL FILTERS //
+var ChannelEQ = require('./audioComponents/channelFilters/ChannelEQ');
 var PeakCompressor = require('./audioComponents/channelFilters/PeakCompressor');
 var RMSCompressor = require('./audioComponents/channelFilters/RMSCompressor');
 
@@ -1579,8 +1581,10 @@ module.exports = {
     Biquad: Biquad.mono,
     StereoBiquad: Biquad.stereo,
     Comb: Comb.mono,
-    CompressorII: CompressorII,
     StereoComb: Comb.stereo,
+    CompressorII: CompressorII,
+    EQ: EQ.mono,
+    StereoEQ: EQ.stereo,
     FreeVerb: FreeVerb.mono,
     StereoFreeVerb: FreeVerb.stereo,
     GrainHold: GrainHold,
@@ -1613,6 +1617,7 @@ module.exports = {
     Volumizer: Volumizer,
     FilterShear: FilterShear,
 
+    channelEQ: ChannelEQ,
     RMSCompressor: RMSCompressor,
     PeakCompressor: PeakCompressor,
 

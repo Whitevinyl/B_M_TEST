@@ -298,8 +298,8 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
 
-        process = biquad.process(signal,'lowpass',audio.controlRange(1000,8000,tri.process(0.2)),0.7,0);
-        signal = signalTest(process,signal);
+        /*process = biquad.process(signal,'highshelf',audio.controlRange(200,11000,tri.process(0.1)),12,12);
+        signal = signalTest(process,signal);*/
 
 
         // WRITE TO AUDIO CHANNELS //
@@ -348,9 +348,10 @@ proto.generateClicks = function() {
 
 
     // MASTERING //
+    audio.channelEQ(channels, 65,4.5,  1000,1,0,  15000,4);
     normalisePass(channels,1);
     fadePass(channels,0,0);
-    audio.PeakCompressor(channels, 0.6, 2.4);
+    audio.PeakCompressor(channels, 0.6, 2);
     normalisePass(channels,0.96875);
 
 
