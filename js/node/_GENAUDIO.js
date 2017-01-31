@@ -348,10 +348,11 @@ proto.generateClicks = function() {
 
 
     // MASTERING //
-    audio.channelEQ(channels, 65,4.5,  1000,1,0,  15000,4);
+    audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
     normalisePass(channels,1);
     fadePass(channels,0,0);
-    audio.PeakCompressor(channels, 0.6, 2);
+    //audio.PeakCompressor(channels, 0.6, 2);
+    audio.CompressorIII(channels);
     normalisePass(channels,0.96875);
 
 

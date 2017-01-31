@@ -55,6 +55,7 @@ var Q = require('./audioComponents/filters/Q');
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
 // CHANNEL FILTERS //
+var CompressorIII = require('./audioComponents/filters/CompressorIII');
 var ChannelEQ = require('./audioComponents/channelFilters/ChannelEQ');
 var PeakCompressor = require('./audioComponents/channelFilters/PeakCompressor');
 var RMSCompressor = require('./audioComponents/channelFilters/RMSCompressor');
@@ -1618,6 +1619,7 @@ module.exports = {
     FilterShear: FilterShear,
 
     channelEQ: ChannelEQ,
+    CompressorIII: CompressorIII,
     RMSCompressor: RMSCompressor,
     PeakCompressor: PeakCompressor,
 
