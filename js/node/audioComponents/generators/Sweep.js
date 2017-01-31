@@ -2,7 +2,7 @@
 var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
-var Roar = require('../voices/Roar');
+var Roar = require('../voices/RoarNoise');
 var LowPass = require('../filters/LowPass');
 
 // Long opening or closing sounding filtered noise bursts

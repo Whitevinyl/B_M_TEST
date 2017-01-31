@@ -171,6 +171,7 @@ proto.generateClicks = function() {
     var comp = new audio.CompressorII();
 
     var noise = new audio.StereoNoise();
+    var noise2 = new audio.PhonoCrackle();
 
     var biquad = new audio.StereoBiquad();
 
@@ -230,7 +231,7 @@ proto.generateClicks = function() {
             room: 0.2,
             damp: 0.45,
             direction: -0.2,
-            mix: 0.2
+            mix: 0.25
         };
 
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
@@ -252,6 +253,9 @@ proto.generateClicks = function() {
 
 
         process = noise.process(signal,0.0001,0.9);
+        signal = signalTest(process,signal);
+
+        process = noise2.process(signal,0.1,0.2,7000);
         signal = signalTest(process,signal);
 
         /*var dl = {
@@ -289,13 +293,13 @@ proto.generateClicks = function() {
 
 
 
-        process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
+        /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
         signal = signalTest(process,signal);
 
 
 
         process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal);*/
 
 
         /*process = biquad.process(signal,'highshelf',audio.controlRange(200,11000,tri.process(0.1)),12,12);
@@ -335,6 +339,7 @@ proto.generateClicks = function() {
         /*process = resampler.process(signal,[0,1,2,5],250000,channels,i);
         signal = signalTest(process,signal);*/
 
+
         // WRITE VALUES //
         writeToChannel(signal,channels,i);
 
@@ -351,8 +356,9 @@ proto.generateClicks = function() {
     audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
     normalisePass(channels,1);
     fadePass(channels,0,0);
-    //audio.PeakCompressor(channels, 0.6, 2);
-    audio.CompressorIII(channels);
+    //audio.PeakCompressor(channels, 0.5, 3);
+    //var compIII = new audio.CompressorIII();
+    //compIII.process(channels);
     normalisePass(channels,0.96875);
 
 

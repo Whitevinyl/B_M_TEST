@@ -4,7 +4,7 @@ var Tombola = require('tombola');
 var tombola = new Tombola();
 
 var common = require('../common/Common');
-var Roar = require('../voices/Roar');
+var Roar = require('../voices/RoarNoise');
 var MultiPass = require('../filters/MultiPass');
 var Resonant = require('../filters/Resonant');
 

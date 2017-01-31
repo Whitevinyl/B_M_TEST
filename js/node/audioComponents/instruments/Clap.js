@@ -5,8 +5,8 @@ var tombola = new Tombola();
 
 var marker = require('../core/Marker');
 var common = require('../common/Common');
-var Roar = require('../voices/Roar');
-var White = require('../voices/White');
+var Roar = require('../voices/RoarNoise');
+var White = require('../voices/WhiteNoise');
 var Repeater = require('../common/Repeater');
 var Tremolo = require('../filters/Tremolo');
 var Resonant = require('../filters/Resonant');

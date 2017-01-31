@@ -73,7 +73,7 @@ StereoPeak.prototype.process = function(signal,size) {
         totalR += this.memory[i][1];
     }
 
-    // calculate & return peak average //
+    // calculate & return peak //
     return Math.max(totalL/l, totalR/l)
 };
 

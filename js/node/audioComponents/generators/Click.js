@@ -2,8 +2,8 @@
 var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
-var Roar = require('../voices/Roar');
-var White = require('../voices/White');
+var Roar = require('../voices/RoarNoise');
+var White = require('../voices/WhiteNoise');
 
 // Bursts of clicking sounds
 

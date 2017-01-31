@@ -45,13 +45,15 @@ var LowPass = require('./audioComponents/filters/LowPass');
 var LowPassII = require('./audioComponents/filters/LowPassII');
 var Noise = require('./audioComponents/filters/Noise');
 var MultiPass = require('./audioComponents/filters/MultiPass');
+var PhonoCrackle = require('./audioComponents/filters/PhonoCrackle');
+var Q = require('./audioComponents/filters/Q');
 var Repeater = require('./audioComponents/common/Repeater');
 var Resonant = require('./audioComponents/filters/Resonant');
 var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var Tremolo = require('./audioComponents/filters/Tremolo');
-var Q = require('./audioComponents/filters/Q');
+
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
 // CHANNEL FILTERS //
@@ -77,7 +79,7 @@ var Ramp = require('./audioComponents/generators/Ramp');
 var Resampler = require('./audioComponents/generators/Resampler');
 var Sample = require('./audioComponents/generators/Sample');
 var Siren = require('./audioComponents/generators/Siren');
-var Static = require('./audioComponents/generators/Static');
+var StaticGen = require('./audioComponents/generators/Static');
 var Sweep = require('./audioComponents/generators/Sweep');
 var SweepII = require('./audioComponents/generators/SweepII');
 var Testing = require('./audioComponents/generators/Testing');
@@ -87,14 +89,17 @@ var ClapPlayer = require('./audioComponents/instruments/Clap');
 var KickPlayer = require('./audioComponents/instruments/Kick');
 
 // VOICES //
+var Crackle = require('./audioComponents/voices/CrackleNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
 var Perlin = require('./audioComponents/voices/Perlin');
-var Roar = require('./audioComponents/voices/Roar');
+var Roar = require('./audioComponents/voices/RoarNoise');
+var SawTooth = require('./audioComponents/voices/SawTooth');
 var Sine = require('./audioComponents/voices/Sine');
+var Static = require('./audioComponents/voices/StaticNoise');
 var Triangle = require('./audioComponents/voices/Triangle');
 var table = require('./audioComponents/voices/Tables');
 var WavePlayer = require('./audioComponents/voices/WavePlayer');
-var White = require('./audioComponents/voices/White');
+var White = require('./audioComponents/voices/WhiteNoise');
 
 // MODS //
 var FudgeChance = require('./audioComponents/mods/FudgeChance');
@@ -336,20 +341,6 @@ function waveTriangle(voice, amp) {
 }
 
 
-// SAWTOOTH //
-function waveSawtooth(voice, amp) {
-    voice.polarity = -1;
-    // update voice value //
-    var step = ((voice.frequency + voice.detune) * (2/sampleRate));
-    voice.amplitude += (step * voice.polarity);
-
-    // stay within amplitude bounds //
-    var spill = 0;
-    if (voice.amplitude < -amp) {
-        spill = voice.amplitude - (-amp);
-        voice.amplitude = (amp - spill);
-    }
-}
 
 
 // ARC //
@@ -1503,8 +1494,11 @@ module.exports = {
     White: White,
     VoiceCrackle: VoiceCrackle,
     VoiceCracklePeak: VoiceCracklePeak,
+    Crackle: Crackle,
     Perlin: Perlin,
     Roar: Roar,
+    SawTooth: SawTooth,
+    Static: Static,
     Sine: Sine,
     Triangle: Triangle,
     HarmonicSine: HarmonicSine,
@@ -1513,7 +1507,6 @@ module.exports = {
     InOut : InOut,
 
     waveTriangle: waveTriangle,
-    waveSawtooth: waveSawtooth,
     WavePlayer: WavePlayer,
 
 
@@ -1549,7 +1542,7 @@ module.exports = {
     Resampler: Resampler,
     Sample: Sample,
     Siren: Siren,
-    Static: Static,
+    StaticGen: StaticGen,
     Sweep: Sweep,
     SweepII: SweepII,
 
@@ -1602,6 +1595,7 @@ module.exports = {
     StereoLowPassII: LowPassII.stereo,
     MultiPass: MultiPass.mono,
     StereoMultiPass: MultiPass.stereo,
+    PhonoCrackle: PhonoCrackle,
     Resonant: Resonant.mono,
     StereoResonant: Resonant.stereo,
     RetroDelay: RetroDelay.mono,

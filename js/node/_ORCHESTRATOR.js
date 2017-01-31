@@ -31,8 +31,8 @@ proto.createComponent = function(componentName,args,mods) {
     mods = mods || [];
 
     var settings = {
-        filter: null,
-        filterFunc: null,
+        filter: null, // for assigning persistent filters
+        filterFunc: null, // for assigning inline filters
         args: [{context:true, value: 'signal'}],
         mods: []
     };
@@ -383,7 +383,7 @@ proto.createComponent = function(componentName,args,mods) {
 
 
         case 'static':
-            settings.filter = new audio.Static();
+            settings.filter = new audio.StaticGen();
             break;
 
 

@@ -2,7 +2,7 @@ var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
-var Roar = require('../voices/Roar');
+var Roar = require('../voices/RoarNoise');
 var Repeater = require('../common/Repeater');
 var MultiPass = require('../filters/MultiPass');
 

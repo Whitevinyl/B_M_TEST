@@ -15,8 +15,6 @@ var kSpacingDb = 5;
 
 
 function CompressorIII() {
-    this.samplerate = samplerate;
-    this.channels = channels;
 
     this.lastPreDelayFrames = 0;
     this.preDelayReadIndex  = 0;
@@ -53,14 +51,14 @@ function CompressorIII() {
     this.preDelayReadIndex = 0;
     this.preDelayWriteIndex = DefaultPreDelayFrames;
     this.maxAttackCompressionDiffDb = -1;
-    this.meteringReleaseK = 1 - Math.exp(-1 / (this.samplerate * 0.325));
+    this.meteringReleaseK = 1 - Math.exp(-1 / (sampleRate * 0.325));
 
 
 
     this.setAttackTime(this.attackTime);
     this.setReleaseTime(this.releaseTime);
     this.setPreDelayTime(this.preDelayTime);
-    this.setParams(-24, 30, 12);
+    this.setParams(-1, 30, 12);
 }
 
 var proto = CompressorIII.prototype;
