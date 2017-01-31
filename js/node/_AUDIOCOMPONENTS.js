@@ -53,7 +53,6 @@ var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var Tremolo = require('./audioComponents/filters/Tremolo');
-
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
 // CHANNEL FILTERS //
@@ -89,10 +88,13 @@ var ClapPlayer = require('./audioComponents/instruments/Clap');
 var KickPlayer = require('./audioComponents/instruments/Kick');
 
 // VOICES //
+var Brown = require('./audioComponents/voices/BrownNoise');
 var Crackle = require('./audioComponents/voices/CrackleNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
+var Pink = require('./audioComponents/voices/PinkNoise');
 var Perlin = require('./audioComponents/voices/Perlin');
 var Roar = require('./audioComponents/voices/RoarNoise');
+var Rumble = require('./audioComponents/voices/RumbleNoise');
 var SawTooth = require('./audioComponents/voices/SawTooth');
 var Sine = require('./audioComponents/voices/Sine');
 var Static = require('./audioComponents/voices/StaticNoise');
@@ -194,111 +196,6 @@ PhaseWrapper.prototype.process = function(signal, mix, frequency, f1, f2, amp) {
 
 
 
-
-//-------------------------------------------------------------------------------------------
-//  NOISE OBJECTS
-//-------------------------------------------------------------------------------------------
-
-
-function NoiseWrapper(noise) {
-    this.noise = noise || new VoiceCrackle();
-}
-NoiseWrapper.prototype.process = function(signal,chance) {
-    // NOISE CHANGE //
-    if (chance && tombola.chance(1,chance)) {
-        var p = this.noise.panning;
-        this.noise = tombola.item([new White(), new VoiceBrown(), new Roar(), new VoiceCracklePeak(), new VoiceCrackle()]);
-        this.noise.panning = p;
-    }
-
-    this.noise.panning += tombola.rangeFloat(-0.005,0.005);
-    this.noise.panning = utils.valueInRange(this.noise.panning, -1, 1);
-
-    if (this.noise.threshold && tombola.chance(1,1000)) {
-        this.noise.threshold += tombola.rangeFloat(-0.01,0.01);
-        this.noise.threshold = utils.valueInRange(this.noise.threshold, 0.05, 1);
-    }
-
-    var ps = this.noise.process();
-
-    return [
-        signal[0] + ((ps) * (1 + (-this.noise.panning))),
-        signal[1] + ((ps) * (1 + this.noise.panning))
-    ];
-};
-
-// PINK NOISE //
-function VoicePink() {
-    this.gain = 0.5;
-    this.panning = 0;
-    this.amplitude = 0;
-    this.b0 = this.b1 = this.b2 = this.b3 = this.b4 = this.b5 = this.b6 = 0.0;
-}
-VoicePink.prototype.process = function() {
-    var white = Math.random() * 2 - 1;
-    this.b0 = 0.99886 * this.b0 + white * 0.0555179;
-    this.b1 = 0.99332 * this.b1 + white * 0.0750759;
-    this.b2 = 0.96900 * this.b2 + white * 0.1538520;
-    this.b3 = 0.86650 * this.b3 + white * 0.3104856;
-    this.b4 = 0.55000 * this.b4 + white * 0.5329522;
-    this.b5 = -0.7616 * this.b5 - white * 0.0168980;
-    var total = this.b0 + this.b1 + this.b2 + this.b3 + this.b4 + this.b5 + this.b6 + white * 0.5362;
-    this.b6 = white * 0.115926;
-    total *= 0.2; // gain comp
-    return total * this.gain;
-};
-
-
-// BROWN NOISE //
-function VoiceBrown() {
-    this.gain = 0.5;
-    this.panning = 0;
-    this.amplitude = 0;
-}
-VoiceBrown.prototype.process = function() {
-    var white = Math.random() * 2 - 1;
-    var total = (this.amplitude + (0.02 * white)) / 1.02;
-    this.amplitude = total;
-    total *= 3.5; // gain comp
-    return total * this.gain;
-};
-
-
-
-// CRACKLE NOISE //
-function VoiceCrackle(threshold) {
-    this.gain = 0.5;
-    this.panning = 0;
-    this.amplitude = 0;
-    this.threshold = threshold || 0.1;
-}
-VoiceCrackle.prototype.process = function() {
-    var white = (Math.random() * 2 - 1);
-    if (white<(-this.threshold) || white>this.threshold) {
-        white = this.amplitude;
-    }
-    this.amplitude = white;
-    return white * this.gain;
-};
-
-
-// CRACKLE PEAK NOISE //
-function VoiceCracklePeak(threshold) {
-    this.gain = 0.5;
-    this.panning = 0;
-    this.amplitude = 0;
-    this.threshold = threshold || 0.001;
-}
-VoiceCracklePeak.prototype.process = function() {
-    var white = (Math.random() * 2 - 1);
-    if (white<(-this.threshold) || white>this.threshold) {
-        white = this.amplitude;
-    } else {
-        this.amplitude = white;
-        white *= (1/this.threshold);
-    }
-    return white * this.gain;
-};
 
 
 //-------------------------------------------------------------------------------------------
@@ -428,57 +325,6 @@ PhaseSine.prototype.process = function(f,mf1,mf2) {
 
 
 
-
-
-
-function InOut() {
-    this.static = new VoiceCrackle(0.065);
-}
-InOut.prototype.process = function(signal,index,l) {
-    var fade = sampleRate/5;
-    var n = this.static.process()*0.1;
-    var mix;
-
-    // intro //
-    if (index<(fade*2)) {
-        if (index<fade) {
-            mix = 1;
-        } else {
-            mix = ((fade*2)-index)/fade;
-        }
-    }
-    // outro //
-    else if (index>(l-(fade*4))) {
-        if (index>(l-(fade*3))) {
-            mix = 1;
-        } else {
-            mix = (index - (l-(fade*4)))/fade;
-        }
-    }
-    // the rest //
-    else {
-        mix = 0;
-    }
-
-
-    return [
-        (signal[0]*(1-mix)) + (n * mix),
-        (signal[1]*(1-mix)) + (n * mix)
-    ];
-};
-
-
-// RUMBLE //
-function FilterRumble() {
-    this.rumble = new WalkSmooth();
-}
-FilterRumble.prototype.process = function(signal,frequency,mix) {
-    var r = this.rumble.process(frequency,10);
-    return [
-        (signal[0]*(1-mix)) + (r * mix),
-        (signal[1]*(1-mix)) + (r * mix)
-    ];
-};
 
 
 
@@ -928,7 +774,7 @@ FilterNoisePulse.prototype.process = function(input,ducking,chance) {
         this.ma = 0;
         this.c = 0;
         this.mi = 0;
-        this.voice = tombola.item( [new Roar(tombola.rangeFloat(0.2,0.9)), new VoiceBrown(), new VoicePink(), new VoiceCrackle(tombola.rangeFloat(0.05,0.5)), new VoiceCracklePeak(tombola.rangeFloat(0.0005,0.5))]);
+        this.voice = tombola.item( [new Roar(tombola.rangeFloat(0.2,0.9)), new Brown(), new ePink(), new Static(tombola.rangeFloat(0.5,5)), new Crackle(tombola.rangeFloat(0.05,5))]);
     }
 
     if (this.c<(this.l.length-1) && this.i>=0) {
@@ -1487,24 +1333,18 @@ function valueInRange(value,floor,ceiling) {
 
 module.exports = {
     Voice: Voice,
-    NoiseWrapper: NoiseWrapper,
-
-    VoicePink: VoicePink,
-    VoiceBrown: VoiceBrown,
+    VoicePink: Pink,
+    VoiceBrown: Brown,
     White: White,
-    VoiceCrackle: VoiceCrackle,
-    VoiceCracklePeak: VoiceCracklePeak,
     Crackle: Crackle,
     Perlin: Perlin,
     Roar: Roar,
+    Rumble: Rumble,
     SawTooth: SawTooth,
     Static: Static,
     Sine: Sine,
     Triangle: Triangle,
     HarmonicSine: HarmonicSine,
-
-
-    InOut : InOut,
 
     waveTriangle: waveTriangle,
     WavePlayer: WavePlayer,
@@ -1559,7 +1399,6 @@ module.exports = {
     FilterSubSwell: FilterSubSwell,
     FilterBurst: FilterBurst,
     FilterHowl: FilterHowl,
-    FilterRumble: FilterRumble,
     FilterNoisePulse: FilterNoisePulse,
     FilterBeep: FilterBeep,
     FilterSubHowl: FilterSubHowl,

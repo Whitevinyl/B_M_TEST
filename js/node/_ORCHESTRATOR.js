@@ -228,12 +228,6 @@ proto.createComponent = function(componentName,args,mods) {
             settings.args.push( {value: pick( args[1], 50000)} ); // chance
             break;
 
-        case 'noise':
-            settings.filter = new audio.NoiseWrapper();
-            if (args.length || tombola.percent(20)) {
-                settings.args.push( {value: pick( args[0], tombola.range(10000,30000))} ); // changing noise
-            }
-            break;
 
 
         case 'noisePulse':
@@ -352,7 +346,7 @@ proto.createComponent = function(componentName,args,mods) {
 
 
         case 'rumble':
-            settings.filter = new audio.FilterRumble();
+            settings.filter = new audio.Rumble();
             settings.args.push( {value: pick( args[0], tombola.rangeFloat(400,800))} ); // frequency
             settings.args.push( pick( args[1], {mod: 0, min: tombola.rangeFloat(-0.5,0), max: tombola.rangeFloat(0.2,0.6), floor: 0, ceil: 1 }) ); // mix
             settings.mods.push( pick( mods[0], this.createMod('moveTo')) );

@@ -5,10 +5,6 @@ var tombola = new Tombola();
 
 var marker = require('../core/Marker');
 var common = require('../common/Common');
-var Voice = require('../voices/Triangle');
-var Sine = require('../voices/Sine');
-var Square = require('../voices/Square');
-var StepSine = require('../voices/StepSine');
 var SineSquare = require('../voices/SineSquare');
 var SineTriangle = require('../voices/SineTriangle');
 var Expander = require('../filters/StereoExpander');

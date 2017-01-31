@@ -1,25 +1,26 @@
-
 var utils = require('../../lib/utils');
 
-// A simple sine wave voice
+// A standard brown noise algorithm / each random number is related to the previous
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function SineII() {
-    this.i = 0;
+function Brown() {
+    this.memory = 0;
 }
 
 //-------------------------------------------------------------------------------------------
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-SineII.prototype.process = function(frequency) {
-    this.i++;
-    //frequency = frequency/sampleRate;
-    var a1 = frequency * this.i * (utils.TAU/sampleRate);
-    return Math.sin(a1);
+Brown.prototype.process = function(gain) {
+    gain = utils.arg(gain,0.5);
+    var white = Math.random() * 2 - 1;
+    var total = (this.memory + (0.02 * white)) / 1.02;
+    this.memory = total;
+    total *= 3.5; // gain comp
+    return total * gain;
 };
 
-module.exports = SineII;
+module.exports = Brown;

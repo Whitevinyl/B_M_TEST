@@ -43,7 +43,6 @@ proto.generate = function() {
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l),new Float32Array(l)];
-    var inOut = new audio.InOut();
     var peak = 0;
 
     // CHOOSE & CREATE OUR FILTERS/GENERATORS //
@@ -172,6 +171,7 @@ proto.generateClicks = function() {
 
     var noise = new audio.StereoNoise();
     var noise2 = new audio.PhonoCrackle();
+    var noise3 = new audio.Rumble();
 
     var biquad = new audio.StereoBiquad();
 
@@ -256,6 +256,9 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
         process = noise2.process(signal,0.1,0.2,7000);
+        signal = signalTest(process,signal);
+
+        process = noise3.process(signal,6000,0.1,0.3);
         signal = signalTest(process,signal);
 
         /*var dl = {
