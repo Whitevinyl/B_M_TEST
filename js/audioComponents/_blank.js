@@ -1,5 +1,5 @@
 
-var utils = require('../../lib/utils');
+var utils = require('./utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 

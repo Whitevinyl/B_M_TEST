@@ -108,14 +108,9 @@ proto.chooseVoice = function() {
     var d = audioClock.samplesToMilliseconds(this.envelope.duration);
     var env = [];
 
-    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(2,0,'In') );
-    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(2,0,'In') );
-    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(2,0,'In') );
-    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(d*0.2,0,'Out') );
+    env.push( new common.EnvelopePoint(0,1,'In') );
+    env.push( new common.EnvelopePoint(d*0.3,1,'In') );
+    env.push( new common.EnvelopePoint(d*0.3,0,'InOut') );
 
     // generate object //
     return {
@@ -124,8 +119,8 @@ proto.chooseVoice = function() {
         blend1: blend1,
         blend2: blend2,
         ratio: tombola.rangeFloat(12, 30), // height of transient pitch
-        decay: tombola.range(4, 19), // transient decay percent (change to ms)
-        drift: tombola.rangeFloat(0.79,1.1), // body pitch drift
+        thump: tombola.range(15, 30), // transient pitch decay milliseconds
+        drift: tombola.rangeFloat(0.82,1.1), // body pitch drift
         envelope: env
     };
 };
@@ -135,7 +130,7 @@ proto.chooseVoice = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(230,300),tombola.rangeFloat(0.5,0.9),tombola.range(310,450)];
+    var adsr = [0,tombola.range(30,100),tombola.rangeFloat(0.5,0.9),tombola.range(110,250)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10*0.2;
 
     return {
@@ -221,7 +216,7 @@ function Snare(parentArray,envelope,voice,drive,filter) {
     this.blend1 = voice.blend1;
     this.blend2 = voice.blend2;
     this.pitchRatio = voice.ratio;
-    this.decay = voice.decay;
+    this.thump = voice.thump;
     this.drift = voice.drift;
     this.oscEnvelope = voice.envelope;
     this.p = 0; // panning;
@@ -268,7 +263,7 @@ proto.process = function(input,level) {
 
 
     // voice //
-    var pb = common.rampEnvelope(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.decay, 'quinticOut');
+    var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100, 'linearOut');
     var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45, 'linearOut');
     var oscEnv = common.multiEnvelope(this.i, this.duration, this.oscEnvelope, this.curves);
@@ -281,6 +276,8 @@ proto.process = function(input,level) {
     var noiseR = this.noiseR.process(10000,1);
     noiseL /= 2;
     noiseR /= 2;
+    noiseL = 0;
+    noiseR = 0;
 
     var noise = [noiseL,noiseR];
 

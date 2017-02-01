@@ -1,4 +1,4 @@
-var Resonant = require('../filters/Resonant');
+var Resonant = require('./Resonant');
 
 
 // simple filter node with gain

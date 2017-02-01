@@ -2,7 +2,7 @@
 var SunCalc = require('suncalc');
 var Tombola = require('tombola');
 var tombola = new Tombola();
-var Lexicon = require('../_LEXICON');
+var Lexicon = require('./_LEXICON');
 var lexicon = new Lexicon();
 
 var timeNow, atacamaTime;

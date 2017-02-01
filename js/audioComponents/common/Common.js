@@ -20,6 +20,7 @@ var MultiEnvelope = require('./MultiEnvelope');
 var Pan = require('./Pan');
 var Peak = require('./Peak');
 var RampEnvelope = require('./RampEnvelope');
+var RampEnvelopeII = require('./RampEnvelopeII');
 var Repeater = require('./Repeater');
 var RMS = require('./RMS');
 var ToMono = require('./ToMono');
@@ -40,6 +41,7 @@ module.exports = {
     interpolate: Interpolate,
     multiEnvelope: MultiEnvelope,
     rampEnvelope: RampEnvelope,
+    rampEnvelopeII: RampEnvelopeII,
     range: ControlRange,
     RMS: RMS,
     pan: Pan,

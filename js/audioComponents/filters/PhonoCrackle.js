@@ -2,7 +2,7 @@ var utils = require('../../lib/utils');
 
 var Crackle = require('../voices/CrackleNoise');
 var Static = require('../voices/StaticNoise');
-var Biquad = require('../filters/Biquad');
+var Biquad = require('./Biquad');
 
 // a stereo phono crackle noise. wip
 

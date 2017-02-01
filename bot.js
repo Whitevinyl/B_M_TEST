@@ -5,9 +5,9 @@ console.log("hello this is bot.");
 var fs = require('fs');
 var Colorflex = require('colorflex');
 
-var Scheduler = require('./js/node/_SCHEDULER');
+var Scheduler = require('./js/_SCHEDULER');
 var scheduler = new Scheduler();
-var Action = require('./js/node/_ACTIONS');
+var Action = require('./js/_ACTIONS');
 var action = new Action();
 
 global.color = new Colorflex();
