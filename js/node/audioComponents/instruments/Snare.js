@@ -31,11 +31,11 @@ function SnarePlayer() {
     this.instances = [];
     this.markers = [];
 
+    // main envelope & duration //
+    this.envelope = this.chooseEnvelope();
+
     // voice //
     this.voice = this.chooseVoice();
-
-    // envelope & duration //
-    this.envelope = this.chooseEnvelope();
 
     // drive //
     this.drive = this.chooseDrive();
@@ -105,6 +105,18 @@ proto.chooseVoice = function() {
     }
 
 
+    var d = audioClock.samplesToMilliseconds(this.envelope.duration);
+    var env = [];
+
+    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
+    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
+    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
+    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(d*0.16,1,'In') );
+    env.push( new common.EnvelopePoint(d*0.2,0,'In') );
+
     // generate object //
     return {
         type: type,
@@ -113,7 +125,8 @@ proto.chooseVoice = function() {
         blend2: blend2,
         ratio: tombola.rangeFloat(12, 30), // height of transient pitch
         decay: tombola.range(4, 19), // transient decay percent (change to ms)
-        drift: tombola.rangeFloat(0.79,1.1) // body pitch drift
+        drift: tombola.rangeFloat(0.79,1.1), // body pitch drift
+        envelope: env
     };
 };
 
@@ -122,8 +135,8 @@ proto.chooseVoice = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(30,100),tombola.rangeFloat(0.5,0.9),tombola.range(110,250)];
-    var duration = adsr[0] + adsr[1] + adsr[3] + 10;
+    var adsr = [0,tombola.range(230,300),tombola.rangeFloat(0.5,0.9),tombola.range(310,450)];
+    var duration = adsr[0] + adsr[1] + adsr[3] + 10*0.2;
 
     return {
         curves: tombola.item(['linear','quadratic','cubic','quartic','quintic']),
@@ -210,6 +223,7 @@ function Snare(parentArray,envelope,voice,drive,filter) {
     this.pitchRatio = voice.ratio;
     this.decay = voice.decay;
     this.drift = voice.drift;
+    this.oscEnvelope = voice.envelope;
     this.p = 0; // panning;
 
     // noise //
@@ -249,7 +263,7 @@ proto.process = function(input,level) {
     }
 
 
-    // envelope //
+    // main envelope //
     this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
 
 
@@ -257,8 +271,9 @@ proto.process = function(input,level) {
     var pb = common.rampEnvelope(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.decay, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100, 'linearOut');
     var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45, 'linearOut');
-    var osc = this.voice.process(pb * pd, bl);
-    osc /= 3;
+    var oscEnv = common.multiEnvelope(this.i, this.duration, this.oscEnvelope, this.curves);
+    var osc = this.voice.process(pb * pd, bl) * oscEnv;
+    osc *= 0.33;
 
     //noise //
     var nt = common.rampEnvelope(this.i, this.duration, this.noiseThresh1, this.noiseThresh2, 0, 75, 'linearOut');

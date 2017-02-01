@@ -13,6 +13,7 @@ var ArrayEnvelope = require('./ArrayEnvelope');
 var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
+var EnvelopePoint = require('./EnvelopePoint');
 var FadeEnvelope = require('./FadeEnvelope');
 var Interpolate = require('./Interpolate');
 var MultiEnvelope = require('./MultiEnvelope');
@@ -26,6 +27,7 @@ var ToStereo = require('./ToStereo');
 
 
 
+
 module.exports = {
     add: Add,
     ADSREnvelope: ADSREnvelope,
@@ -34,8 +36,9 @@ module.exports = {
     clapEnvelope: ClapEnvelope,
     combine: Combine,
     fadeEnvelope: FadeEnvelope,
+    EnvelopePoint: EnvelopePoint,
     interpolate: Interpolate,
-    MultiEnvelope: MultiEnvelope,
+    multiEnvelope: MultiEnvelope,
     rampEnvelope: RampEnvelope,
     range: ControlRange,
     RMS: RMS,
