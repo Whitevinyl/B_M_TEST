@@ -2,8 +2,8 @@ var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
-// Add some delicious noise. Setting the threshold makes for a harsher, roaring unbalanced
-// noise, zero threshold is plain white noise.
+// Add some delicious noise. Setting the threshold high makes for a harsher, roaring
+// unbalanced noise, zero threshold is plain white noise.
 
 //-------------------------------------------------------------------------------------------
 //  MONO INIT

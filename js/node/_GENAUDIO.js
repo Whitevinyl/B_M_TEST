@@ -148,9 +148,11 @@ proto.generateClicks = function() {
     var sample = new audio.Sample();
     var kick = new audio.KickPlayer();
     var clap = new audio.ClapPlayer();
+    var snare = new audio.SnarePlayer();
+
     var resampler = new audio.Resampler();
 
-    var chorus = new audio.GranularChorusIII();
+    var pitch = new audio.PitchShift();
     var chorusPhase = new audio.GranularChorusII();
 
     var control = new audio.PerlinMod();
@@ -169,9 +171,7 @@ proto.generateClicks = function() {
     var vol = new audio.Volumizer();
     var comp = new audio.CompressorII();
 
-    var noise = new audio.StereoNoise();
     var noise2 = new audio.PhonoCrackle();
-    var noise3 = new audio.Rumble();
 
     var biquad = new audio.StereoBiquad();
 
@@ -192,7 +192,7 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);
 
         /*var int = audio.controlRange(-5,5,control.process(1.1));
-        process = chorus.process(signal,900,12,1);
+        process = pitch.process(signal,900,12,1);
         signal = signalTest(process,signal);*/
 
 
@@ -202,8 +202,12 @@ proto.generateClicks = function() {
         process = kick.process(signal,1,i);
         signal = signalTest(process,signal);
 
-        process = clap.process(signal,1,i);
+        /*process = clap.process(signal,1,i);
+        signal = signalTest(process,signal);*/
+
+        process = snare.process(signal,1,i);
         signal = signalTest(process,signal);
+
 
         /*process = delay2.process(signal,35000,35,8000,10,1.7,0,100,1);
         signal = signalTest(process,signal);*/
@@ -218,11 +222,12 @@ proto.generateClicks = function() {
             hold: 10000,
             pitch: 12,
             reverse: true,
+            accordion: 0.5,
             feedback: 90,
             mix: 0.5
         };
 
-        process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.feedback,gh.mix);
+        process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.accordion,gh.feedback,gh.mix);
         signal = signalTest(process,signal);*/
 
         //var triScale = tri.process(0.1);
@@ -237,7 +242,7 @@ proto.generateClicks = function() {
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
         signal = signalTest(process,signal);
 
-        var gh2 = {
+        /*var gh2 = {
             hold: 40000,
             grainSize: 5000,
             overlap: 2000,
@@ -249,17 +254,13 @@ proto.generateClicks = function() {
         };
 
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.jitter,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal);*/
 
 
-        process = noise.process(signal,0.0001,0.9);
-        signal = signalTest(process,signal);
 
-        process = noise2.process(signal,0.1,0.2,7000);
-        signal = signalTest(process,signal);
+        /*process = noise2.process(signal,0.1,0.2,7000);
+        signal = signalTest(process,signal);*/
 
-        process = noise3.process(signal,6000,0.1,0.3);
-        signal = signalTest(process,signal);
 
         /*var dl = {
             delayTime: 9000,
@@ -279,8 +280,7 @@ proto.generateClicks = function() {
         process = delay3.process(signal,dl.delayTime,dl.overlap,dl.grainSize,dl.scatter,dl.movement,dl.pitch,dl.reverse,dl.flip,dl.feeedback,dl.mix);
         signal = signalTest(process,signal);*/
 
-        /*process = chorus.process(signal,0.12,0.5);
-        signal = signalTest(process,signal);*/
+
 
         /*process = chorusPhase.process(signal,2000,0.5,0.5);
         signal = signalTest(process,signal);*/
@@ -501,16 +501,7 @@ proto.buildFilters =  function() {
     f.push(new FilterWrapper(settings));*/
 
 
-    // VOICE // 20 - 40
-    settings = {
-        filter: new audio.Voice(tombola.rangeFloat(20,40)),
-        args: [
-            {context: true, value: 'signal'},
-            {value: 'triangle'}
-        ],
-        mods: []
-    };
-    f.push(new FilterWrapper(settings));
+
 
 
     // BITCRUSH //
@@ -534,21 +525,11 @@ proto.buildFilters =  function() {
     f.push(new FilterWrapper(settings));*/
 
 
-    // NOISE //
-    settings = {
-        filter: new audio.NoiseWrapper(),
-        args: [
-            {context: true, value: 'signal'}//,
-            //{value: 20000}
-        ],
-        mods: []
-    };
-    f.push(new FilterWrapper(settings));
 
 
     // SIREN //
     settings = {
-         filter: new audio.FilterSiren(),
+         filter: new audio.Siren(),
          args: [
              {context: true, value: 'signal'},
              {value: 0.5},

@@ -4,8 +4,6 @@ var Tombola = require('tombola');
 var tombola = new Tombola();
 
 var Resonant = require('./Resonant');
-var Perlin = require('../voices/Perlin');
-var Glide = require('../mods/Glide');
 
 // first attempt at a random grainular sample hold
 
@@ -31,7 +29,7 @@ var proto = GrainHold.prototype;
 //-------------------------------------------------------------------------------------------
 
 
-proto.process = function(signal,delay,size,hold,speed,reverse,feedback,mix) {
+proto.process = function(signal,delay,size,hold,speed,reverse,accordion,feedback,mix) {
     var i, l;
 
 
@@ -85,6 +83,10 @@ proto.process = function(signal,delay,size,hold,speed,reverse,feedback,mix) {
         if (this.i<1) {
             this.i = tombola.range(20000,50000);
             this.i = 10000;
+            if (accordion > 0) {
+                this.memory[0].splice(Math.round(-buffer * accordion));
+                this.memory[1].splice(Math.round(-buffer * accordion));
+            }
 
             this.grains.push( new Grain(this.grains,this.memory,delay,hold,speed,direction) );
         }

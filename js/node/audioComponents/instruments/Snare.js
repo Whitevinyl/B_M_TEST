@@ -5,13 +5,16 @@ var tombola = new Tombola();
 
 var marker = require('../core/Marker');
 var common = require('../common/Common');
+
 var SineSquare = require('../voices/SineSquare');
 var SineTriangle = require('../voices/SineTriangle');
+var Roar = require('../voices/RoarNoise');
+
 var Expander = require('../filters/StereoExpander');
 var drive = require('../filters/FoldBackII');
-var Q = require('../filters/Q');
+var Biquad = require('../filters/Biquad');
 
-// Procedurally generates synth kicks. Individual kick hits inherit their settings from
+// Procedurally generates synth snares. Individual snare hits inherit their settings from
 // the player, but can also adapt their settings & effects separate from all other hits.
 
 //-------------------------------------------------------------------------------------------
@@ -19,7 +22,7 @@ var Q = require('../filters/Q');
 //-------------------------------------------------------------------------------------------
 
 
-function KickPlayer() {
+function SnarePlayer() {
     this.instances = [];
     this.markers = [];
 
@@ -37,26 +40,23 @@ function KickPlayer() {
     console.log(this.voice);
     console.log(this.drive);
 
-    this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
-    //this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,this.envelope.duration));
-    //this.markers.push(new marker(audioClock.getBeatLength('4')*2,1,440,this.adsr,this.envelope.duration));
-    //this.markers.push(new marker(audioClock.getBeatLength('4')*3,1,440,this.adsr,this.envelope.duration));
-    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,this.envelope.duration));
 
+    this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('D2'),1,440,this.adsr,this.envelope.duration));
 }
-var proto = KickPlayer.prototype;
+var proto = SnarePlayer.prototype;
 
 
 //-------------------------------------------------------------------------------------------
 //  RANDOMISE SETTINGS
 //-------------------------------------------------------------------------------------------
 
+
 // VOICE //
 proto.chooseVoice = function() {
 
-    var type = tombola.weightedItem([SineSquare, SineTriangle], [3, 4]);
-    var pitch = tombola.rangeFloat(32, 49);
-
+    var type = tombola.weightedItem([SineSquare, SineTriangle], [2, 3]);
+    var pitch = tombola.rangeFloat(180, 400);
 
     // mix between oscillators //
     var blend1 = 0;
@@ -103,17 +103,18 @@ proto.chooseVoice = function() {
         pitch: pitch,
         blend1: blend1,
         blend2: blend2,
-        ratio: tombola.rangeFloat(4, 24), // height of transient pitch
-        decay: tombola.range(5, 28), // transient decay percent (change to ms)
-        drift: tombola.rangeFloat(0.75,1.3) // body pitch drift
+        ratio: tombola.rangeFloat(7, 28), // height of transient pitch
+        decay: tombola.range(5, 25), // transient decay percent (change to ms)
+        drift: tombola.rangeFloat(0.75,1.1) // body pitch drift
     };
 };
+
 
 
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(70,400),tombola.rangeFloat(0.55,1),tombola.range(100,420)];
+    var adsr = [0,tombola.range(30,180),tombola.rangeFloat(0.5,0.9),tombola.range(50,300)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10;
 
     return {
@@ -122,6 +123,7 @@ proto.chooseEnvelope = function() {
         duration: audioClock.millisecondsToSamples(duration)
     };
 };
+
 
 
 // DRIVE //
@@ -137,6 +139,7 @@ proto.chooseDrive = function() {
     };
 };
 
+
 //-------------------------------------------------------------------------------------------
 //  PLAYER PROCESS
 //-------------------------------------------------------------------------------------------
@@ -151,7 +154,7 @@ proto.process = function(signal,level,index) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
             this.instances = []; // clear for mono
-            this.instances.push( new Kick(this.instances,this.envelope,this.voice,this.drive));
+            this.instances.push( new Snare(this.instances,this.envelope,this.voice,this.drive));
         }
     }
 
@@ -165,12 +168,11 @@ proto.process = function(signal,level,index) {
 };
 
 
-
 //-------------------------------------------------------------------------------------------
-//  KICK INIT
+//  SNARE INIT
 //-------------------------------------------------------------------------------------------
 
-function Kick(parentArray,envelope,voice,drive) {
+function Snare(parentArray,envelope,voice,drive) {
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -193,23 +195,32 @@ function Kick(parentArray,envelope,voice,drive) {
     this.drift = voice.drift;
     this.p = 0; // panning;
 
+    // noise //
+    this.noiseL = new Roar();
+    this.noiseR = new Roar();
+    this.noiseThresh1 = 0.95;
+    this.noiseThresh2 = 0.75;
+    this.hp = new Biquad.stereo();
 
-    // filter //
-    this.filter = new Q.stereo();
-
-    // expander //
-    this.expander = new Expander();
 
     // drive //
     this.driveAdsr = drive.envelope;
     this.threshold = drive.threshold;
     this.power = drive.power;
     this.driveMix = drive.mix;
+
+
+    // filter //
+    this.filter = new Biquad.stereo();
+
+    // expander //
+    this.expander = new Expander();
 }
-proto = Kick.prototype;
+proto = Snare.prototype;
+
 
 //-------------------------------------------------------------------------------------------
-//  KICK PROCESS
+//  SNARE PROCESS
 //-------------------------------------------------------------------------------------------
 
 proto.process = function(input,level) {
@@ -226,29 +237,27 @@ proto.process = function(input,level) {
 
 
     // voice //
-    var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, this.decay,'quinticOut');
-    var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
-    var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45,'linearOut');
-    var n = this.voice.process(pb * pd, bl);
+    var pb = common.rampEnvelope(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.decay, 'quinticOut');
+    var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100, 'linearOut');
+    var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45, 'linearOut');
+    var osc = this.voice.process(pb * pd, bl);
+    osc /= 2;
 
+    //noise //
+    var nt = common.rampEnvelope(this.i, this.duration, this.noiseThresh1, this.noiseThresh2, 0, 75, 'linearOut');
+    var noiseL = this.noiseL.process(nt,1);
+    var noiseR = this.noiseR.process(nt,1);
+    noiseL /= 2;
+    noiseR /= 2;
 
+    var noise = [noiseL,noiseR];
+    noise = this.hp.process(noise,'highpass',110,1,0);
 
     var signal = [
-        n * ((1 + -this.p) * this.a),
-        n * ((1 +  this.p) * this.a)
+        (osc + noise[0]) * ((1 + -this.p) * this.a),
+        (osc + noise[1]) * ((1 +  this.p) * this.a)
     ];
 
-
-    // drive //
-    var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    signal = drive(signal,this.threshold,this.power,da * this.driveMix);
-
-
-    // filter //
-    signal = this.filter.process(signal,350,0.8,-0.4);
-
-    // expander //
-    //signal = this.expander.process(signal,20);
 
 
     // return with ducking //
@@ -260,8 +269,9 @@ proto.process = function(input,level) {
 };
 
 
+
 //-------------------------------------------------------------------------------------------
-//  KICK KILL
+//  SNARE KILL
 //-------------------------------------------------------------------------------------------
 
 // remove from parent object //
@@ -274,4 +284,4 @@ proto.kill = function() {
 
 
 
-module.exports = KickPlayer;
+module.exports = SnarePlayer;

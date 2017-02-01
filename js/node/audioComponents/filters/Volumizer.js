@@ -2,6 +2,7 @@ var utils = require('../../lib/utils');
 var common = require('../common/Common');
 
 // basic volume boost, for use after normalisation //
+// DOES NOT WORK // wip / graveyard etc
 
 //-------------------------------------------------------------------------------------------
 //  INIT

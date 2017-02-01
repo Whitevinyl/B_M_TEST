@@ -3,7 +3,7 @@ var common = require('../common/Common');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
-// was intended to be something else bu ended up as a nice granular pitch-shifter. Will
+// A granular pitch-shifter. Will
 // keep tweaking as it seems to have a lot of potential.
 
 
@@ -12,12 +12,12 @@ var tombola = new Tombola();
 //-------------------------------------------------------------------------------------------
 
 
-function GranularChorusIII() {
+function PitchShift() {
     this.memory = [[],[]];
     this.grains = [];
     this.i = 0;
 }
-var proto = GranularChorusIII.prototype;
+var proto = PitchShift.prototype;
 
 
 //-------------------------------------------------------------------------------------------
@@ -151,6 +151,6 @@ proto.kill = function() {
 };
 
 
-module.exports = GranularChorusIII;
+module.exports = PitchShift;
 
 

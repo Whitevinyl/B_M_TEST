@@ -2,7 +2,8 @@ var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
-// A simple tremolo, currently hard-coded as a sawtooth type
+// A simple tremolo, currently hard-coded as a sawtooth type,
+// will expand for multiple waves
 
 //-------------------------------------------------------------------------------------------
 //  MONO INIT

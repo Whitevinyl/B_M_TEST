@@ -19,7 +19,13 @@ function Roar(threshold) {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-Roar.prototype.process = function() {
+Roar.prototype.process = function(threshold,gain) {
+    if (threshold) {
+        this.threshold = threshold; // get rid of this eventually, make like other noise algs
+    }
+    if (gain) {
+        this.gain = gain; // ditto
+    }
     var white = (Math.random() * 2 - 1);
     if (white>(-this.threshold) && white<this.threshold) {
         white = this.amplitude;
