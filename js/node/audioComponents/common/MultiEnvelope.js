@@ -25,9 +25,11 @@ function MultiEnvelope(t, d, env, curves) {
         var startGain = 0;
 
         var l = env.length;
+        var totalTime = 0;
         for (var h = 0; h < l; h++) {
             var point = env[h];
-            if (t >= ((point.time + startTime))) {
+            totalTime += point.time;
+            if (t >= totalTime) {
                 stage++;
                 startTime += point.time;
                 startGain = point.gain;

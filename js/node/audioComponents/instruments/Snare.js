@@ -109,13 +109,13 @@ proto.chooseVoice = function() {
     var env = [];
 
     env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(2,0,'In') );
     env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(2,0,'In') );
     env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(0,0,'In') );
+    env.push( new common.EnvelopePoint(2,0,'In') );
     env.push( new common.EnvelopePoint(d*0.16,1,'In') );
-    env.push( new common.EnvelopePoint(d*0.2,0,'In') );
+    env.push( new common.EnvelopePoint(d*0.2,0,'Out') );
 
     // generate object //
     return {
