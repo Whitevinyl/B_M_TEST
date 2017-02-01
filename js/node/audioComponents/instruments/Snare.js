@@ -9,6 +9,11 @@ var common = require('../common/Common');
 var SineSquare = require('../voices/SineSquare');
 var SineTriangle = require('../voices/SineTriangle');
 var Roar = require('../voices/RoarNoise');
+var Brown = require('../voices/BrownNoise');
+var Static = require('../voices/StaticNoise');
+var Crackle = require('../voices/CrackleNoise');
+var Pink = require('../voices/PinkNoise');
+var Rumble = require('../voices/RumbleNoise');
 
 var Expander = require('../filters/StereoExpander');
 var drive = require('../filters/FoldBackII');
@@ -35,7 +40,10 @@ function SnarePlayer() {
     // drive //
     this.drive = this.chooseDrive();
 
+    // filter //
+    this.filter = this.chooseFilter();
 
+    console.log(this.filter);
     console.log(this.envelope);
     console.log(this.voice);
     console.log(this.drive);
@@ -103,9 +111,9 @@ proto.chooseVoice = function() {
         pitch: pitch,
         blend1: blend1,
         blend2: blend2,
-        ratio: tombola.rangeFloat(7, 28), // height of transient pitch
-        decay: tombola.range(5, 25), // transient decay percent (change to ms)
-        drift: tombola.rangeFloat(0.75,1.1) // body pitch drift
+        ratio: tombola.rangeFloat(12, 30), // height of transient pitch
+        decay: tombola.range(4, 19), // transient decay percent (change to ms)
+        drift: tombola.rangeFloat(0.79,1.1) // body pitch drift
     };
 };
 
@@ -114,7 +122,7 @@ proto.chooseVoice = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(30,180),tombola.rangeFloat(0.5,0.9),tombola.range(50,300)];
+    var adsr = [0,tombola.range(30,100),tombola.rangeFloat(0.5,0.9),tombola.range(110,250)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10;
 
     return {
@@ -140,6 +148,15 @@ proto.chooseDrive = function() {
 };
 
 
+
+// FILTERING //
+proto.chooseFilter = function() {
+
+  return {
+      highpass: tombola.rangeFloat(120,280) // relative of fundamental ?
+  }
+};
+
 //-------------------------------------------------------------------------------------------
 //  PLAYER PROCESS
 //-------------------------------------------------------------------------------------------
@@ -154,7 +171,7 @@ proto.process = function(signal,level,index) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
             this.instances = []; // clear for mono
-            this.instances.push( new Snare(this.instances,this.envelope,this.voice,this.drive));
+            this.instances.push( new Snare(this.instances,this.envelope,this.voice,this.drive,this.filter));
         }
     }
 
@@ -172,7 +189,7 @@ proto.process = function(signal,level,index) {
 //  SNARE INIT
 //-------------------------------------------------------------------------------------------
 
-function Snare(parentArray,envelope,voice,drive) {
+function Snare(parentArray,envelope,voice,drive,filter) {
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -196,11 +213,11 @@ function Snare(parentArray,envelope,voice,drive) {
     this.p = 0; // panning;
 
     // noise //
-    this.noiseL = new Roar();
-    this.noiseR = new Roar();
-    this.noiseThresh1 = 0.95;
-    this.noiseThresh2 = 0.75;
-    this.hp = new Biquad.stereo();
+    this.noiseL = new Rumble();
+    this.noiseR = new Rumble();
+    this.noiseThresh1 = 9.5;
+    this.noiseThresh2 = 7.5;
+
 
 
     // drive //
@@ -212,9 +229,9 @@ function Snare(parentArray,envelope,voice,drive) {
 
     // filter //
     this.filter = new Biquad.stereo();
+    this.hp = new Biquad.stereo();
+    this.hpFreq = filter.highpass;
 
-    // expander //
-    this.expander = new Expander();
 }
 proto = Snare.prototype;
 
@@ -241,23 +258,30 @@ proto.process = function(input,level) {
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100, 'linearOut');
     var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45, 'linearOut');
     var osc = this.voice.process(pb * pd, bl);
-    osc /= 2;
+    osc /= 3;
 
     //noise //
     var nt = common.rampEnvelope(this.i, this.duration, this.noiseThresh1, this.noiseThresh2, 0, 75, 'linearOut');
-    var noiseL = this.noiseL.process(nt,1);
-    var noiseR = this.noiseR.process(nt,1);
+    var noiseL = this.noiseL.process(10000,1);
+    var noiseR = this.noiseR.process(10000,1);
     noiseL /= 2;
     noiseR /= 2;
 
     var noise = [noiseL,noiseR];
-    noise = this.hp.process(noise,'highpass',110,1,0);
 
     var signal = [
         (osc + noise[0]) * ((1 + -this.p) * this.a),
         (osc + noise[1]) * ((1 +  this.p) * this.a)
     ];
 
+
+    // drive //
+    /*var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
+    signal = drive(signal,this.threshold,this.power,da * this.driveMix);*/
+
+
+    // filter //
+    signal = this.hp.process(signal,'highpass',this.hpFreq,0,0);
 
 
     // return with ducking //

@@ -52,6 +52,7 @@ var Resonant = require('./audioComponents/filters/Resonant');
 var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
+var StereoRumble = require('./audioComponents/filters/StereoRumble');
 var Tremolo = require('./audioComponents/filters/Tremolo');
 var Volumizer = require('./audioComponents/filters/Volumizer');
 
@@ -1374,6 +1375,7 @@ module.exports = {
     StereoRetroDelay: RetroDelay.stereo,
     ReverbII: ReverbII.mono,
     StereoReverbII: ReverbII.stereo,
+    StereoRumble: StereoRumble,
     StereoExpander: StereoExpander,
     Tremolo: Tremolo.mono,
     StereoTremolo: Tremolo.stereo,

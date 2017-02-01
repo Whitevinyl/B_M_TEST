@@ -20,6 +20,7 @@ var proto = StereoExpander.prototype;
 
 
 proto.process = function(signal,delay) {
+    delay = utils.arg(delay,20);
 
     // convert delay to samples //
     delay = audioClock.millisecondsToSamples(delay);

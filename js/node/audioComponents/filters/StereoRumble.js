@@ -9,8 +9,9 @@ var WalkSmooth = require('../mods/WalkSmooth');
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Rumble() {
-    this.rumble = new WalkSmooth();
+function StereoRumble() {
+    this.r1 = new WalkSmooth();
+    this.r2 = new WalkSmooth();
 }
 
 
@@ -18,11 +19,15 @@ function Rumble() {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-Rumble.prototype.process = function(frequency,gain) {
+StereoRumble.prototype.process = function(signal,frequency,ducking,gain) {
     frequency = utils.arg(frequency,500);
+    ducking = utils.arg(ducking,0.5);
     gain = utils.arg(gain,0.5);
 
-    return this.rumble.process(frequency,10) * gain;
+    return [
+        (signal[0]*(1-ducking)) + (this.r1.process(frequency,10) * gain),
+        (signal[1]*(1-ducking)) + (this.r2.process(frequency,10) * gain)
+    ];
 };
 
-module.exports = Rumble;
+module.exports = StereoRumble;
