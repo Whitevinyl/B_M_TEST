@@ -93,6 +93,7 @@ var SnarePlayer = require('./audioComponents/instruments/Snare');
 var Brown = require('./audioComponents/voices/BrownNoise');
 var Crackle = require('./audioComponents/voices/CrackleNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
+var Hiss = require('./audioComponents/voices/HissNoise');
 var Pink = require('./audioComponents/voices/PinkNoise');
 var Perlin = require('./audioComponents/voices/Perlin');
 var Roar = require('./audioComponents/voices/RoarNoise');
@@ -1266,18 +1267,20 @@ Takeoff.prototype.process = function(r,c,d) {
 
 
 module.exports = {
-    VoicePink: Pink,
-    VoiceBrown: Brown,
-    White: White,
+
+    Brown: Brown,
     Crackle: Crackle,
+    HarmonicSine: HarmonicSine,
+    Hiss: Hiss,
     Perlin: Perlin,
+    Pink: Pink,
     Roar: Roar,
     Rumble: Rumble,
     SawTooth: SawTooth,
     Static: Static,
     Sine: Sine,
     Triangle: Triangle,
-    HarmonicSine: HarmonicSine,
+    White: White,
 
     waveTriangle: waveTriangle,
     WavePlayer: WavePlayer,

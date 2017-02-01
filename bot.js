@@ -41,10 +41,8 @@ global.modes = {
     'periodicTweet':    8,
     'spectrum':         9,
     'spectrumTweet':    10,
-    'starTrail':        11,
-    'starTrailTweet':   12,
-    'tweet':            13,
-    'tweetTweet':       14
+    'tweet':            11,
+    'tweetTweet':       12
 };
 
 // SET THE CURRENT OPERATION MODE //
@@ -119,11 +117,6 @@ function init() {
         case modes.spectrum:
         case modes.spectrumTweet:
             action.chartSpectrum();
-            break;
-
-        case modes.starTrail:
-        case modes.starTrailTweet:
-            action.starTrails();
             break;
 
         case modes.tweet:

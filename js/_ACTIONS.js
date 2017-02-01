@@ -14,10 +14,6 @@ var GenChart = require('./_GENCHART');
 var genChart = new GenChart();
 var DrawChart = require('./_DRAWCHART');
 var drawChart = new DrawChart();
-var GenStarTrail = require('./_GENSTARTRAIL');
-var genStars = new GenStarTrail();
-var DrawStarTrail = require('./_DRAWSTARS');
-var drawStars = new DrawStarTrail();
 
 
 var SoundCloud = require('./_SOUNDCLOUD');
@@ -166,35 +162,6 @@ function uploadAudio(data,attempts) {
     });
 }
 
-
-//-------------------------------------------------------------------------------------------
-//  STAR TRAILS
-//-------------------------------------------------------------------------------------------
-
-
-proto.starTrails = function() {
-
-    // draw stars to canvas //
-    var data = genStars.generateTrails();
-    drawStars.background(data);
-    for (var k=0; k<data.shutter; k++) {
-        genStars.update(data);
-        drawStars.stars(data);
-    }
-    drawStars.composite();
-
-    // get image data //
-    var b64 =  utils.stripUriMeta(drawStars.canvas[3].toDataURL());
-
-    // tweet it //
-    var tweet = {
-        media: {
-            media_data: b64
-        },
-        status: 'Bronica SQA, '+ ((Math.round((data.shutter*0.45)/30)/2)) +' hours exposure:'
-    };
-    twitter.post(tweet);
-};
 
 
 //-------------------------------------------------------------------------------------------
