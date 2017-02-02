@@ -74,7 +74,7 @@ var proto = SnarePlayer.prototype;
 proto.chooseVoice = function() {
 
     var type = tombola.weightedItem([SineSquare, SineTriangle], [2, 3]);
-    var pitch = tombola.rangeFloat(260, 800);
+    var pitch = tombola.rangeFloat(260, 600);
 
     // mix between oscillators //
     var blend1 = 0;
@@ -129,9 +129,9 @@ proto.chooseVoice = function() {
         pitch: pitch,
         blend1: blend1,
         blend2: blend2,
-        ratio: tombola.rangeFloat(10, 28), // height of transient pitch
-        thump: tombola.range(18, 26), // transient pitch decay milliseconds
-        drift: tombola.rangeFloat(0.82,1.1), // body pitch drift
+        ratio: tombola.rangeFloat(10, 15), // height of transient pitch
+        thump: tombola.range(18, 22), // transient pitch decay milliseconds
+        drift: tombola.rangeFloat(0.82,1.05), // body pitch drift
         envelope: env
     };
 };

@@ -384,6 +384,83 @@ proto.generateClicks = function() {
 };
 
 
+
+
+proto.generateHit = function() {
+
+    // SETUP THIS AUDIO //
+    var seconds = 2;
+
+    var l = sampleRate * seconds;
+    var channels = [new Float32Array(l), new Float32Array(l)];
+
+    // CREATE CLOCK //
+    audioClock = new audio.Clock();
+    audioClock.setup();
+
+    var kick = new audio.KickPlayer();
+    var clap = new audio.ClapPlayer();
+    var snare = new audio.SnarePlayer();
+
+
+    // LOOP EACH SAMPLE //
+    for (var i = 0; i < l; i++) {
+        var signal = [0, 0];
+
+        // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
+        var process = audioClock.process(signal, i);
+        signal = signalTest(process, signal);
+
+
+        // KICK //
+        process = kick.process(signal, 1, i);
+        signal = signalTest(process, signal);
+
+
+        // WRITE TO AUDIO CHANNELS //
+        if (channels[0][i]) {
+            channels[0][i] += signal[0];
+        } else {
+            channels[0][i] = signal[0];
+        }
+        if (channels[1][i]) {
+            channels[1][i] += signal[1];
+        } else {
+            channels[1][i] = signal[1];
+        }
+    }
+
+    // MASTERING //
+    //audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
+    normalisePass(channels,1);
+    fadePass(channels,0,0);
+    normalisePass(channels,0.96875);
+
+
+
+    // DONE - ASSEMBLE TRACK DATA //
+    console.log('generated');
+    return {
+        audioData: {
+            sampleRate: sampleRate,
+            channelData: channels
+        },
+        seconds: seconds,
+        id: genChart.generateID(),
+        cat: genChart.generateCat(),
+        date: genChart.generateDate(),
+        time: genChart.generateTime(),
+        frequency: genChart.generateFrequency(),
+        bandwidth: genChart.generateBandWidth(),
+        level: genChart.generateLevel()
+    };
+};
+
+
+
+
+
+
 function normalisePass(channel,max) {
     console.log("Normalising...");
     var i;

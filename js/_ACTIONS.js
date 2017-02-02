@@ -15,6 +15,9 @@ var genChart = new GenChart();
 var DrawChart = require('./_DRAWCHART');
 var drawChart = new DrawChart();
 
+var DrawWave = require('./_DRAWWAVE');
+var drawWave = new DrawWave();
+
 
 var SoundCloud = require('./_SOUNDCLOUD');
 var soundCloud = new SoundCloud();
@@ -94,6 +97,32 @@ proto.audio = function() {
                 if (opMode===modes.running || opMode===modes.audioTweet) {
                     uploadAudio(data, 3);
                 }
+            }
+        });
+    });
+};
+
+
+proto.audioTest = function() {
+
+    // generate audio data //
+    var data = genAudio.generateHit();
+
+    // encode audio data to wav //
+    //var options = { float: false, bitDepth: 24 }; // pass as 2nd param
+    wavEncoder.encode(data.audioData).then(function(buffer){
+        console.log(buffer);
+
+        // write wav as file //
+        fs.writeFile("output.wav", new Buffer(buffer), 'utf-8', function(err) {
+
+            if (err) {
+                console.log("failed to save");
+            } else {
+                console.log("succeeded in saving");
+
+                // generateChart //
+                drawWave.draw(data.audioData);
             }
         });
     });
