@@ -236,13 +236,13 @@ proto.generateClicks = function() {
             room: 0.2,
             damp: 0.45,
             direction: -0.2,
-            mix: 0.25
+            mix: 0.21
         };
 
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
         signal = signalTest(process,signal);
 
-        /*var gh2 = {
+        var gh2 = {
             hold: 40000,
             grainSize: 5000,
             overlap: 2000,
@@ -254,12 +254,11 @@ proto.generateClicks = function() {
         };
 
         process = hold2.process(signal,gh2.hold,gh2.grainSize,gh2.overlap,gh2.jitter,gh2.pitch,gh2.reverse,gh2.feedback,gh2.mix);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal);
 
 
 
-        /*process = noise2.process(signal,0.1,0.2,7000);
-        signal = signalTest(process,signal);*/
+
 
 
         /*var dl = {
@@ -301,12 +300,12 @@ proto.generateClicks = function() {
 
 
 
-        process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
+         process = retro.process(signal,0.5,t1,t2,0.3,2500,0.7,channels,i);
         signal = signalTest(process,signal);*/
 
 
-        /*process = biquad.process(signal,'highshelf',audio.controlRange(200,11000,tri.process(0.1)),12,12);
-        signal = signalTest(process,signal);*/
+        process = noise2.process(signal,0.1,0.2,7000);
+        signal = signalTest(process,signal);
 
 
         // WRITE TO AUDIO CHANNELS //
@@ -339,8 +338,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        /*process = resampler.process(signal,[0,1,2,5],250000,channels,i);
-        signal = signalTest(process,signal);*/
+        process = resampler.process(signal,[0,1,5],200000,channels,i);
+        signal = signalTest(process,signal);
 
 
         // WRITE VALUES //

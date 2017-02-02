@@ -1288,7 +1288,8 @@ module.exports = {
 
     clipping: clipping,
     compressor: compressor,
-    erode: erode,
+    erode: erode.mono,
+    stereoErode: erode.stereo,
     feedback: feedback.stereo,
     foldBack: foldBack,
     foldBackII: foldBackII,

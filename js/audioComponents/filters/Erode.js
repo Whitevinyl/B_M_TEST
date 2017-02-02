@@ -10,11 +10,12 @@ var tombola = new Tombola();
 //  MONO
 //-------------------------------------------------------------------------------------------
 
-function erode(input,width,index) {
+function erode(input,width,index,mix) {
+    var out = input;
     if (index % tombola.range(1,width)===0) {
-        input = -input;
+        out = -out;
     }
-    return input;
+    return (input * (1-mix)) + (out * mix);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -24,9 +25,12 @@ function erode(input,width,index) {
 function stereoErode(signal,width,index,mix) {
     mix = utils.arg(mix,1);
     return [
-        (signal[0] * (1-mix)) + (erode(signal[0],width,index)*mix),
-        (signal[1] * (1-mix)) + (erode(signal[1],width,index)*mix)
+        erode(signal[0],width,index,mix),
+        erode(signal[1],width,index,mix)
     ];
 }
 
-module.exports = stereoErode;
+module.exports = {
+    mono: erode,
+    stereo: stereoErode
+};
