@@ -18,9 +18,10 @@ function White() {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-White.prototype.process = function() {
+White.prototype.process = function(gain) {
+    gain = utils.arg(gain,1);
     var white = (Math.random() * 2 - 1);
-    return white * this.gain;
+    return white * gain;
 };
 
 module.exports = White;

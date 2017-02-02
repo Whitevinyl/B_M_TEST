@@ -93,6 +93,9 @@ proto.audio = function() {
             } else {
                 console.log("succeeded in saving");
 
+                // generateChart //
+                drawWave.draw(data.audioData.channelData);
+
                 // upload file to soundcloud //
                 if (opMode===modes.running || opMode===modes.audioTweet) {
                     uploadAudio(data, 3);

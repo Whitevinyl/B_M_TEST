@@ -21,7 +21,7 @@ function HarmonicSine() {
 //-------------------------------------------------------------------------------------------
 
 HarmonicSine.prototype.process = function(frequency,partials,resonance) {
-    frequency = (frequency*2)/sampleRate;
+    frequency = (frequency*4)/sampleRate;
     partials = partials || [];
 
     // calculate fundamental sine //
@@ -37,7 +37,7 @@ HarmonicSine.prototype.process = function(frequency,partials,resonance) {
         if (!this.partials[i]) this.partials[i] = 0;
 
         // good frequency? //
-        if ((((frequency/2)*i)*sampleRate)<20000) {
+        if ((((frequency/4)*i)*sampleRate)<20000) {
 
             // calculate sine //
             this.partials[i] += (frequency*i);

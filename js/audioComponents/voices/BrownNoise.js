@@ -15,7 +15,7 @@ function Brown() {
 //-------------------------------------------------------------------------------------------
 
 Brown.prototype.process = function(gain) {
-    gain = utils.arg(gain,0.5);
+    gain = utils.arg(gain,1);
     var white = Math.random() * 2 - 1;
     var total = (this.memory + (0.02 * white)) / 1.02;
     this.memory = total;

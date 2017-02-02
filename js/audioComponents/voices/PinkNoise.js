@@ -16,7 +16,7 @@ function Pink() {
 
 
 Pink.prototype.process = function(gain) {
-    gain = utils.arg(gain,0.5);
+    gain = utils.arg(gain,1);
     var white = Math.random() * 2 - 1;
     this.b0 = 0.99886 * this.b0 + white * 0.0555179;
     this.b1 = 0.99332 * this.b1 + white * 0.0750759;

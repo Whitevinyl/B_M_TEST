@@ -14,7 +14,7 @@ var graphCols = [new RGBA(235,26,76,1),new RGBA(80,78,80,1)];
 
 function DrawWave() {
 
-    this.fullX = 2000;
+    this.fullX = 2500;
     this.fullY = 700;
     this.halfX = Math.round(this.fullX/2);
     this.halfY = Math.round(this.fullY/2);
@@ -65,7 +65,7 @@ proto.draw = function(data) {
     var h = 100 * units;
     var x = halfX - (waveWidth/2);
     var y = halfY - (10 * units) - (h);
-    var seconds = l/sampleRate;
+
     var tenths = l/(sampleRate/10);
     var hundredths = l/(sampleRate/100);
     var i, mx, marks;
@@ -94,7 +94,6 @@ proto.draw = function(data) {
         cxa.lineTo(mx,halfY + (10*units));
     }
     cxa.stroke();
-
 
 
 

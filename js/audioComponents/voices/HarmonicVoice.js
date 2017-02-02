@@ -11,14 +11,15 @@ var common = require('../common/Common');
 // partials, modulating that value then creates the sound of opening up or closing off the
 // harmonics, feeling like a cutoff filter but with different timbre characteristics.
 
+// REMINDER - to myself - have changed to work as mono generator, not like filter.
+//            No longer outputs mix or stereo.
+
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
 function HarmonicVoice() {
     this.voice = new HarmonicSine;
-    this.a = 0.5;
-    this.p = tombola.rangeFloat(-1,1);
     this.partials = [1];
 }
 
@@ -26,7 +27,7 @@ function HarmonicVoice() {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-HarmonicVoice.prototype.process = function(input, frequency, cutoff, resonance, mode) {
+HarmonicVoice.prototype.process = function(frequency, cutoff, resonance, mode) {
 
     // get partials from cutoff (1-100 ideal) //
     var p = floatToPartials(cutoff);
@@ -58,17 +59,8 @@ HarmonicVoice.prototype.process = function(input, frequency, cutoff, resonance, 
     }
 
     // voice //
-    var signal = this.voice.process(frequency,p,resonance);
+    return  this.voice.process(frequency,p,resonance);
 
-    // pan //
-    this.p += tombola.rangeFloat(-0.008,0.008);
-    this.p = utils.valueInRange(this.p, -1, 1);
-    signal = common.toStereo(signal,this.p);
-
-    return [
-        (input[0] * (1-(this.a))) + (signal[0] * this.a),
-        (input[1] * (1-(this.a))) + (signal[1] * this.a)
-    ];
 };
 
 

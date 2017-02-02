@@ -350,7 +350,7 @@ proto.generateClicks = function() {
     }
     console.log(peak);
 
-
+    console.log(snare.maxPeak);
 
 
 
@@ -389,7 +389,7 @@ proto.generateClicks = function() {
 proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 0.25;
+    var seconds = 0.3;
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -434,11 +434,12 @@ proto.generateHit = function() {
         }
     }
 
+    console.log(snare.maxPeak);
     // MASTERING //
     //audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
-    normalisePass(channels,1);
-    fadePass(channels,0,0);
-    normalisePass(channels,0.96875);
+    //normalisePass(channels,1);
+    //fadePass(channels,0,0);
+    //normalisePass(channels,0.96875);
 
 
 
