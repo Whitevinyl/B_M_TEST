@@ -389,7 +389,7 @@ proto.generateClicks = function() {
 proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
-    var seconds = 2;
+    var seconds = 0.25;
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -412,8 +412,12 @@ proto.generateHit = function() {
         signal = signalTest(process, signal);
 
 
-        // KICK //
+        /*// KICK //
         process = kick.process(signal, 1, i);
+        signal = signalTest(process, signal);*/
+
+        // SNARE //
+        process = snare.process(signal, 1, i);
         signal = signalTest(process, signal);
 
 

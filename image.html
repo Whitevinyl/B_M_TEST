@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+
+<style scoped>
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    body {
+        background-color: rgba(10,15,21,100);
+        margin: 0;
+        padding: 0;
+    }
+    #content {
+        margin: 0 100px 0 100px;
+    }
+
+</style>
+
+<div id="content">
+    <img id='waveImg' src="wave.png" >
+    <audio id="player" controls></audio>
+</div>
+
+
+
+
+<script type="text/javascript">
+    var a = document.getElementById('player');
+    a.src = "output.wav?cb=" + new Date().getTime();
+    a.load();
+    a.play();
+</script>
+
+</body>
+</html>

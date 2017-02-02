@@ -122,7 +122,7 @@ proto.audioTest = function() {
                 console.log("succeeded in saving");
 
                 // generateChart //
-                drawWave.draw(data.audioData);
+                drawWave.draw(data.audioData.channelData);
             }
         });
     });

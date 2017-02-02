@@ -58,7 +58,7 @@ function SnarePlayer() {
     console.log(this.voice);
     console.log(this.drive);
 
-
+    this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('D2'),1,440,this.adsr,this.envelope.duration));
 }
