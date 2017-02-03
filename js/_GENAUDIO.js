@@ -338,7 +338,7 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        process = resampler.process(signal,[0,1,5],200000,channels,i);
+        process = resampler.process(signal,[0,1,5],250000,channels,i);
         signal = signalTest(process,signal);
 
 

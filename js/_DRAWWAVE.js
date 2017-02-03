@@ -4,7 +4,7 @@ var RGBA = require('./lib/RGBA');
 
 // COLORS //
 var bgCols = [new RGBA(10,15,22,1)];
-var graphCols = [new RGBA(235,26,76,1),new RGBA(80,78,80,1)];
+var graphCols = [new RGBA(235,26,76,1),new RGBA(50,48,50,1)];
 
 // Drawing out waveforms of generated sounds for testing/analysis
 
@@ -66,6 +66,7 @@ proto.draw = function(data) {
     var x = halfX - (waveWidth/2);
     var y = halfY - (10 * units) - (h);
 
+    var seconds = l/sampleRate;
     var tenths = l/(sampleRate/10);
     var hundredths = l/(sampleRate/100);
     var i, mx, marks;
@@ -74,26 +75,45 @@ proto.draw = function(data) {
     // MARKS //
     color.stroke(cxa,graphCols[1]);
 
-    cxa.lineWidth = 1;
-    cxa.beginPath();
-    marks = Math.floor(hundredths);
-    for (i=0; i<=marks; i++) {
-        mx = units + ((waveWidth/hundredths) * i);
-        cxa.moveTo(mx,halfY - (2*units));
-        cxa.lineTo(mx,halfY + (2*units));
+    if (seconds>4) {
+
+        cxa.lineWidth = 2;
+        cxa.beginPath();
+        marks = Math.floor(seconds);
+        for (i=0; i<=marks; i++) {
+            mx = units + ((waveWidth/seconds) * i);
+            cxa.moveTo(mx,halfY - (10*units));
+            cxa.lineTo(mx,halfY + (10*units));
+        }
+        cxa.stroke();
+
     }
-    cxa.stroke();
+    else {
+
+        cxa.lineWidth = 1;
+        cxa.beginPath();
+        marks = Math.floor(hundredths);
+        for (i=0; i<=marks; i++) {
+            mx = units + ((waveWidth/hundredths) * i);
+            cxa.moveTo(mx,halfY - (2*units));
+            cxa.lineTo(mx,halfY + (2*units));
+        }
+        cxa.stroke();
 
 
-    cxa.lineWidth = 2;
-    cxa.beginPath();
-    marks = Math.floor(tenths);
-    for (i=0; i<=marks; i++) {
-        mx = units + ((waveWidth/tenths) * i);
-        cxa.moveTo(mx,halfY - (10*units));
-        cxa.lineTo(mx,halfY + (10*units));
+        cxa.lineWidth = 2;
+        cxa.beginPath();
+        marks = Math.floor(tenths);
+        for (i=0; i<=marks; i++) {
+            mx = units + ((waveWidth/tenths) * i);
+            cxa.moveTo(mx,halfY - (10*units));
+            cxa.lineTo(mx,halfY + (10*units));
+        }
+        cxa.stroke();
+
     }
-    cxa.stroke();
+
+
 
 
 

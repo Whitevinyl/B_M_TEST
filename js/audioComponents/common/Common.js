@@ -1,9 +1,9 @@
 
-// Just using this to combine the requires of commonly used utility components among other
-// components
+// Just using this to combine the requires of commonly used audio utility components
+// among other components
 
 //-------------------------------------------------------------------------------------------
-//  INIT
+//  IMPORTS
 //-------------------------------------------------------------------------------------------
 
 var Add = require('./Add');
@@ -13,6 +13,7 @@ var ArrayEnvelope = require('./ArrayEnvelope');
 var ClapEnvelope = require('./ClapEnvelope');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
+var EnvelopeGenerator = require('./EnvelopeGenerator');
 var EnvelopePoint = require('./EnvelopePoint');
 var FadeEnvelope = require('./FadeEnvelope');
 var Interpolate = require('./Interpolate');
@@ -27,21 +28,16 @@ var ToMono = require('./ToMono');
 var ToStereo = require('./ToStereo');
 
 
-
+//-------------------------------------------------------------------------------------------
+//  EXPORTS
+//-------------------------------------------------------------------------------------------
 
 module.exports = {
+
+    // basic / conversion //
     add: Add,
-    ADSREnvelope: ADSREnvelope,
-    ADSREnvelopeII: ADSREnvelopeII,
-    arrayEnvelope: ArrayEnvelope,
-    clapEnvelope: ClapEnvelope,
     combine: Combine,
-    fadeEnvelope: FadeEnvelope,
-    EnvelopePoint: EnvelopePoint,
     interpolate: Interpolate,
-    multiEnvelope: MultiEnvelope,
-    rampEnvelope: RampEnvelope,
-    rampEnvelopeII: RampEnvelopeII,
     range: ControlRange,
     RMS: RMS,
     pan: Pan,
@@ -49,5 +45,22 @@ module.exports = {
     toMono: ToMono,
     toStereo: ToStereo,
 
-    Repeater: Repeater
+    // individual envelopes //
+    ADSREnvelope: ADSREnvelope,
+    ADSREnvelopeII: ADSREnvelopeII,
+    arrayEnvelope: ArrayEnvelope,
+    clapEnvelope: ClapEnvelope,
+    fadeEnvelope: FadeEnvelope,
+    rampEnvelope: RampEnvelope,
+    rampEnvelopeII: RampEnvelopeII,
+
+    // multi-envelope system //
+    getShape: EnvelopeGenerator.shape,
+    addShape: EnvelopeGenerator.addShape,
+    randomEnvelope: EnvelopeGenerator.randomEnvelope,
+    EnvelopePoint: EnvelopePoint,
+    multiEnvelope: MultiEnvelope,
+
+    // other //
+    Repeater: Repeater // should maybe be in filters?
 };
