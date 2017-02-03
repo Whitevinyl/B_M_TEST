@@ -60,7 +60,7 @@ function MultiEnvelope(t, d, env, curves) {
             }
         }
         else {
-            a = 0;
+            a = startGain;
         }
 
 

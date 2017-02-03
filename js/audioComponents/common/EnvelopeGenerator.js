@@ -22,8 +22,15 @@ function shape(time,type,gainA,gainB) {
 
     var block = [];
 
+
+    var types     = ['in','out','inOut','sustain','jumpIn','jumpOut','jumpInOut','jumpSustain'];
+    var rareTypes = ['hardInUp', 'hardInDown', 'hardOutUp', 'hardOutDown', 'hardInOutUp', 'hardInOutDown'];
+    if (tombola.percent(10)) {
+        types.concat(rareTypes);
+    }
+
     // set or randomise type //
-    type = utils.arg(type, tombola.item(['in','out','inOut','jumpIn','jumpOut','jumpInOut','sustain']));
+    type = utils.arg(type, tombola.item(types));
 
 
     // set or randomise time //
@@ -53,6 +60,11 @@ function shape(time,type,gainA,gainB) {
             break;
 
 
+        case 'sustain':
+            block.push(new EnvelopePoint(time,-1,'In'));
+            break;
+
+
         case 'jumpIn':
             block.push(new EnvelopePoint(0,g0,'In'));
             block.push(new EnvelopePoint(time,g1,'In'));
@@ -71,8 +83,44 @@ function shape(time,type,gainA,gainB) {
             break;
 
 
-        case 'sustain':
+        case 'jumpSustain':
+            block.push(new EnvelopePoint(0,g1,'In'));
             block.push(new EnvelopePoint(time,-1,'In'));
+            break;
+
+
+        case 'hardInUp':
+            block.push(new EnvelopePoint(0,0,'In'));
+            block.push(new EnvelopePoint(time,1,'In'));
+            break;
+
+
+        case 'hardOutUp':
+            block.push(new EnvelopePoint(0,0,'Out'));
+            block.push(new EnvelopePoint(time,1,'Out'));
+            break;
+
+
+        case 'hardInOutUp':
+            block.push(new EnvelopePoint(0,0,'InOut'));
+            block.push(new EnvelopePoint(time,1,'InOut'));
+            break;
+
+        case 'hardInDown':
+            block.push(new EnvelopePoint(0,1,'In'));
+            block.push(new EnvelopePoint(time,0,'In'));
+            break;
+
+
+        case 'hardOutDown':
+            block.push(new EnvelopePoint(0,1,'Out'));
+            block.push(new EnvelopePoint(time,0,'Out'));
+            break;
+
+
+        case 'hardInOutDown':
+            block.push(new EnvelopePoint(0,1,'InOut'));
+            block.push(new EnvelopePoint(time,0,'InOut'));
             break;
     }
 
@@ -92,13 +140,30 @@ function addShape(envelope,shape) {
 function randomEnvelope(duration,gridTime) {
 
     var env = [];
+    var time;
+    var minTime = 5;
+    var maxTime = 100;
+
+    // FIRST SHAPE //
+
+    // set or randomise time //
+    time = gridTime || tombola.range(minTime,maxTime);
+
+    // create & add a shape, checking it's not a zero-sustain //
+    var s = shape(time);
+    while (s[0].gain === -1 || (s[0].gain === 0 && s[0].time > 0)) { s = shape(time); }
+    env = addShape(env, s);
+    duration -= time;
+
+
+    // REMAINING SHAPES //
     while (duration > 0) {
 
         // set or randomise time //
-        var time = gridTime || tombola.range(5,100);
+        time = gridTime || tombola.range(minTime,maxTime);
 
-        // create & add an envelope shape //
-        addShape(env, shape(time));
+        // create & add a shape //
+        env = addShape(env, shape(time));
         duration -= time;
     }
 

@@ -189,10 +189,11 @@ proto.chooseNoise = function() {
             break;
     }
 
+    env = common.randomEnvelope(d);
 
 
     return {
-        type: tombola.item([Roar,White,Pink,Brown,Static,Rumble]),
+        type: tombola.item([Roar,White,Pink,Static,Rumble]),
         envelope: env,
         threshold1: tombola.rangeFloat(5,9.5),
         threshold2: tombola.rangeFloat(5,9.5)
@@ -211,33 +212,33 @@ proto.chooseTransient = function() {
 
     switch (envStyle) {
 
-        case 0:
+        case 0: // short sustain at 1
             env.push( new common.EnvelopePoint(0,1,'In') );
             env.push( new common.EnvelopePoint(2,1,'Out') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(3,5),0,'Out') );
             break;
 
-        case 1:
+        case 1: // ~ in-out curve
             env.push( new common.EnvelopePoint(0,1,'In') );
-            env.push( new common.EnvelopePoint(tombola.rangeFloat(4,7),0,'InOut') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(5,10),0,'InOut') );
             break;
 
-        case 2:
+        case 2: // short ramp part way down before decay
             depth = tombola.rangeFloat(0.6,1);
             env.push( new common.EnvelopePoint(0,1,'In') );
-            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),depth,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(2,4),depth,'In') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(2,4),0,'Out') );
             break;
 
-        case 3:
+        case 3: // outward bow curve
             env.push( new common.EnvelopePoint(0,1,'In') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(3,5),0,'In') );
             break;
 
-        case 4:
+        case 4: // variable sustain at 1
             env.push( new common.EnvelopePoint(0,1,'In') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(3,10),1,'In') );
-            env.push( new common.EnvelopePoint(tombola.rangeFloat(8,13),0,'Out') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(5,8),0,'Out') );
             break;
     }
 
@@ -284,12 +285,12 @@ proto.chooseFilter = function() {
 
     var co1,co2;
 
-    co1 = tombola.rangeFloat(6500,13000);
+    co1 = tombola.rangeFloat(6500,10000);
     co2 = co1;
     if (tombola.percent(40)) {
-        co2 = tombola.rangeFloat(6000,13000);
+        co2 = tombola.rangeFloat(6000,10000);
     }
-    if (tombola.percent(15)) {
+    if (tombola.percent(18)) {
         if (tombola.chance(60)) {
             co2 = tombola.rangeFloat(2000,5000);
         } else {
@@ -464,9 +465,11 @@ proto.process = function(input,level) {
     var cutoff = common.rampEnvelope(this.i, this.duration, this.cutoff1, this.cutoff2, 0, 75, 'linearOut');
 
     signal = this.hp.process(signal,'highpass',this.hpFreq,0,0);
-    signal = this.eq.process(signal, 80,-5, this.filterPeak,6,1.5, 9000,0.5);
+    signal = this.eq.process(signal, 80,-5, this.filterPeak,6,1.1, 9000,0);
     signal = this.lp.process(signal,cutoff,1.01);
-    var filterComp = 0.8;
+    var filterComp = 1;
+
+    signal = common.clipStereo(signal,1);
 
     // return with ducking & filter compensation //
     var amp = this.a * level * filterComp;

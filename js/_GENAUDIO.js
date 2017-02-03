@@ -234,7 +234,7 @@ proto.generateClicks = function() {
 
         var fs = {
             room: 0.2,
-            damp: 0.45,
+            damp: 0.35,
             direction: -0.2,
             mix: 0.21
         };
@@ -338,8 +338,8 @@ proto.generateClicks = function() {
         signal = readFromChannel(channels,i);
 
         // RESAMPLER //
-        process = resampler.process(signal,[0,1,5],250000,channels,i);
-        signal = signalTest(process,signal);
+        /*process = resampler.process(signal,[0,1,5],250000,channels,i);
+        signal = signalTest(process,signal);*/
 
 
         // WRITE VALUES //

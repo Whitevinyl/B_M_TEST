@@ -11,6 +11,7 @@ var ADSREnvelope = require('./ADSREnvelope');
 var ADSREnvelopeII = require('./ADSREnvelopeII');
 var ArrayEnvelope = require('./ArrayEnvelope');
 var ClapEnvelope = require('./ClapEnvelope');
+var Clip = require('./Clip');
 var Combine = require('./Combine');
 var ControlRange = require('./ControlRange');
 var EnvelopeGenerator = require('./EnvelopeGenerator');
@@ -36,6 +37,8 @@ module.exports = {
 
     // basic / conversion //
     add: Add,
+    clipMono: Clip.mono,
+    clipStereo: Clip.stereo,
     combine: Combine,
     interpolate: Interpolate,
     range: ControlRange,
