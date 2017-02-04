@@ -8,10 +8,12 @@ var utils = require('../../lib/utils');
 //-------------------------------------------------------------------------------------------
 
 function PhaseModulator() {
-    // populate buffer //
-    this.buffer = new Array(Math.floor(0.01 * sampleRate));
-    for(var i = 0; i < this.buffer.length; ++i)
-        this.buffer[i] = 0.0;
+
+    // zero an array //
+    this.buffer = [];
+    for(var i = 0; i < sampleRate; ++i) {
+        this.buffer.push(0);
+    }
     this.index = 0;
 }
 var proto = PhaseModulator.prototype;
@@ -20,40 +22,20 @@ var proto = PhaseModulator.prototype;
 //  MONO PROCESS
 //-------------------------------------------------------------------------------------------
 
-proto.process = function(voice, modulator, strength, gain) {
+proto.process = function(voice, modulator, power, gain) {
+    modulator = utils.arg(modulator,0);
+    power = utils.arg(power,0.5);
+    gain = utils.arg(gain,0.5);
 
-    this.setStrength(strength);
+    power = Math.ceil(power*sampleRate);
 
-    this.buffer[this.index] = voice;
-    // when modulator = 1, out = newest value in buffer
-    // when modulator = -1, out = oldest value in buffer
-    var out = this.buffer[(this.index+Math.ceil((modulator*(this.buffer.length-1)+this.buffer.length)/2))%this.buffer.length];
-    this.index = (this.index+1)%this.buffer.length;
+    // populate buffer as we go //
+    this.buffer.push(voice);
+
+    // get sample from buffer, with offset phase //
+    var out = this.buffer[(this.index+Math.ceil((modulator*(power-1)+power)/2))%power];
+    this.index = (this.index+1)%power;
     return out * gain;
-};
-
-
-proto.setStrength = function(strength) {
-
-    var newLength = Math.floor((strength/100) * sampleRate);
-    var l = this.buffer.length;
-
-    //trim buffer //
-    if (newLength < l) {
-        this.buffer = this.buffer.slice(0,newLength);
-    }
-
-    // add to buffer //
-    if (newLength > l) {
-        for(var i = (l-1); i < newLength; ++i) {
-            this.buffer.push(this.buffer[i-l+1]);
-        }
-    }
-
-    // move position //
-    if ((newLength-1) < this.index) {
-        this.index = 0;
-    }
 };
 
 

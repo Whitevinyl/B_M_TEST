@@ -2,10 +2,36 @@
 // Linear interpolation for playing samples at speeds other than sampleRate
 
 //-------------------------------------------------------------------------------------------
-//  STEREO PROCESS
+//  MONO PROCESS
 //-------------------------------------------------------------------------------------------
 
 function Interpolate(buffer,i) {
+
+    // get indices //
+    var baseIndex = Math.floor(i);
+    var diff = i - baseIndex;
+
+
+    // allow for zeroed samples if a sample index doesn't exist //
+    var a = 0;
+    var b = 0;
+    if (buffer[baseIndex]) {
+        a = buffer[baseIndex];
+    }
+    if (buffer[baseIndex + 1]) {
+        b = buffer[baseIndex + 1];
+    }
+
+
+    // create interpolated sample //
+    return (a * (1-diff)) + (b * diff);
+}
+
+//-------------------------------------------------------------------------------------------
+//  STEREO PROCESS
+//-------------------------------------------------------------------------------------------
+
+function StereoInterpolate(buffer,i) {
 
     // get indices //
     var baseIndex = Math.floor(i);
@@ -32,4 +58,4 @@ function Interpolate(buffer,i) {
 
 
 
-module.exports = Interpolate;
+module.exports = StereoInterpolate;
