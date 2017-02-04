@@ -19,6 +19,7 @@ var EnvelopePoint = require('./EnvelopePoint');
 var FadeEnvelope = require('./FadeEnvelope');
 var Interpolate = require('./Interpolate');
 var MultiEnvelope = require('./MultiEnvelope');
+var Multiply = require('./Multiply');
 var Pan = require('./Pan');
 var Peak = require('./Peak');
 var RampEnvelope = require('./RampEnvelope');
@@ -41,6 +42,7 @@ module.exports = {
     clipStereo: Clip.stereo,
     combine: Combine,
     interpolate: Interpolate,
+    multiply: Multiply,
     range: ControlRange,
     RMS: RMS,
     pan: Pan,

@@ -16,6 +16,8 @@ var Crackle = require('../voices/CrackleNoise');
 var Pink = require('../voices/PinkNoise');
 var Rumble = require('../voices/RumbleNoise');
 var White = require('../voices/WhiteNoise');
+var BrownWhite = require('../voices/FilterNoise');
+var LoudNoise = require('../voices/LoudNoise');
 
 var drive = require('../filters/FoldBackII');
 var drive2 = require('../filters/Erode');
@@ -62,7 +64,7 @@ function SnarePlayer() {
     console.log(this.drive);
     this.maxPeak = 0;
 
-    //this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('D2'),1,440,this.adsr,this.envelope.duration));
 }
@@ -78,7 +80,7 @@ var proto = SnarePlayer.prototype;
 proto.chooseVoice = function() {
 
     var type = Sine;
-    var pitch = tombola.rangeFloat(180, 370);
+    var pitch = tombola.rangeFloat(170, 330);
 
 
     // body envelope //
@@ -97,24 +99,24 @@ proto.chooseVoice = function() {
             env.push(new common.EnvelopePoint(0, depth, 'In'));
             env.push(new common.EnvelopePoint(12, 0.6, 'Out'));
             env.push(new common.EnvelopePoint(10, 0.9, 'In'));
-            env.push(new common.EnvelopePoint(d * 0.3, 0, 'Out'));
+            env.push(new common.EnvelopePoint(d * 0.28, 0, 'Out'));
             break;
 
         case 1:
             env.push(new common.EnvelopePoint(0, depth, 'In'));
             env.push(new common.EnvelopePoint(d * 0.05, 1, 'Out'));
-            env.push(new common.EnvelopePoint(d * 0.5, 0, 'InOut'));
+            env.push(new common.EnvelopePoint(d * 0.35, 0, 'InOut'));
             break;
 
         case 2:
             env.push(new common.EnvelopePoint(0, depth, 'In'));
             env.push(new common.EnvelopePoint(d * 0.1, 1, 'InOut'));
-            env.push(new common.EnvelopePoint(d * 0.5, 0, 'InOut'));
+            env.push(new common.EnvelopePoint(d * 0.4, 0, 'InOut'));
             break;
 
         case 3:
             env.push(new common.EnvelopePoint(10, 1, 'In'));
-            env.push(new common.EnvelopePoint(d * 0.6, 0, 'In'));
+            env.push(new common.EnvelopePoint(d * 0.4, 0, 'In'));
             break;
 
         case 4:
@@ -124,15 +126,29 @@ proto.chooseVoice = function() {
 
     }
 
+
+    // create harmonics //
+    var harmonics = [];
+    var n = tombola.range(4,6);
+    for (var i=0; i<n; i++) {
+        var h = {
+            ratio: utils.intervalToRatio(tombola.rangeFloat(-3,3)),
+            gain: tombola.rangeFloat(0.45,0.7)
+        };
+        harmonics.push(h);
+    }
+
+
     // generate object //
     return {
         type: type,
         pitch: pitch,
-        ratio: tombola.rangeFloat(8, 12), // height of transient pitch
-        thump: tombola.range(15, 24), // transient pitch decay milliseconds
-        drift: tombola.rangeFloat(0.75,1.05), // body pitch drift
+        ratio: tombola.rangeFloat(5, 10), // height of transient pitch
+        thump: tombola.range(23, 30), // transient pitch decay milliseconds
+        drift: tombola.rangeFloat(0.85,1.02), // body pitch drift
         bodyLevel: tombola.rangeFloat(0.65,1), // volume of body
-        envelope: env
+        envelope: env,
+        harmonics: harmonics
     };
 };
 
@@ -145,60 +161,92 @@ proto.chooseNoise = function() {
     var env = [];
 
     var envStyle = tombola.range(0,3);
-    var depth;
-    var attack = tombola.rangeFloat(0.1,1);
+    var depth, depth2;
+    var attack = tombola.rangeFloat(0.2,1);
 
     switch (envStyle) {
 
         case 0:
             depth = tombola.rangeFloat(0,0.4);
+            depth2 = tombola.rangeFloat(0.8,1);
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(d*0.1,depth,'InOut') );
-            env.push( new common.EnvelopePoint(d*0.3,1,'InOut') );
+            env.push( new common.EnvelopePoint(d*0.3,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.6,0,'InOut') );
             break;
 
         case 1:
             depth = tombola.rangeFloat(0,0.25);
+            depth2 = tombola.rangeFloat(0.8,1);
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(10,depth,'InOut') );
-            env.push( new common.EnvelopePoint(d*0.3,1,'InOut') );
+            env.push( new common.EnvelopePoint(d*0.3,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.7,0,'InOut') );
             break;
 
         case 2:
             depth = tombola.rangeFloat(0,0.15);
+            depth2 = tombola.rangeFloat(0.8,1);
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(d*0.15,depth,'Out') );
-            env.push( new common.EnvelopePoint(0,1,'InOut') );
+            env.push( new common.EnvelopePoint(0,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.15,depth,'Out') );
-            env.push( new common.EnvelopePoint(d*0.2,1,'InOut') );
+            env.push( new common.EnvelopePoint(d*0.2,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.5,0,'InOut') );
             break;
 
         case 3:
             depth = tombola.rangeFloat(0,0.15);
+            depth2 = tombola.rangeFloat(0.8,1);
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(d*0.1,depth,'Out') );
-            env.push( new common.EnvelopePoint(0,1,'InOut') );
+            env.push( new common.EnvelopePoint(0,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.1,depth,'Out') );
-            env.push( new common.EnvelopePoint(0,1,'InOut') );
+            env.push( new common.EnvelopePoint(0,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.1,depth,'Out') );
-            env.push( new common.EnvelopePoint(0,1,'InOut') );
+            env.push( new common.EnvelopePoint(0,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.7,0,'InOut') );
+            break;
+
+        case 4:
+            env = this.generateNoiseEnvelope(d);
             break;
     }
 
-    env = common.randomEnvelope(d);
 
+
+    var type = tombola.item([BrownWhite,Roar,White,Pink,Static,Rumble]);
+    //type = BrownWhite;
 
     return {
-        type: tombola.item([Roar,White,Pink,Static,Rumble]),
+        type: type,
         envelope: env,
         threshold1: tombola.rangeFloat(5,9.5),
         threshold2: tombola.rangeFloat(5,9.5)
     };
 
+};
+
+
+proto.generateNoiseEnvelope = function(d) {
+    var types = ['hardInUp', 'hardInDown', 'hardOutUp', 'hardOutDown', 'hardInOutUp', 'hardInOutDown'];
+
+    var env = [];
+    var time;
+    var minTime = 5;
+    var maxTime = 70;
+
+    while (d > 0) {
+
+        // set or randomise time //
+        time = tombola.range(minTime,maxTime);
+
+        // create & add a shape //
+        env = common.addShape(env, common.getShape(time,tombola.item(types),tombola.rangeFloat(0.85,1)));
+        d -= time;
+    }
+
+    return env;
 };
 
 
@@ -224,7 +272,7 @@ proto.chooseTransient = function() {
             break;
 
         case 2: // short ramp part way down before decay
-            depth = tombola.rangeFloat(0.6,1);
+            depth = tombola.rangeFloat(0.6,0.9);
             env.push( new common.EnvelopePoint(0,1,'In') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(2,4),depth,'In') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(2,4),0,'Out') );
@@ -237,13 +285,13 @@ proto.chooseTransient = function() {
 
         case 4: // variable sustain at 1
             env.push( new common.EnvelopePoint(0,1,'In') );
-            env.push( new common.EnvelopePoint(tombola.rangeFloat(3,10),1,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(3,10),1,'InOut') );
             env.push( new common.EnvelopePoint(tombola.rangeFloat(5,8),0,'Out') );
             break;
     }
 
     return {
-        type: White,
+        type: LoudNoise,
         envelope: env
     };
 
@@ -253,7 +301,7 @@ proto.chooseTransient = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(20,90),1,tombola.range(80,250)];
+    var adsr = [0,tombola.range(20,90),tombola.rangeFloat(0.8,0.98),tombola.range(80,250)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10*0.2;
 
     return {
@@ -285,13 +333,13 @@ proto.chooseFilter = function() {
 
     var co1,co2;
 
-    co1 = tombola.rangeFloat(6500,10000);
+    co1 = tombola.rangeFloat(8000,12000);
     co2 = co1;
     if (tombola.percent(40)) {
-        co2 = tombola.rangeFloat(6000,10000);
+        co2 = tombola.rangeFloat(8000,12000);
     }
-    if (tombola.percent(18)) {
-        if (tombola.chance(60)) {
+    if (tombola.percent(20)) {
+        if (tombola.chance(80)) {
             co2 = tombola.rangeFloat(2000,5000);
         } else {
             co1 = tombola.rangeFloat(2000,5000);
@@ -299,7 +347,7 @@ proto.chooseFilter = function() {
     }
 
     return {
-        highpass: tombola.rangeFloat(this.voice.pitch*0.5,this.voice.pitch * 0.7),
+        highpass: tombola.rangeFloat(100,130),
         peak: this.voice.pitch * tombola.rangeFloat(1.3,1.5),
         cutoff1: co1,
         cutoff2: co2
@@ -363,6 +411,17 @@ function Snare(parentArray,envelope,voice,noise,transient,drive,filter) {
     this.bodyLevel = voice.bodyLevel;
     this.p = 0; // panning;
 
+    this.harmonics = [];
+    var n = voice.harmonics.length;
+    for (var i=0; i<n; i++) {
+        var h = {
+            voice: new voice.type(),
+            pitch: voice.pitch * voice.harmonics[i].ratio,
+            gain: voice.harmonics[i].gain
+        };
+        this.harmonics.push(h);
+    }
+
 
     // noise //
     this.noiseL = new NoiseWrapper(noise.type);
@@ -416,43 +475,74 @@ proto.process = function(input,level) {
     this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
 
 
+    // layer envelopes //
+    var transEnv = common.multiEnvelope(this.i, this.duration, this.transientEnvelope, this.curves);
+    var noiseEnv = common.multiEnvelope(this.i, this.duration, this.noiseEnvelope, this.curves);
+    var oscEnv = common.multiEnvelope(this.i, this.duration, this.oscEnvelope, this.curves);
+
+    // duck & sum envelopes //
+    oscEnv *= (1 - (transEnv*0.4));
+    oscEnv *= (1 - (noiseEnv*0.1));
+
+    var envs = [transEnv,noiseEnv,oscEnv];
+    var te = sumEnvelopes(envs,0);
+    var ne = sumEnvelopes(envs,1);
+    var oe = sumEnvelopes(envs,2);
+
+    //console.log(envs);
+    //console.log('t: '+te+' n: '+ne+' o: '+oe);
+    transEnv = te;
+    noiseEnv = ne;
+    oscEnv   = oe;
 
     // transient //
-    var transEnv = common.multiEnvelope(this.i, this.duration, this.transientEnvelope, this.curves);
-    var trans = this.transient.process(1) * transEnv;
-
+    var trans = this.transient.process(0.75,1) * transEnv;
 
     // noise //
     var nt = common.rampEnvelope(this.i, this.duration, this.noiseThresh1, this.noiseThresh2, 0, 75, 'linearOut');
-    var noiseEnv = common.multiEnvelope(this.i, this.duration, this.noiseEnvelope, this.curves);
     var noiseL = this.noiseL.process(nt,10000,1) * noiseEnv;
     var noiseR = this.noiseR.process(nt,10000,1) * noiseEnv;
-
+    //noiseR = noiseL;
 
     // body //
     var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 75, 'linearOut');
-    var oscEnv = common.multiEnvelope(this.i, this.duration, this.oscEnvelope, this.curves);
     var osc = this.voice.process(pb * pd) * oscEnv;
     osc *= this.bodyLevel;
 
+    // harmonics //
+    var n = this.harmonics.length;
+    var harm = 0;
+    var harmGain = 0;
+    for (var i=0; i<n; i++) {
+        var h = this.harmonics[i];
+        harm += (h.voice.process(h.pitch) * h.gain);
+        harmGain += h.gain;
+    }
 
+    //console.log(harm);
 
+    harm /= (n-1);
+    harm *= oscEnv;
+    harm *= this.bodyLevel;
+    osc *= (1-harm);
+
+    //console.log(harm);
 
     // internal ducking to blend the transient, body & noise layers //
-    var transDuck = (transEnv * 1);
+    /*var transDuck = (transEnv * 1);
     var noiseDuck = (noiseEnv * 1);
     noiseL *= (1 - transDuck);
     noiseR *= (1 - transDuck);
     osc    *= (1 - transDuck);
-    osc    *= (1 - noiseDuck);
+    osc    *= (1 - noiseDuck);*/
 
 
 
     // assemble signal //
     var signal = [
-        (osc + noiseL + trans) * (1 + -this.p),
-        (osc + noiseR + trans) * (1 +  this.p)
+        (harm + osc + noiseL + trans) * (1 + -this.p),
+        (harm + osc + noiseR + trans) * (1 +  this.p)
     ];
 
 
@@ -462,27 +552,51 @@ proto.process = function(input,level) {
 
 
     // filter //
-    var cutoff = common.rampEnvelope(this.i, this.duration, this.cutoff1, this.cutoff2, 0, 75, 'linearOut');
+    var cutoff = common.rampEnvelope(this.i, this.duration, this.cutoff1, this.cutoff2, 0, 50, 'linearOut');
 
-    signal = this.hp.process(signal,'highpass',this.hpFreq,0,0);
-    signal = this.eq.process(signal, 80,-5, this.filterPeak,6,1.1, 9000,0);
-    signal = this.lp.process(signal,cutoff,1.01);
-    var filterComp = 1;
+    signal = this.hp.process(signal,'highpass',90,0,0);
+    signal = this.eq.process(signal, 60,-5, 1050,7,-1, 8000,-1);
+    signal = this.lp.process(signal,cutoff,1);
 
-    signal = common.clipStereo(signal,1);
+
+
 
     // return with ducking & filter compensation //
-    var amp = this.a * level * filterComp;
+    var amp = this.a * level;
     var ducking = 0.8 * amp;
 
-    this.maxPeak = Math.max(Math.abs(signal[0] * amp),Math.abs(signal[1] * amp));
+
+    signal = common.multiply(signal,amp);
+
+
+    // clip any noise spikes //
+    signal = common.clipStereo(signal,1);
+
+    this.maxPeak = Math.max(Math.abs(signal[0]),Math.abs(signal[1]));
 
     return [
-        (input[0] * (1-ducking)) + (signal[0] * amp),
-        (input[1] * (1-ducking)) + (signal[1] * amp)
+        (input[0] * (1-ducking)) + signal[0],
+        (input[1] * (1-ducking)) + signal[1]
     ];
 };
 
+
+function sumEnvelopes(envelopes,index) {
+
+    var total = 0;
+    var m = envelopes[index];
+
+    var l = envelopes.length;
+    for (var i=0; i<l; i++) {
+        total += envelopes[i];
+    }
+
+    if (total > 1) {
+        m = envelopes[index]/total;
+    }
+
+    return m;
+}
 
 
 //-------------------------------------------------------------------------------------------
@@ -538,6 +652,10 @@ NoiseWrapper.prototype.process = function(threshold,frequency,gain) {
 
         case Brown:
             return this.noise.process(gain*2.6);
+            break;
+
+        case BrownWhite:
+            return this.noise.process(threshold-0.2,gain);
             break;
     }
 };

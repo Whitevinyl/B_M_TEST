@@ -3,7 +3,7 @@ var Tombola = require('tombola');
 var tombola = new Tombola();
 
 // A granular noise, based on random repetition of a short sine buffer
-// Be careful not to use a large size with a very high frequency
+// WARNING - not advisable for use currently, it unbalances the waveform, cancelling sounds.
 
 // length:    buffer length
 // frequency: sine frequency

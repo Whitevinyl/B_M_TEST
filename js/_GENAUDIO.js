@@ -233,8 +233,8 @@ proto.generateClicks = function() {
         //var triScale = tri.process(0.1);
 
         var fs = {
-            room: 0.2,
-            damp: 0.35,
+            room: 0.15,
+            damp: 0.55,
             direction: -0.2,
             mix: 0.21
         };
@@ -355,7 +355,7 @@ proto.generateClicks = function() {
 
 
     // MASTERING //
-    audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
+    audio.channelEQ(channels, 60,1.5,  800,8,0,  15000,0.5);
     normalisePass(channels,1);
     fadePass(channels,0,0);
     //audio.PeakCompressor(channels, 0.5, 3);

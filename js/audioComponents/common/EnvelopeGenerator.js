@@ -90,36 +90,42 @@ function shape(time,type,gainA,gainB) {
 
 
         case 'hardInUp':
+            g0 = utils.arg(gainA, 1);
             block.push(new EnvelopePoint(0,0,'In'));
-            block.push(new EnvelopePoint(time,1,'In'));
+            block.push(new EnvelopePoint(time,g0,'In'));
             break;
 
 
         case 'hardOutUp':
+            g0 = utils.arg(gainA, 1);
             block.push(new EnvelopePoint(0,0,'Out'));
-            block.push(new EnvelopePoint(time,1,'Out'));
+            block.push(new EnvelopePoint(time,g0,'Out'));
             break;
 
 
         case 'hardInOutUp':
+            g0 = utils.arg(gainA, 1);
             block.push(new EnvelopePoint(0,0,'InOut'));
-            block.push(new EnvelopePoint(time,1,'InOut'));
+            block.push(new EnvelopePoint(time,g0,'InOut'));
             break;
 
         case 'hardInDown':
-            block.push(new EnvelopePoint(0,1,'In'));
+            g0 = utils.arg(gainA, 1);
+            block.push(new EnvelopePoint(0,g0,'In'));
             block.push(new EnvelopePoint(time,0,'In'));
             break;
 
 
         case 'hardOutDown':
-            block.push(new EnvelopePoint(0,1,'Out'));
+            g0 = utils.arg(gainA, 1);
+            block.push(new EnvelopePoint(0,g0,'Out'));
             block.push(new EnvelopePoint(time,0,'Out'));
             break;
 
 
         case 'hardInOutDown':
-            block.push(new EnvelopePoint(0,1,'InOut'));
+            g0 = utils.arg(gainA, 1);
+            block.push(new EnvelopePoint(0,g0,'InOut'));
             block.push(new EnvelopePoint(time,0,'InOut'));
             break;
     }
