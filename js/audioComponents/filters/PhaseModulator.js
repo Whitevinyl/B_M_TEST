@@ -1,6 +1,4 @@
 var utils = require('../../lib/utils');
-var Tombola = require('tombola');
-var tombola = new Tombola();
 
 // Modulate phase of an osc for metallic & growling sounds. Adapted from:
 // http://wavepot.com/stai12/PhaseModulator
@@ -48,7 +46,7 @@ proto.setStrength = function(strength) {
     // add to buffer //
     if (newLength > l) {
         for(var i = (l-1); i < newLength; ++i) {
-            this.buffer.push(0);
+            this.buffer.push(this.buffer[i-l+1]);
         }
     }
 

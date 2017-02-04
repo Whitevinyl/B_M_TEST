@@ -14,7 +14,7 @@ var tombola = new Tombola();
 
 // INLINE FILTERS //
 var clipping = require('./audioComponents/filters/Clipping');
-var compressor = require('./audioComponents/filters/Compressor');
+var compressor = require('./audioComponents/一graveyard/Compressor');
 var erode = require('./audioComponents/filters/Erode');
 var feedback = require('./audioComponents/filters/Feedback');
 var foldBack = require('./audioComponents/filters/FoldBack');
@@ -29,14 +29,14 @@ var softClip = require('./audioComponents/filters/SoftClip');
 // PERSISTENT FILTERS //
 var AllPass = require('./audioComponents/filters/AllPass');
 var Biquad = require('./audioComponents/filters/Biquad');
+var Chorus = require('./audioComponents/filters/Chorus');
 var Comb = require('./audioComponents/filters/Comb');
-var CompressorII = require('./audioComponents/filters/CompressorII');
+var CompressorII = require('./audioComponents/一graveyard/CompressorII');
 var EQ = require('./audioComponents/filters/EQ');
 var FreeVerb = require('./audioComponents/filters/FreeVerb');
 var GrainHold = require('./audioComponents/filters/GrainHold');
 var GrainHoldII = require('./audioComponents/filters/GrainHoldII');
-var GranularChorus = require('./audioComponents/filters/GranularChorus');
-var GranularChorusII = require('./audioComponents/filters/GranularChorusII');
+var GranularChorus = require('./audioComponents/一graveyard/GranularChorus');
 var GranularDelay = require('./audioComponents/filters/GranularDelay');
 var GranularDelayII = require('./audioComponents/filters/GranularDelayII');
 var GranularDelayIII = require('./audioComponents/filters/GranularDelayIII');
@@ -54,10 +54,10 @@ var ReverbII = require('./audioComponents/filters/ReverbII');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var StereoRumble = require('./audioComponents/filters/StereoRumble');
 var Tremolo = require('./audioComponents/filters/Tremolo');
-var Volumizer = require('./audioComponents/filters/Volumizer');
+var Volumizer = require('./audioComponents/一graveyard/Volumizer');
 
 // CHANNEL FILTERS //
-var CompressorIII = require('./audioComponents/filters/CompressorIII');
+var CompressorIII = require('./audioComponents/一graveyard/CompressorIII');
 var ChannelEQ = require('./audioComponents/channelFilters/ChannelEQ');
 var PeakCompressor = require('./audioComponents/channelFilters/PeakCompressor');
 var RMSCompressor = require('./audioComponents/channelFilters/RMSCompressor');
@@ -82,7 +82,7 @@ var Siren = require('./audioComponents/generators/Siren');
 var StaticGen = require('./audioComponents/generators/Static');
 var Sweep = require('./audioComponents/generators/Sweep');
 var SweepII = require('./audioComponents/generators/SweepII');
-var Testing = require('./audioComponents/generators/Testing');
+var Testing = require('./audioComponents/一graveyard/Testing');
 
 // INSTRUMENTS //
 var ClapPlayer = require('./audioComponents/instruments/Clap');
@@ -93,9 +93,10 @@ var SnarePlayer = require('./audioComponents/instruments/Snare');
 var Brown = require('./audioComponents/voices/BrownNoise');
 var Crackle = require('./audioComponents/voices/CrackleNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
-var Hiss = require('./audioComponents/voices/HissNoise');
+var Hiss = require('./audioComponents/一graveyard/HissNoise');
 var Pink = require('./audioComponents/voices/PinkNoise');
 var Perlin = require('./audioComponents/voices/Perlin');
+var PhaseSine = require('./audioComponents/voices/PhaseSine');
 var Roar = require('./audioComponents/voices/RoarNoise');
 var Rumble = require('./audioComponents/voices/RumbleNoise');
 var SawTooth = require('./audioComponents/voices/SawTooth');
@@ -127,152 +128,9 @@ var Clock = require('./audioComponents/core/Clock');
 // so this section is pretty messy for now
 
 
-
-
-
-// PHASE VOICE WRAPPER //
-function PhaseWrapper() {
-    this.phase = new PhaseSine();
-    this.panning = tombola.rangeFloat(-1,1);
-}
-PhaseWrapper.prototype.process = function(signal, mix, frequency, f1, f2, amp) {
-
-    f1 = f1 || 3;
-    f2 = f2 || 95;
-    amp = utils.arg(amp,1);
-
-    var ps = this.phase.process(frequency, f1, f2)/2;
-    this.panning += (tombola.fudge(1,1)*0.005);
-    this.panning = utils.valueInRange(this.panning, -1, 1);
-
-    return [
-        (signal[0]*(1-(mix*amp))) + ((ps * (mix*amp)) * (1 + (-this.panning))),
-        (signal[1]*(1-(mix*amp))) + ((ps * (mix*amp)) * (1 + this.panning))
-    ];
-};
-
-
-
-
-
 //-------------------------------------------------------------------------------------------
-//  WAVE SHAPE ALGORITHMS
+//  GENERATORS
 //-------------------------------------------------------------------------------------------
-
-
-
-
-// TRIANGLE //
-function waveTriangle(voice, amp) {
-    // update voice value //
-    var step = ((voice.frequency + voice.detune) * (4/sampleRate));
-    voice.amplitude += (step * voice.polarity);
-
-    // stay within amplitude bounds //
-    var spill = 0;
-    if (voice.amplitude > amp) {
-        spill = voice.amplitude - amp;
-        voice.amplitude = amp - spill;
-        voice.polarity = - voice.polarity;
-    }
-    if (voice.amplitude < -amp) {
-        spill = (voice.amplitude - (-amp));
-        voice.amplitude = (-amp) - spill;
-        voice.polarity = - voice.polarity;
-    }
-}
-
-
-
-
-// ARC //
-function waveArc(voice, amp, i) {
-    var x = (sampleRate/voice.frequency);
-    var a = x * Math.floor((i/sampleRate)*voice.frequency);
-    voice.amplitude = (1 - ( Math.sqrt(Math.pow(x,2) - Math.pow(i-a,2)) / (x/2) )) * amp;
-}
-
-
-// ARC 2 //
-// has a frequency leak
-function waveArc2(voice, amp, i) {
-    var x = (sampleRate/(voice.frequency));
-    var m = Math.floor(i/x+1);
-    var a = ((x) * m);
-    if (m%2==0) {
-        voice.amplitude = (-1 + ( Math.sqrt(Math.pow(x,2) - Math.pow(i-a,2)) / Math.round(x/2) )) * amp;
-    } else {
-        voice.amplitude = (1 - ( Math.sqrt(Math.pow(x,2) - Math.pow(i-a,2)) / Math.round(x/2) )) * amp;
-    }
-}
-
-
-// ARC 3 //
-// has a frequency leak
-function waveArc3(voice, amp, i) {
-    var t = i;
-    var d = Math.floor((sampleRate)/(voice.frequency));
-    var m = Math.floor(i/(d));
-    var b = -1; // start
-    var c = 2; // change
-    if (m%2==0) {
-        b = 1;
-        c = -2;
-    }
-    t -= ((m * (d)));
-    t /= (d);
-    voice.amplitude =  (c*t*t*t*t + b) * amp;
-}
-
-
-
-//-------------------------------------------------------------------------------------------
-//  PERSISTENT FILTERS
-//-------------------------------------------------------------------------------------------
-
-
-// PHASE SINE //
-function PhaseSine() {
-    this.f = 200;
-    this.v = 0;
-
-    this.mf1 = 10;
-    this.mv1 = 0;
-    this.ma1 = 1;
-
-    this.mf2 = 10;
-    this.mv2 = 0;
-    this.ma2 = 0.6;
-}
-PhaseSine.prototype.process = function(f,mf1,mf2) {
-
-    if (f) this.f = f;
-    if (mf1) this.mf1 = mf1;
-    if (mf2) this.mf2 = mf2;
-
-    // modulation waves //
-    this.mv1 += this.mf1/(sampleRate/4);
-    if(this.mv1 > 2) this.mv1 -= 4;
-
-    this.mv2 += this.mf2/(sampleRate/4);
-    if(this.mv2 > 2) this.mv2 -= 4;
-
-    var m1 = this.mv1 * this.ma1;
-    var m2 = this.mv2 * this.ma2;
-    //m1 = 1;
-
-
-    // affected wave //
-    this.v += (((this.f)/(sampleRate/4)));
-    if(this.v > 2) this.v -= 4;
-    return ((this.v * m1) + m2) * (2-Math.abs((this.v * m1) + m2));
-};
-
-
-
-
-
-
 
 // WAIL //
 function FilterWail() {
@@ -1281,8 +1139,8 @@ module.exports = {
     Sine: Sine,
     Triangle: Triangle,
     White: White,
+    PhaseSine: PhaseSine,
 
-    waveTriangle: waveTriangle,
     WavePlayer: WavePlayer,
 
 
@@ -1329,8 +1187,6 @@ module.exports = {
     SnarePlayer: SnarePlayer,
 
 
-    PhaseSine: PhaseSine,
-    PhaseWrapper: PhaseWrapper,
     FilterWail: FilterWail,
     FilterPulse: FilterPulse,
     FilterGrowl: FilterGrowl,
@@ -1351,6 +1207,7 @@ module.exports = {
     StereoAllPass: AllPass.stereo,
     Biquad: Biquad.mono,
     StereoBiquad: Biquad.stereo,
+    Chorus: Chorus,
     Comb: Comb.mono,
     StereoComb: Comb.stereo,
     CompressorII: CompressorII,
@@ -1361,7 +1218,6 @@ module.exports = {
     GrainHold: GrainHold,
     GrainHoldII: GrainHoldII,
     GranularChorus: GranularChorus,
-    GranularChorusII: GranularChorusII,
     GranularDelay: GranularDelay,
     GranularDelayII: GranularDelayII,
     GranularDelayIII: GranularDelayIII,

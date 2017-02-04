@@ -61,7 +61,7 @@ function SnarePlayer() {
     console.log(this.envelope);
     console.log(this.noise);
     console.log(this.voice);
-    console.log(this.drive);
+    //console.log(this.drive);
     this.maxPeak = 0;
 
     //this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));

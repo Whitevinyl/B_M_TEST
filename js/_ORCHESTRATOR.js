@@ -269,7 +269,7 @@ proto.createComponent = function(componentName,args,mods) {
             break;
 
 
-        case 'phaseSine':
+        /*case 'phaseSine':
             settings.filter = new audio.PhaseWrapper();
             settings.args.push( {value: pick( args[0], tombola.rangeFloat(0.2,0.6))} ); // mix
             settings.args.push( pick( args[1], {mod: 0, min: tombola.rangeFloat(16,30), max: tombola.rangeFloat(80,120)}) ); // frequency
@@ -278,7 +278,7 @@ proto.createComponent = function(componentName,args,mods) {
             settings.args.push( pick( args[4], {mod: 1, min: tombola.rangeFloat(-0.7,-0.5), max: tombola.rangeFloat(0.7,1), floor: 0, ceil: 1 }) ); // amp
             settings.mods.push( pick( mods[0], this.createMod('weave',[tombola.rangeFloat(0.05,0.1),tombola.range(7000,12000)])) );
             settings.mods.push( pick( mods[1], this.createMod('walk',[tombola.rangeFloat(0.01,0.2),tombola.range(15000,30000)])) );
-            break;
+            break;*/
 
 
         case 'pulse':

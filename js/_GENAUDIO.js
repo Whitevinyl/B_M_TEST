@@ -153,7 +153,7 @@ proto.generateClicks = function() {
     var resampler = new audio.Resampler();
 
     var pitch = new audio.PitchShift();
-    var chorusPhase = new audio.GranularChorusII();
+    var chorusPhase = new audio.Chorus();
 
     var control = new audio.PerlinMod();
 
@@ -168,12 +168,9 @@ proto.generateClicks = function() {
 
     var tri = new audio.Triangle();
 
-    var vol = new audio.Volumizer();
-    var comp = new audio.CompressorII();
 
     var noise2 = new audio.PhonoCrackle();
 
-    var biquad = new audio.StereoBiquad();
 
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();

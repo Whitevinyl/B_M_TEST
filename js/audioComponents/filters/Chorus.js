@@ -4,21 +4,23 @@ var Sine = require('../voices/Sine');
 var Triangle = require('../voices/Triangle');
 var Repeater = require('../common/Repeater');
 
+// a basic buffer chorus, needs work
+
 //-------------------------------------------------------------------------------------------
-//  PLAYER INIT
+//  CHORUS INIT
 //-------------------------------------------------------------------------------------------
 
 
-function GranularChorusII() {
+function Chorus() {
     this.memory = [[],[]];
     this.playHead = 1;
     this.osc = new Triangle();
 }
-var proto = GranularChorusII.prototype;
+var proto = Chorus.prototype;
 
 
 //-------------------------------------------------------------------------------------------
-//  PLAYER PROCESS
+//  CHORUS PROCESS
 //-------------------------------------------------------------------------------------------
 
 
@@ -58,5 +60,5 @@ proto.process = function(signal,size,rate,mix) {
 };
 
 
-module.exports = GranularChorusII;
+module.exports = Chorus;
 
