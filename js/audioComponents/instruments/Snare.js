@@ -64,7 +64,7 @@ function SnarePlayer() {
     console.log(this.drive);
     this.maxPeak = 0;
 
-    this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
+    //this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('4'),1,440,this.adsr,this.envelope.duration));
     this.markers.push(new marker(audioClock.getBeatLength('D2'),1,440,this.adsr,this.envelope.duration));
 }
@@ -132,8 +132,8 @@ proto.chooseVoice = function() {
     var n = tombola.range(4,6);
     for (var i=0; i<n; i++) {
         var h = {
-            ratio: utils.intervalToRatio(tombola.rangeFloat(-3,3)),
-            gain: tombola.rangeFloat(0.45,0.7)
+            ratio: utils.intervalToRatio(tombola.rangeFloat(-3,5)),
+            gain: tombola.rangeFloat(0.6,0.8)
         };
         harmonics.push(h);
     }
@@ -160,7 +160,7 @@ proto.chooseNoise = function() {
     var d = audioClock.samplesToMilliseconds(this.envelope.duration);
     var env = [];
 
-    var envStyle = tombola.range(0,3);
+    var envStyle = tombola.range(0,4);
     var depth, depth2;
     var attack = tombola.rangeFloat(0.2,1);
 
@@ -171,7 +171,7 @@ proto.chooseNoise = function() {
             depth2 = tombola.rangeFloat(0.8,1);
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(d*0.1,depth,'InOut') );
-            env.push( new common.EnvelopePoint(d*0.3,depth2,'InOut') );
+            env.push( new common.EnvelopePoint(d*0.2,depth2,'InOut') );
             env.push( new common.EnvelopePoint(d*0.6,0,'InOut') );
             break;
 
@@ -181,7 +181,7 @@ proto.chooseNoise = function() {
             env.push( new common.EnvelopePoint(0,attack,'In') );
             env.push( new common.EnvelopePoint(10,depth,'InOut') );
             env.push( new common.EnvelopePoint(d*0.3,depth2,'InOut') );
-            env.push( new common.EnvelopePoint(d*0.7,0,'InOut') );
+            env.push( new common.EnvelopePoint(d*0.55,0,'InOut') );
             break;
 
         case 2:
