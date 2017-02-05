@@ -22,12 +22,13 @@ function HarmonicSine() {
 
 HarmonicSine.prototype.process = function(frequency,partials,resonance) {
     frequency = (frequency*4)/sampleRate;
-    partials = partials || [];
+    partials = partials || [1];
 
     // calculate fundamental sine //
     this.v += (frequency);
     if(this.v > 2) this.v -= 4;
     var out = this.v*(2-Math.abs(this.v));
+    out *= partials[0];
 
     // overtones //
     var totalLevel = 1;
@@ -46,7 +47,7 @@ HarmonicSine.prototype.process = function(frequency,partials,resonance) {
 
             var m = Math.pow(resonance,i+1);
             out += ((p*partials[i]) * m);
-            totalLevel += (partials[i] * m);
+            totalLevel += (Math.abs(partials[i]) * m);
         }
     }
 

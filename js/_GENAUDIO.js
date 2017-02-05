@@ -1,5 +1,6 @@
 
 var utils = require('./lib/utils');
+var partials = require('./lib/partials');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
@@ -9,6 +10,7 @@ var Arranger = require('./_ARRANGER');
 var arranger = new Arranger();
 
 var audio = require('./_AUDIOCOMPONENTS');
+var common = require('./audioComponents/common/common');
 var FilterWrapper = require('./_FILTERWRAPPER');
 
 global.audioClock = null;
@@ -175,6 +177,7 @@ proto.generateClicks = function() {
 
     var pmod = new audio.StereoPhaseModulator();
 
+    var shuffle = new audio.Shuffle();
 
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
@@ -292,6 +295,9 @@ proto.generateClicks = function() {
         /*process = delay.process(signal,8000,3,1470,0,1);
         signal = signalTest(process,signal);*/
 
+        // audio.controlRange(0,12,tri.process(0.05))
+        /*process = shuffle.process(signal,14000,0,0.5);
+         signal = signalTest(process,signal);*/
 
         /*process = bit.process(signal,audio.controlRange(10,100,tri.process(0.2)),true,0.6);
         signal = signalTest(process,signal);*/
@@ -310,8 +316,8 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        process = noise2.process(signal,0.1,0.2,7000);
-        signal = signalTest(process,signal);
+        /*process = noise2.process(signal,0.1,0.2,7000);
+        signal = signalTest(process,signal);*/
 
 
         // WRITE TO AUDIO CHANNELS //
@@ -396,6 +402,7 @@ proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
     var seconds = 0.3;
+    seconds = 1;
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -407,7 +414,36 @@ proto.generateHit = function() {
     var kick = new audio.KickPlayer();
     var clap = new audio.ClapPlayer();
     var snare = new audio.SnarePlayer();
+    var voice = new audio.HarmonicVoice();
+    var voice2 = new audio.HarmonicVoice();
 
+    var tri = new audio.Triangle();
+    var saw = new audio.SawTooth();
+
+    var cutoff1 = tombola.range(10,16);
+    var cutoff2 = tombola.range(10,16);
+    var timbre = partials.randomPartials(cutoff1);
+    var timbre2 = partials.randomPartials(cutoff2);
+
+    var pluckScale = [
+        146.83, // d
+        174.61, // f
+        196,    // g // root
+        220,    // a
+        261.63, // c
+        293.66, // d
+        349.23, // f
+        392     // g // root
+    ];
+
+    var f = tombola.item(pluckScale);
+    if (tombola.percent(30)) {
+        f = f*2;
+    } else {
+        if (tombola.percent(30)) {
+            f = f/2;
+        }
+    }
 
     // LOOP EACH SAMPLE //
     for (var i = 0; i < l; i++) {
@@ -422,8 +458,24 @@ proto.generateHit = function() {
         process = kick.process(signal, 1, i);
         signal = signalTest(process, signal);*/
 
-        // SNARE //
+        /*// SNARE //
         process = snare.process(signal, 1, i);
+        signal = signalTest(process, signal);*/
+
+        // VOICE //
+        //audio.controlRange(30,40,tri.process(0.25))
+        //audio.controlRange(0,100,saw.process(1))
+
+        var env = common.ADSREnvelope(i,l,[0,2,0.4,65]);
+        var v = voice.process(f*0.99, cutoff1, 1, null, timbre);
+        var v2 = voice2.process(f*1.015, cutoff2, 1, null, timbre2);
+
+        var tine = (((v + v2)/2) * env);
+
+        process = [
+            signal[0] + tine,
+            signal[1] + tine
+        ];
         signal = signalTest(process, signal);
 
 

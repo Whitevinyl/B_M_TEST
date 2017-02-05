@@ -7,7 +7,7 @@
 
 
 function SawTooth() {
-    this.a = 0;
+    this.a = 1;
 }
 var proto = SawTooth.prototype;
 
@@ -19,7 +19,7 @@ var proto = SawTooth.prototype;
 proto.process = function(frequency) {
 
     // update voice value //
-    this.a += (frequency * (2/sampleRate));
+    this.a -= (frequency * (2/sampleRate));
 
     // stay within amplitude bounds & refresh//
     var spill = 0;
@@ -27,6 +27,7 @@ proto.process = function(frequency) {
         spill = this.a + 1;
         this.a = (1 - spill);
     }
+    return this.a;
 };
 
 

@@ -27,13 +27,13 @@ function HarmonicVoice() {
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-HarmonicVoice.prototype.process = function(frequency, cutoff, resonance, mode) {
+HarmonicVoice.prototype.process = function(frequency, cutoff, resonance, mode, timbre) {
 
     // get partials from cutoff (1-100 ideal) //
     var p = floatToPartials(cutoff);
 
     // alter partials //
-    mode = mode || null;
+    /*mode = mode || null;
     switch (mode) {
         case 'metallic':
             partials.negativeDisorganise(p,0.4,3);
@@ -56,7 +56,14 @@ HarmonicVoice.prototype.process = function(frequency, cutoff, resonance, mode) {
 
         default:
             break;
+    }*/
+
+    if (timbre) {
+        //partials.subtract(p,timbre);
+        partials.multiply(p,timbre);
+        //partials.add(p,timbre);
     }
+
 
     // voice //
     return  this.voice.process(frequency,p,resonance);

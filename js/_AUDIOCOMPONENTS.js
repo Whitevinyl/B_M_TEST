@@ -53,6 +53,7 @@ var Repeater = require('./audioComponents/common/Repeater');
 var Resonant = require('./audioComponents/filters/Resonant');
 var RetroDelay = require('./audioComponents/filters/RetroDelay');
 var ReverbII = require('./audioComponents/filters/ReverbII');
+var Shuffle = require('./audioComponents/一graveyard/Shuffle');
 var StereoExpander = require('./audioComponents/filters/StereoExpander');
 var StereoRumble = require('./audioComponents/filters/StereoRumble');
 var Tremolo = require('./audioComponents/filters/Tremolo');
@@ -95,6 +96,7 @@ var SnarePlayer = require('./audioComponents/instruments/Snare');
 var Brown = require('./audioComponents/voices/BrownNoise');
 var Crackle = require('./audioComponents/voices/CrackleNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
+var HarmonicVoice = require('./audioComponents/voices/HarmonicVoice');
 var Hiss = require('./audioComponents/一graveyard/HissNoise');
 var Pink = require('./audioComponents/voices/PinkNoise');
 var Perlin = require('./audioComponents/voices/Perlin');
@@ -1107,6 +1109,7 @@ module.exports = {
     Brown: Brown,
     Crackle: Crackle,
     HarmonicSine: HarmonicSine,
+    HarmonicVoice: HarmonicVoice,
     Hiss: Hiss,
     Perlin: Perlin,
     Pink: Pink,
@@ -1215,6 +1218,7 @@ module.exports = {
     StereoRetroDelay: RetroDelay.stereo,
     ReverbII: ReverbII.mono,
     StereoReverbII: ReverbII.stereo,
+    Shuffle: Shuffle,
     StereoRumble: StereoRumble,
     StereoExpander: StereoExpander,
     Tremolo: Tremolo.mono,

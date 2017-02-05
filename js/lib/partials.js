@@ -14,6 +14,7 @@ var tombola = new Tombola();
 function setPartials(type,length) {
     // ZERO OUR PARTIALS ARRAY //
     var partials = [];
+    length = length || 30;
     for (var i=0; i<length; i++) {
         partials.push(0);
     }
@@ -24,120 +25,151 @@ function setPartials(type,length) {
     return partials;
 }
 
+function randomPartials(width) {
+
+    // ZERO OUR PARTIALS ARRAY //
+    var partials = [];
+    for (var i=0; i<width; i++) {
+        partials.push(0);
+    }
+
+    var min = Math.ceil(width*0.5);
+
+    // VARY HOW MUCH OF THE ARRAY WE ACTUALLY USE //
+    var length = Math.round(min + (Math.random()*(width - min)));
+
+    partials = modeRandom(partials,length);
+    filterNormalise(partials,width);
+    return partials;
+}
+
 //-------------------------------------------------------------------------------------------
 //  ALGORITHM MODES
 //-------------------------------------------------------------------------------------------
 
-function mode(partials,type) {
+function modeRandom(partials,length) {
 
     // randomly select algorithm type //
-    if (type==undefined || type==null || type!==type) {
-        type = Math.floor(Math.random()*18);
-    }
-    var length = partials.length;
-    var genW = length;
+    var type = Math.floor(Math.random()*14);
+    console.log(type);
 
-    switch (type) {
-
-        case 0: // organ
-            filterGrow(partials,length,0.05);
-            filter1OverSquared(partials,length);
-            filterLowPass(partials,length,0.1,0);
-            filterOrganise(partials,length,0.4);
-            break;
-
-        case 1: // warm buzz
-            filter1Over(partials,length);
-            filter1OverSquared(partials,length);
-            break;
-
-        case 2: // buzz
-            filter1Over(partials,length);
-            filterGrow(partials,length,Math.random()*0.05);
-            break;
-
-        case 3: // soft buzz
-            filter1OverSquared(partials,length);
-            filterGrow(partials,length,Math.random()*0.05);
-            break;
-
-        case 4: // soft buzz ring
-            filterGrow(partials,length,0.05);
-            filter1Over(partials,length);
-            filterDisorganise(partials,length,0.4,5);
-            filterLowPass(partials,length,0.3,0);
-            //genMode = 1;
-            break;
-
-        case 5: // lows
-            filterGrow(partials,length,0.1 + (Math.random()*0.5));
-            filterLowPass(partials,length,1,0);
-            break;
-
-        case 6: // balanced random
-            filterRandomiseAll(partials,length);
-            break;
-
-        case 7: // peak
-            filterPeakSwell(partials,length,genW/3);
-            break;
-
-        case 8: // trough
-            filterMaxAll(partials,length);
-            filterPeakNotch(partials,length,genW/3);
-            break;
-
-        case 9: // random peaks
-            filterRandomPeaks(partials,length,genW/3);
-            filterLowPass(partials,length,genW/25,0);
-            break;
-
-        case 10: // buzz chirp
-            filterRandomiseAll(partials,length);
-            filterHighPass(partials,length,1,0);
-            filter1Over(partials,length);
-            filter1OverSquared(partials,length);
-            break;
-
-        case 11: // metallic chirp
-            filterGrow(partials,length,0.05);
-            filterLowPass(partials,length,0.1,0);
-            filterDisorganise(partials,length,0.4,2);
-            break;
-
-        case 12: // highs
-            filterRandomPeaks(partials,length,genW/3);
-            filterHighPass(partials,length,1,0);
-            break;
-
-        case 13: // metallic ring
-            filterGrow(partials,length,0.05);
-            filterDisorganise(partials,length,0.4,3);
-            filterLowPass(partials,length,0.1,0);
-            break;
-
-        case 14: // glass
-            filterDisorganise(partials,length,0.4,2);
-            filterHighPass(partials,length,1,0);
-            filterIndexMatchPeak(partials,length,1,1);
-            break;
-
-        case 15: // metallic buzz
-            filterLowPass(partials,length,1,1);
-            filterZeroMultiple(partials,length,2);
-            break;
-
-        case 16: // metallic reed
-            filterLowPass(partials,length,1,1);
-            filterZeroInterval(partials,length,3,1);
-            break;
-
-        case 17: // tubular
-            filterPeakInterval(partials,length,4,0,1);
-            filterLowPass(partials,length,0.8,0);
-            break;
-    }
+    modes[type](partials,length);
     return partials;
+}
+
+var modes = [
+    organ,
+    warmBuzz,
+    buzz,
+    softBuzz,
+    softBuzzRing,
+    lows,
+    random,
+    buzzChirp,
+    metallicChirp,
+    metallicRing,
+    glass,
+    metallicBuzz,
+    metallicReed,
+    tubular
+];
+
+
+//-------------------------------------------------------------------------------------------
+//  TYPES / MULTI FILTERS
+//-------------------------------------------------------------------------------------------
+
+
+// ORGAN //
+function organ(partials,length) {
+    filterGrow(partials,length,0.05);
+    filter1OverSquared(partials,length);
+    filterLowPass(partials,length,0.1,0);
+    filterOrganise(partials,length,0.4);
+}
+
+// WARM BUZZ //
+function warmBuzz(partials,length) {
+    filter1Over(partials,length);
+    filter1OverSquared(partials,length);
+}
+
+// BUZZ //
+function buzz(partials,length) {
+    filter1Over(partials,length);
+    filterGrow(partials,length,Math.random()*0.05);
+}
+
+// SOFT BUZZ //
+function softBuzz(partials,length) {
+    filter1OverSquared(partials,length);
+    filterGrow(partials,length,Math.random()*0.05);
+}
+
+// SOFT BUZZ RING //
+function softBuzzRing(partials,length) {
+    filterGrow(partials,length,0.05);
+    filter1Over(partials,length);
+    filterDisorganise(partials,length,0.4,5);
+    filterLowPass(partials,length,0.3,0);
+}
+
+// LOWS //
+function lows(partials,length) {
+    filterGrow(partials,length,0.1 + (Math.random()*0.5));
+    filterLowPass(partials,length,1,0);
+}
+
+// RANDOM //
+function random(partials,length) {
+    filterRandomiseAll(partials,length);
+}
+
+// BUZZ CHIRP //
+function buzzChirp(partials,length) {
+    filterRandomiseAll(partials,length);
+    filterHighPass(partials,length,1,0);
+    filter1Over(partials,length);
+    filter1OverSquared(partials,length);
+}
+
+// METALLIC CHIRP //
+function metallicChirp(partials,length) {
+    filterGrow(partials,length,0.05);
+    filterLowPass(partials,length,0.1,0);
+    filterDisorganise(partials,length,0.4,2);
+}
+
+// METALLIC RING //
+function metallicRing(partials,length) {
+    filterGrow(partials,length,0.05);
+    filterDisorganise(partials,length,0.4,3);
+    filterLowPass(partials,length,0.1,0);
+}
+
+// GLASS //
+function glass(partials,length) {
+    filterDisorganise(partials,length,0.4,2);
+    filterHighPass(partials,length,1,0);
+    filterIndexMatchPeak(partials,length,1,1);
+}
+
+// METALLIC BUZZ //
+function metallicBuzz(partials,length) {
+    filterLowPass(partials,length,1,1);
+    filterZeroMultiple(partials,length,2);
+}
+
+// METALLIC REED //
+function metallicReed(partials,length) {
+    filterLowPass(partials,length,1,1);
+    filterZeroInterval(partials,length,3,1);
+}
+
+// TUBULAR //
+function tubular(partials,length) {
+    filterPeakInterval(partials,length,4,0,1);
+    filterLowPass(partials,length,0.8,0);
 }
 
 
@@ -349,6 +381,12 @@ function filterNormalise(partials,length) {
 }
 
 
+
+//-------------------------------------------------------------------------------------------
+//  NEGATIVE FILTERS (eliminating need for these with subtract function)
+//-------------------------------------------------------------------------------------------
+
+
 function negativeDisorganise(partials,strength,multiplesOf) {
     var l = partials.length;
     for (var i=1; i<l; i++) {
@@ -374,11 +412,7 @@ function negativePeakInterval(partials,interval,strength) {
     }
 }
 
-function negativeLowPass(partials,strength,boost) {
-    /*for (var i=(length-1); i>1; i--) {
-        partials[i] -= ((i/length)*strength);
-        partials[i] += boost;
-    }*/
+function negativeLowPass(partials,strength) {
     var l = partials.length;
     for (var i=1; i<l; i++) {
         partials[i] *= (((l/(l-i)) * strength) + (1-strength));
@@ -394,12 +428,59 @@ function negativeNoise(partials,strength) {
 }
 
 
+//-------------------------------------------------------------------------------------------
+//  PARTIAL COMBINATION
+//-------------------------------------------------------------------------------------------
+
+// multiplies A by B //
+function multiply(partialsA,partialsB) {
+    var l = Math.min(partialsA.length,partialsB.length);
+    for (var i=1; i<(l); i++) {
+        partialsA[i] *= ( partialsB[i-1]);
+    }
+    partialsA[0] = 0;
+}
+
+
+// add B to A //
+function add(partialsA,partialsB) {
+    var l = Math.min(partialsA.length,partialsB.length);
+    for (var i=1; i<l; i++) {
+        partialsA[i] += partialsB[i-1];
+        partialsA[i] = utils.valueInRange(partialsA[i],0,1);
+    }
+}
+
+
+// subtracts B from A //
+function subtract(partialsA,partialsB) {
+    var l = Math.min(partialsA.length,partialsB.length);
+    for (var i=1; i<l; i++) {
+        partialsA[i] -= (1- partialsB[i-1]);
+        partialsA[i] = utils.valueInRange(partialsA[i],0,1);
+    }
+}
+
+
+// subtracts B from A into negative values //
+function subtractHard(partialsA,partialsB) {
+    var l = Math.min(partialsA.length,partialsB.length);
+    for (var i=1; i<l; i++) {
+        partialsA[i] -= (1- partialsB[i-1]);
+        partialsA[i] = utils.valueInRange(partialsA[i],-1,1);
+    }
+}
 
 
 module.exports = {
 
     setPartials: setPartials,
-    mode: mode,
+    randomPartials: randomPartials,
+    modeRandom: modeRandom,
+    add: add,
+    subtract: subtract,
+    subtractHard: subtractHard,
+    multiply: multiply,
 
     randomiseAll: filterRandomiseAll,
     erode: filterErode,
@@ -409,10 +490,6 @@ module.exports = {
     peakNotch: filterPeakNotch,
     organise: filterOrganise,
     disorganise: filterDisorganise,
-    negativeDisorganise: negativeDisorganise,
-    negativeNoise: negativeNoise,
-    negativePeakInterval: negativePeakInterval,
-    negativeLowPass: negativeLowPass,
     peakInterval: filterPeakInterval,
     zeroMultiple: filterZeroMultiple,
     zeroInterval: filterZeroInterval,
@@ -425,5 +502,12 @@ module.exports = {
     matchPeak: filterIndexMatchPeak,
     stepDown: filterStepDown,
     stepUp: filterStepUp,
-    normalise: filterNormalise
+    normalise: filterNormalise,
+
+
+    // abandon these //
+    negativeDisorganise: negativeDisorganise,
+    negativeNoise: negativeNoise,
+    negativePeakInterval: negativePeakInterval,
+    negativeLowPass: negativeLowPass
 };
