@@ -51,7 +51,7 @@ proto.createComponent = function(componentName,args,mods) {
 
 
         case 'bitCrush':
-            settings.filter = new audio.FilterStereoDownSample();
+            settings.filter = new audio.StereoBitCrush();
             settings.args.push( pick( args[0], {mod: 0, min: tombola.range(5,15), max: tombola.range(100,200) }) ); // bit size
             settings.args.push( pick( args[1], {mod: 1, min: tombola.rangeFloat(-0.5,0.2), max: tombola.rangeFloat(0.4,1), floor: 0, ceil: 1  }) ); // mix
             settings.mods.push( pick( mods[0], this.createMod('glide2',[tombola.rangeFloat(0.04,0.12),tombola.range(8000,18000)])) );

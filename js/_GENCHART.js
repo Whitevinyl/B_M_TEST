@@ -36,7 +36,7 @@ proto.generateWaveSection = function(length) {
     var i;
 
     var lowpass = new audio.StereoLowPass();
-    var downsample = new audio.FilterStereoDownSample();
+    var downsample = new audio.StereoBitCrush();
     var resampler = new audio.Resampler();
     var noise = new audio.StereoNoise();
 
@@ -543,7 +543,7 @@ proto.generateScopeData = function(length) {
             voices.push(new audio.Voice(tombola.rangeFloat(30, 200)));
         }
 
-        var downsample = new audio.FilterStereoDownSample();
+        var downsample = new audio.StereoBitCrush();
 
         var crushLevel = tombola.rangeFloat(0.5,1);
         var delay = tombola.range(20,100);

@@ -28,6 +28,7 @@ var softClip = require('./audioComponents/filters/SoftClip');
 
 // PERSISTENT FILTERS //
 var AllPass = require('./audioComponents/filters/AllPass');
+var BitCrush = require('./audioComponents/filters/BitCrush');
 var Biquad = require('./audioComponents/filters/Biquad');
 var Chorus = require('./audioComponents/filters/Chorus');
 var Comb = require('./audioComponents/filters/Comb');
@@ -45,6 +46,7 @@ var LowPassII = require('./audioComponents/filters/LowPassII');
 var Noise = require('./audioComponents/filters/Noise');
 var MultiPass = require('./audioComponents/filters/MultiPass');
 var PitchShift = require('./audioComponents/filters/PitchShift');
+var PhaseModulator = require('./audioComponents/filters/PhaseModulator');
 var PhonoCrackle = require('./audioComponents/filters/PhonoCrackle');
 var Q = require('./audioComponents/filters/Q');
 var Repeater = require('./audioComponents/common/Repeater');
@@ -943,30 +945,6 @@ FilterStereoChopper.prototype.process = function(signal,rate,depth) {
     ];
 };
 
-// DOWN SAMPLE //
-function FilterDownSample() {
-    this.memory = 0;
-    this.c = -2;
-}
-FilterDownSample.prototype.process = function(size,input) {
-    this.c ++;
-    if (this.c>=size || this.c<0) {
-        this.memory = input;
-        this.c = 0;
-    }
-    return this.memory;
-};
-
-function FilterStereoDownSample() {
-    this.ds1 = new FilterDownSample();
-    this.ds2 = new FilterDownSample();
-}
-FilterStereoDownSample.prototype.process = function(signal,size,mix) {
-    return [
-        (signal[0] * (1-mix)) + (this.ds1.process(size,signal[0]) * mix),
-        (signal[1] * (1-mix)) + (this.ds2.process(size,signal[1]) * mix)
-    ];
-};
 
 
 
@@ -1200,11 +1178,11 @@ module.exports = {
     FilterFlipper: FilterFlipper,
     FilterChopper: FilterChopper,
     FilterStereoChopper: FilterStereoChopper,
-    FilterDownSample: FilterDownSample,
-    FilterStereoDownSample: FilterStereoDownSample,
     Repeater: Repeater,
     AllPass: AllPass.mono,
     StereoAllPass: AllPass.stereo,
+    BitCrush: BitCrush.mono,
+    StereoBitCrush: BitCrush.stereo,
     Biquad: Biquad.mono,
     StereoBiquad: Biquad.stereo,
     Chorus: Chorus,
@@ -1227,6 +1205,8 @@ module.exports = {
     StereoLowPassII: LowPassII.stereo,
     MultiPass: MultiPass.mono,
     StereoMultiPass: MultiPass.stereo,
+    PhaseModulator: PhaseModulator.mono,
+    StereoPhaseModulator: PhaseModulator.stereo,
     PitchShift: PitchShift,
     PhonoCrackle: PhonoCrackle,
     Resonant: Resonant.mono,

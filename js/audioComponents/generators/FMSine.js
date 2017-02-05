@@ -2,9 +2,11 @@ var utils = require('../../lib/utils');
 var Tombola = require('tombola');
 var tombola = new Tombola();
 
-// Not real FM (at least I don't think), this was really the result of experimenting and I'm
-// not 100% sure what's happening, but modulating a1 and/or a2 creates some great smooth
-// timbre movement, opening uo the harmonics. Sounds like it's shifting from sine to square.
+// This was really the result of experimenting and I'm not 100% sure what's happening, but
+// modulating a1 and/or a2 creates some great smooth timbre movement, opening uo the
+// harmonics. Sounds like it's shifting from sine to square.
+
+// SEE: /voices/PhaseSine
 
 //-------------------------------------------------------------------------------------------
 //  VOICE INIT

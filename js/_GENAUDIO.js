@@ -168,8 +168,12 @@ proto.generateClicks = function() {
 
     var tri = new audio.Triangle();
 
+    var bit = new audio.StereoBitCrush();
+
 
     var noise2 = new audio.PhonoCrackle();
+
+    var pmod = new audio.StereoPhaseModulator();
 
 
     var t1 = audioClock.randomBeat();
@@ -289,7 +293,12 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
+        /*process = bit.process(signal,audio.controlRange(10,100,tri.process(0.2)),true,0.6);
+        signal = signalTest(process,signal);*/
 
+
+        /*process = pmod.process(signal,tri.process(110),audio.controlRange(0,0.3,control.process(0.2)),0.5);
+        signal = signalTest(process,signal);*/
 
 
         /*process = audio.reverseDelay(signal,0.5,3000,30,channels,i);
