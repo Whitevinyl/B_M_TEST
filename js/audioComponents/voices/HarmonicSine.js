@@ -25,10 +25,11 @@ HarmonicSine.prototype.process = function(frequency,partials,resonance) {
     partials = partials || [1];
 
     // calculate fundamental sine //
-    this.v += (frequency);
+    /*this.v += (frequency);
     if(this.v > 2) this.v -= 4;
     var out = this.v*(2-Math.abs(this.v));
     out *= partials[0];
+
 
     // overtones //
     var totalLevel = 1;
@@ -49,7 +50,36 @@ HarmonicSine.prototype.process = function(frequency,partials,resonance) {
             out += ((p*partials[i]) * m);
             totalLevel += (Math.abs(partials[i]) * m);
         }
+    }*/
+
+
+    var out = 0;
+
+    // overtones //
+    var totalLevel = 1;
+    for (var i=0; i<partials.length; i++) {
+
+        // if partial currently non-existent, zero it //
+        if (!this.partials[i]) this.partials[i] = 0;
+
+        // good frequency? //
+        var fi = i + 1;
+        if ((((frequency/4)*fi)*sampleRate)<20000) {
+
+            // calculate sine //
+            this.partials[i] += (frequency*fi);
+            if(this.partials[i] > 2) this.partials[i] -= 4;
+            var p = this.partials[i]*(2-Math.abs(this.partials[i]));
+
+            var m = Math.pow(resonance,i+1);
+            out += ((p*partials[i]) * m);
+            totalLevel += (Math.abs(partials[i]) * m);
+        }
     }
+
+
+
+
 
     // normalise from partial total //
     out = out/totalLevel;

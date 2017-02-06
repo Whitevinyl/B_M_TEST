@@ -468,13 +468,13 @@ proto.generateHit = function() {
 
         var env = common.ADSREnvelope(i,l,[0,2,0.4,65]);
         var v = voice.process(f*0.99, cutoff1, 1, null, timbre);
-        var v2 = voice2.process(f*1.015, cutoff2, 1, null, timbre2);
+        var v2 = voice2.process(f*1.016, cutoff2, 1, null, timbre2);
 
         var tine = (((v + v2)/2) * env);
 
         process = [
-            signal[0] + tine,
-            signal[1] + tine
+            signal[0] + (((v*0.6)+(v2*0.4))*env),
+            signal[1] + (((v*0.4)+(v2*0.6))*env)
         ];
         signal = signalTest(process, signal);
 
