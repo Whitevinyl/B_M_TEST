@@ -14,6 +14,7 @@ var common = require('./audioComponents/common/common');
 var FilterWrapper = require('./_FILTERWRAPPER');
 
 global.audioClock = null;
+var signalFail = false;
 
 // Audio is generated here using javascript components in _AUDIOCOMPONENTS.js. Signals are
 // generated and filtered in sequence and panned between stereo channels. Multiple techniques
@@ -179,6 +180,8 @@ proto.generateClicks = function() {
 
     var shuffle = new audio.Shuffle();
 
+    var boostComp = new audio.BoostComp();
+
     var t1 = audioClock.randomBeat();
     var t2 = audioClock.randomBeat();
 
@@ -188,33 +191,33 @@ proto.generateClicks = function() {
 
         // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
         var process = audioClock.process(signal,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal,i);
 
 
 
         process = sample.process(signal,1,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal,i);
 
         /*var int = audio.controlRange(-5,5,control.process(1.1));
         process = pitch.process(signal,900,12,1);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal,i);*/
 
 
 
 
 
         process = kick.process(signal,1,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal,i);
 
         /*process = clap.process(signal,1,i);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal,i);*/
 
         process = snare.process(signal,1,i);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal,i);
 
 
         /*process = delay2.process(signal,35000,35,8000,10,1.7,0,100,1);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal,i);*/
 
 
 
@@ -232,19 +235,19 @@ proto.generateClicks = function() {
         };
 
         process = hold.process(signal,gh.delayTime,gh.grainSize,gh.hold,gh.pitch,gh.reverse,gh.accordion,gh.feedback,gh.mix);
-        signal = signalTest(process,signal);*/
+        signal = signalTest(process,signal,i);*/
 
         //var triScale = tri.process(0.1);
 
         var fs = {
-            room: 0.15,
+            room: 0.65,
             damp: 0.55,
             direction: -0.2,
             mix: 0.21
         };
 
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
-        signal = signalTest(process,signal);
+        signal = signalTest(process,signal,i);
 
         var gh2 = {
             hold: 40000,
@@ -316,9 +319,14 @@ proto.generateClicks = function() {
         signal = signalTest(process,signal);*/
 
 
-        /*process = noise2.process(signal,0.1,0.2,7000);
-        signal = signalTest(process,signal);*/
 
+
+        process = noise2.process(signal,0.1,0.2,7000);
+        signal = signalTest(process,signal,i);
+
+
+        process = boostComp.process(signal);
+        signal = signalTest(process,signal,i);
 
         // WRITE TO AUDIO CHANNELS //
         if (channels[0][i]) {
@@ -600,10 +608,18 @@ function measurePeak(peak,channel,index) {
 
 
 // TEST A FILTER'S RETURNED SIGNAL //
-function signalTest(signal,fallback) {
+function signalTest(signal,fallback,i) {
     if (signal!==undefined && signal[0]!==undefined && signal[1]!==undefined && signal[0]==signal[0] && signal[1]==signal[1]) {
         return signal;
     } else {
+
+        if (!signalFail){
+            signalFail = true;
+            console.log('signal failed :(');
+            console.log('at sample: '+i);
+            console.log('signal returned: '+signal);
+        }
+
         return fallback;
     }
 }

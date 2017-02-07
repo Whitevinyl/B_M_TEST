@@ -28,6 +28,7 @@ var softClip = require('./audioComponents/filters/SoftClip');
 
 // PERSISTENT FILTERS //
 var AllPass = require('./audioComponents/filters/AllPass');
+var BoostComp = require('./audioComponents/filters/BoostComp');
 var BitCrush = require('./audioComponents/filters/BitCrush');
 var Biquad = require('./audioComponents/filters/Biquad');
 var Chorus = require('./audioComponents/filters/Chorus');
@@ -1184,6 +1185,7 @@ module.exports = {
     Repeater: Repeater,
     AllPass: AllPass.mono,
     StereoAllPass: AllPass.stereo,
+    BoostComp: BoostComp,
     BitCrush: BitCrush.mono,
     StereoBitCrush: BitCrush.stereo,
     Biquad: Biquad.mono,
