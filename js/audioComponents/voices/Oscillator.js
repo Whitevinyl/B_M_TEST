@@ -30,7 +30,7 @@ proto.process = function(type,frequency,detune,phase,phaseDepth) {
     // progress time //
     this.i += 1/sampleRate;
     var t = this.i * (phase * phaseDepth);
-    var f = frequency + detune;
+    var f = frequency * utils.intervalToRatio(detune);
 
 
     // plot wave //
