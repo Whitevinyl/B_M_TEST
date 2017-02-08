@@ -96,6 +96,7 @@ var SnarePlayer = require('./audioComponents/instruments/Snare');
 // VOICES //
 var Brown = require('./audioComponents/voices/BrownNoise');
 var Crackle = require('./audioComponents/voices/CrackleNoise');
+var FMNoise = require('./audioComponents/voices/FMNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
 var HarmonicVoice = require('./audioComponents/voices/HarmonicVoice');
 var Hiss = require('./audioComponents/一graveyard/HissNoise');
@@ -1109,6 +1110,7 @@ module.exports = {
 
     Brown: Brown,
     Crackle: Crackle,
+    FMNoise: FMNoise,
     HarmonicSine: HarmonicSine,
     HarmonicVoice: HarmonicVoice,
     Hiss: Hiss,

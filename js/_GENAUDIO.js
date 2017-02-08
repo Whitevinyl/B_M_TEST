@@ -410,7 +410,7 @@ proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
     var seconds = 0.3;
-    seconds = 0.6;
+    seconds = 10;
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -424,6 +424,9 @@ proto.generateHit = function() {
     //var snare = new audio.SnarePlayer();
     var voice = new audio.HarmonicVoice();
     var voice2 = new audio.HarmonicVoice();
+
+    var fm = new audio.FMNoise();
+    var fmp = [tombola.rangeFloat(-1,1),tombola.rangeFloat(-1,1),tombola.rangeFloat(-1,1)];
 
     var tri = new audio.Triangle();
     var saw = new audio.SawTooth();
@@ -465,13 +468,22 @@ proto.generateHit = function() {
 
 
         // KICK //
-        process = kick.process(signal, 1, i);
-        signal = signalTest(process, signal,i);
+        /*process = kick.process(signal, 1, i);
+        signal = signalTest(process, signal,i);*/
 
 
         /*// SNARE //
         process = snare.process(signal, 1, i);
         signal = signalTest(process, signal,i);*/
+
+
+        var n = fm.process(261.63,fmp[0],fmp[1],fmp[2]);
+        //console.log(n);
+        signal = [
+            signal[0] + n,
+            signal[0] + n
+        ];
+
 
 
         // VOICE //

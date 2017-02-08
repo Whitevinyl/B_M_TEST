@@ -12,7 +12,7 @@ var Expander = require('../filters/StereoExpander');
 var FoldBackII = require('../filters/FoldBackII');
 var FoldBack = require('../filters/FoldBack');
 var Saturation = require('../filters/Saturation');
-var WaveShaper = require('../filters/WaveShaper');
+var WaveShaper = require('../一graveyard/WaveShaper');
 
 var Q = require('../filters/Q');
 
@@ -274,7 +274,7 @@ proto.process = function(input,level) {
         signal = this.drive(signal,this.threshold,da * (this.driveMix*2));
     }
     if (this.drive === WaveShaper) {
-        signal = this.drive(signal,0.4, 6, 1); // this.threshold + 0.2
+        signal = this.drive(signal,0.1, 4, 1); // this.threshold + 0.2
     }
 
     // filter //
