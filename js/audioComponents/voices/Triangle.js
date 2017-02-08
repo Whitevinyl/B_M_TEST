@@ -1,14 +1,17 @@
-
 var utils = require('../../lib/utils');
 
-// A simple sine wave voice
+// A simple triangle wave voice, with phase start offset (click)
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Triangle() {
+function Triangle(phaseOffset) {
+    phaseOffset = utils.arg(phaseOffset,0);
+    phaseOffset = utils.valueInRange(phaseOffset,0,1);
+
     this.a = 0;
+    this.a -= phaseOffset;
     this.polarity = 1;
 }
 

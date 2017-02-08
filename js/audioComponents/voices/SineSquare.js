@@ -8,9 +8,9 @@ var Square = require('./Square');
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function SineSquare() {
-    this.sine = new Sine();
-    this.square = new Square();
+function SineSquare(phaseOffset) {
+    this.sine = new Sine(phaseOffset);
+    this.square = new Square(phaseOffset);
 }
 
 //-------------------------------------------------------------------------------------------

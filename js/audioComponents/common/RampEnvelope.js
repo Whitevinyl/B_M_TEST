@@ -10,7 +10,7 @@ var easing = require('../../lib/easing');
 function RampEnvelope(t,d,from,to,start,end,ease) {
     var a = 0;
 
-    if (t < d) {
+    if (t <= d) {
         start = Math.round((d/100) * start);
         end = Math.round((d/100) * end);
 

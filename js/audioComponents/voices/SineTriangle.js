@@ -8,9 +8,9 @@ var Triangle = require('./Triangle');
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function SineTriangle() {
-    this.sine = new Sine();
-    this.triangle = new Triangle();
+function SineTriangle(phaseOffset) {
+    this.sine = new Sine(phaseOffset);
+    this.triangle = new Triangle(phaseOffset);
 }
 
 //-------------------------------------------------------------------------------------------

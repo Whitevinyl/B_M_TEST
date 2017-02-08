@@ -333,16 +333,17 @@ proto.chooseFilter = function() {
 
     var co1,co2;
 
-    co1 = tombola.rangeFloat(8000,12000);
+    co1 = tombola.rangeFloat(8000,10000);
     co2 = co1;
     if (tombola.percent(40)) {
-        co2 = tombola.rangeFloat(8000,12000);
+        co2 = tombola.rangeFloat(8000,10000);
     }
     if (tombola.percent(20)) {
-        if (tombola.chance(80)) {
-            co2 = tombola.rangeFloat(2000,5000);
+        if (tombola.percent(90)) {
+            co2 = tombola.rangeFloat(3000,5000);
         } else {
-            co1 = tombola.rangeFloat(2000,5000);
+            co1 = tombola.rangeFloat(3000,4000);
+            co2 = tombola.rangeFloat(6500,8000);
         }
     }
 
@@ -480,6 +481,7 @@ proto.process = function(input,level) {
     var noiseEnv = common.multiEnvelope(this.i, this.duration, this.noiseEnvelope, this.curves);
     var oscEnv = common.multiEnvelope(this.i, this.duration, this.oscEnvelope, this.curves);
 
+
     // duck & sum envelopes //
     oscEnv *= (1 - (transEnv*0.4));
     oscEnv *= (1 - (noiseEnv*0.1));
@@ -488,12 +490,10 @@ proto.process = function(input,level) {
     var te = sumEnvelopes(envs,0);
     var ne = sumEnvelopes(envs,1);
     var oe = sumEnvelopes(envs,2);
-
-    //console.log(envs);
-    //console.log('t: '+te+' n: '+ne+' o: '+oe);
     transEnv = te;
     noiseEnv = ne;
     oscEnv   = oe;
+
 
     // transient //
     var trans = this.transient.process(0.75,1) * transEnv;
@@ -520,14 +520,12 @@ proto.process = function(input,level) {
         harmGain += h.gain;
     }
 
-    //console.log(harm);
-
+    // level & add harmonics (needs work) //
     harm /= (n-1);
     harm *= oscEnv;
     harm *= this.bodyLevel;
     osc *= (1-harm);
 
-    //console.log(harm);
 
     // internal ducking to blend the transient, body & noise layers //
     /*var transDuck = (transEnv * 1);
@@ -551,28 +549,28 @@ proto.process = function(input,level) {
     signal = drive(signal,this.threshold,this.power,da * this.driveMix);*/
 
 
+
+
     // filter //
     var cutoff = common.rampEnvelope(this.i, this.duration, this.cutoff1, this.cutoff2, 0, 50, 'linearOut');
-
     signal = this.hp.process(signal,'highpass',90,0,0);
     signal = this.eq.process(signal, 60,-5, 1050,7,-1, 8000,-1);
     signal = this.lp.process(signal,cutoff,1);
 
 
 
-
-    // return with ducking & filter compensation //
+    // amp & ducking //
     var amp = this.a * level;
     var ducking = 0.8 * amp;
-
-
     signal = common.multiply(signal,amp);
+
 
 
     // clip any noise spikes //
     signal = common.clipStereo(signal,1);
-
     this.maxPeak = Math.max(Math.abs(signal[0]),Math.abs(signal[1]));
+
+
 
     return [
         (input[0] * (1-ducking)) + signal[0],
@@ -655,7 +653,7 @@ NoiseWrapper.prototype.process = function(threshold,frequency,gain) {
             break;
 
         case BrownWhite:
-            return this.noise.process(threshold-0.2,gain);
+            return this.noise.process((threshold-0.2) * 0.7,gain);
             break;
     }
 };

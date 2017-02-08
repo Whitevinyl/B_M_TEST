@@ -240,10 +240,10 @@ proto.generateClicks = function() {
         //var triScale = tri.process(0.1);
 
         var fs = {
-            room: 0.65,
+            room: 0.25,
             damp: 0.55,
             direction: -0.2,
-            mix: 0.21
+            mix: 0.2
         };
 
         process = free.process(signal,fs.room,fs.damp,fs.direction,fs.mix);
@@ -410,7 +410,7 @@ proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
     var seconds = 0.3;
-    seconds = 1;
+    seconds = 0.6;
 
     var l = sampleRate * seconds;
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -421,7 +421,7 @@ proto.generateHit = function() {
 
     var kick = new audio.KickPlayer();
     var clap = new audio.ClapPlayer();
-    var snare = new audio.SnarePlayer();
+    //var snare = new audio.SnarePlayer();
     var voice = new audio.HarmonicVoice();
     var voice2 = new audio.HarmonicVoice();
 
@@ -453,27 +453,34 @@ proto.generateHit = function() {
         }
     }
 
+    console.log('loop');
+
     // LOOP EACH SAMPLE //
     for (var i = 0; i < l; i++) {
         var signal = [0, 0];
 
         // PROCESS CLOCK & CHECK IT RETURNS A GOOD SIGNAL //
         var process = audioClock.process(signal, i);
-        signal = signalTest(process, signal);
+        signal = signalTest(process, signal,i);
 
 
-        /*// KICK //
+        // KICK //
         process = kick.process(signal, 1, i);
-        signal = signalTest(process, signal);*/
+        signal = signalTest(process, signal,i);
+
 
         /*// SNARE //
         process = snare.process(signal, 1, i);
-        signal = signalTest(process, signal);*/
+        signal = signalTest(process, signal,i);*/
+
 
         // VOICE //
         //audio.controlRange(30,40,tri.process(0.25))
         //audio.controlRange(0,100,saw.process(1))
 
+
+
+        /*// metallic //
         var env = common.ADSREnvelope(i,l,[0,2,0.4,65]);
         var v = voice.process(f*0.99, cutoff1, 1, null, timbre);
         var v2 = voice2.process(f*1.016, cutoff2, 1, null, timbre2);
@@ -484,7 +491,7 @@ proto.generateHit = function() {
             signal[0] + (((v*0.6)+(v2*0.4))*env),
             signal[1] + (((v*0.4)+(v2*0.6))*env)
         ];
-        signal = signalTest(process, signal);
+        signal = signalTest(process, signal,i);*/
 
 
         // WRITE TO AUDIO CHANNELS //
@@ -500,7 +507,7 @@ proto.generateHit = function() {
         }
     }
 
-    console.log(snare.maxPeak);
+    //console.log(snare.maxPeak);
     // MASTERING //
     //audio.channelEQ(channels, 60,3,  1000,1,0,  14000,3);
     //normalisePass(channels,1);

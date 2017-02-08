@@ -8,12 +8,12 @@ var utils = require('../../lib/utils');
 
 function BoostComp() {
 
-    this.fParam1 = 0.24; // Drive  // 0.25
+    this.fParam1 = 0.2; // Drive  // 0.25
     this.fParam2 = 0.25; // Threshold
     this.fParam3 = 0.25; // Gain  // 0.25
     this.fParam4 = 0.50; // Linearity
     this.fParam5 = 0.50; // Asymmetry
-    this.fParam6 = 1.00; // Wet
+    this.fParam6 = 1; // Wet // 1
 
 
     this.adj1 = this.fParam1 * 4; // Drive

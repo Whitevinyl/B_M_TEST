@@ -9,7 +9,7 @@ var easing = require('../../lib/easing');
 function RampEnvelopeII(t,d,from,to,start,end,ease) {
     var a = 0;
 
-    if (t < d) {
+    if (t <= d) {
         start = audioClock.millisecondsToSamples(start);
         end = audioClock.millisecondsToSamples(end);
 

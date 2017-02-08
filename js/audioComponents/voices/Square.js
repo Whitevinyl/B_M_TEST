@@ -1,12 +1,17 @@
+var utils = require('../../lib/utils');
 
-// A simple square wave voice
+// A simple square wave voice, with phase start offset (click)
 
 //-------------------------------------------------------------------------------------------
 //  INIT
 //-------------------------------------------------------------------------------------------
 
-function Square() {
-    this.p = 2;
+function Square(phaseOffset) {
+    phaseOffset = utils.arg(phaseOffset,0);
+    phaseOffset = utils.valueInRange(phaseOffset,0,1);
+
+    this.p = 2; // 2 = zero phase
+    this.p -= phaseOffset;
 }
 
 //-------------------------------------------------------------------------------------------

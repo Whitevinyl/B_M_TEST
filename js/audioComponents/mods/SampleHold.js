@@ -6,9 +6,10 @@
 //-------------------------------------------------------------------------------------------
 
 function SampleHold() {
-    this.frequency = (5000*4)/sampleRate;
+    var f = (Math.PI * Math.PI) * 999999;
+    this.frequency = (f*4)/sampleRate;
     this.s = 2;
-    this.sample = 0;
+    this.memory = 0;
     this.rateCounter = 0;
 }
 

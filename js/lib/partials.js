@@ -51,7 +51,7 @@ function modeRandom(partials,length) {
 
     // randomly select algorithm type //
     var type = Math.floor(Math.random()*14);
-    console.log(type);
+    //console.log(type);
 
     modes[type](partials,length);
     return partials;

@@ -8,7 +8,12 @@ var common = require('../common/Common');
 var SineSquare = require('../voices/SineSquare');
 var SineTriangle = require('../voices/SineTriangle');
 var Expander = require('../filters/StereoExpander');
-var drive = require('../filters/FoldBackII');
+
+var FoldBackII = require('../filters/FoldBackII');
+var FoldBack = require('../filters/FoldBack');
+var Saturation = require('../filters/Saturation');
+var WaveShaper = require('../filters/WaveShaper');
+
 var Q = require('../filters/Q');
 
 // Procedurally generates synth kicks. Individual kick hits inherit their settings from
@@ -38,7 +43,7 @@ function KickPlayer() {
     console.log(this.drive);
 
     this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
-    this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,this.envelope.duration));
+    //this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,this.envelope.duration));
 
 }
 var proto = KickPlayer.prototype;
@@ -51,8 +56,8 @@ var proto = KickPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var type = tombola.weightedItem([SineSquare, SineTriangle], [3, 4]);
-    var pitch = tombola.rangeFloat(32, 49);
+    var type = tombola.weightedItem([SineSquare, SineTriangle], [1, 2]);
+    var pitch = tombola.rangeFloat(32, 47);
 
 
     // mix between oscillators //
@@ -84,6 +89,7 @@ proto.chooseVoice = function() {
         }
     }
 
+
     // agressive start more common than end //
     if (blend1<0.5 && blend2>0.5) {
         if (tombola.percent(20)) {
@@ -94,15 +100,32 @@ proto.chooseVoice = function() {
     }
 
 
+    var click = 0;
+    if (tombola.percent(65)) {
+        click = tombola.rangeFloat(0,0.5);
+        if (tombola.percent(28)) {
+            click = tombola.rangeFloat(0.5,1);
+        }
+    }
+
+    // testing //
+    /*type = SineTriangle;
+    blend1 = 1;
+    blend2 = 0;
+    click = 1;*/
+
+
+
     // generate object //
     return {
         type: type,
         pitch: pitch,
         blend1: blend1,
         blend2: blend2,
-        ratio: tombola.rangeFloat(4, 24), // height of transient pitch
-        decay: tombola.range(5, 28), // transient decay percent (change to ms)
-        drift: tombola.rangeFloat(0.75,1.3) // body pitch drift
+        ratio: tombola.rangeFloat(8, 30), // height of transient pitch
+        thump: tombola.range(22, 39), // transient thump length in ms
+        click: click, // transient click - phase offset on oscillator
+        drift: tombola.rangeFloat(0.75,1.2) // body pitch drift
     };
 };
 
@@ -110,7 +133,7 @@ proto.chooseVoice = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(70,400),tombola.rangeFloat(0.55,1),tombola.range(100,420)];
+    var adsr = [0,tombola.range(80,210),tombola.rangeFloat(0.9,1),tombola.range(120,420)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10;
 
     return {
@@ -127,10 +150,11 @@ proto.chooseDrive = function() {
 
     // generate object //
     return {
+        type: tombola.item([WaveShaper]), //FoldBack,FoldBackII,Saturation,
         threshold: tombola.rangeFloat(0.1,0.6),
         power: tombola.range(0,8),
         envelope: [attack,0,1,tombola.range(0,100-attack)],
-        mix: tombola.rangeFloat(0,0.5)
+        mix: tombola.weightedItem([0,tombola.rangeFloat(0.1,0.5)],[1,3])
     };
 };
 
@@ -181,12 +205,12 @@ function Kick(parentArray,envelope,voice,drive) {
 
 
     // voice //
-    this.voice = new voice.type();
+    this.voice = new voice.type(voice.click);
     this.pitch = voice.pitch;
     this.blend1 = voice.blend1;
     this.blend2 = voice.blend2;
     this.pitchRatio = voice.ratio;
-    this.decay = voice.decay;
+    this.thump = voice.thump;
     this.drift = voice.drift;
     this.p = 0; // panning;
 
@@ -198,6 +222,7 @@ function Kick(parentArray,envelope,voice,drive) {
     this.expander = new Expander();
 
     // drive //
+    this.drive = drive.type;
     this.driveAdsr = drive.envelope;
     this.threshold = drive.threshold;
     this.power = drive.power;
@@ -223,7 +248,7 @@ proto.process = function(input,level) {
 
 
     // voice //
-    var pb = common.rampEnvelope(this.i, this.duration, this.pitch*this.pitchRatio, this.pitch, 0, this.decay,'quinticOut');
+    var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
     var bl = common.rampEnvelope(this.i, this.duration, this.blend1, this.blend2, 0, 45,'linearOut');
     var n = this.voice.process(pb * pd, bl);
@@ -238,14 +263,22 @@ proto.process = function(input,level) {
 
     // drive //
     var da = common.ADSREnvelope(this.i, this.duration, this.driveAdsr, this.curves);
-    signal = drive(signal,this.threshold,this.power,da * this.driveMix);
 
+    if (this.drive === FoldBack) {
+        signal = this.drive(signal,this.threshold,da * this.driveMix);
+    }
+    if (this.drive === FoldBackII) {
+        signal = this.drive(signal,this.threshold,this.power,da * this.driveMix);
+    }
+    if (this.drive === Saturation) {
+        signal = this.drive(signal,this.threshold,da * (this.driveMix*2));
+    }
+    if (this.drive === WaveShaper) {
+        signal = this.drive(signal,0.4, 6, 1); // this.threshold + 0.2
+    }
 
     // filter //
-    signal = this.filter.process(signal,350,0.8,-0.4);
-
-    // expander //
-    //signal = this.expander.process(signal,20);
+    signal = this.filter.process(signal,290,0.8,-0.15);
 
 
     // return with ducking //
