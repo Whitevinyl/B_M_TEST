@@ -12,7 +12,7 @@ var Expander = require('../filters/StereoExpander');
 var FoldBackII = require('../filters/FoldBackII');
 var FoldBack = require('../filters/FoldBack');
 var Saturation = require('../filters/Saturation');
-var WaveShaper = require('../filters/WaveShaper');
+var WaveShaper = require('../filters/WaveDistortion');
 
 var Q = require('../filters/Q');
 
