@@ -90,6 +90,7 @@ var Testing = require('./audioComponents/一graveyard/Testing');
 
 // INSTRUMENTS //
 var ClapPlayer = require('./audioComponents/instruments/Clap');
+var HatPlayer = require('./audioComponents/instruments/Hat');
 var KickPlayer = require('./audioComponents/instruments/Kick');
 var SnarePlayer = require('./audioComponents/instruments/Snare');
 
@@ -1167,6 +1168,7 @@ module.exports = {
 
 
     ClapPlayer: ClapPlayer,
+    HatPlayer: HatPlayer,
     KickPlayer: KickPlayer,
     SnarePlayer: SnarePlayer,
 

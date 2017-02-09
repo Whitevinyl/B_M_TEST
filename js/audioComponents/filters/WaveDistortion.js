@@ -1,7 +1,8 @@
 var utils = require('../../lib/utils');
 
-// Waveshaping distortion effect:
+// A wave shaping distortion effect, with selectable algorithms. first 2 algs are from:
 // http://www.musicdsp.org/showArchiveComment.php?ArchiveID=46
+// the rest (Batman, Machu Picchu, Robotic & Square) are my own from eye/ trial & error :)
 
 //-------------------------------------------------------------------------------------------
 //  MONO
@@ -43,7 +44,7 @@ function waveShaper(input,amount,curve) {
         case 3:
             // stepped wave staggering (the Batman) //
             var t = amount * sign(out);
-            var s = 1;
+            var s = 1; // 1 = hard, 20 = soft
             out = out + ( (( (t + (1-t)) - (out * sign(out))) / s) * (out % t) ) ;
             break;
 
@@ -51,7 +52,7 @@ function waveShaper(input,amount,curve) {
         case 4:
             // stepped screamer (Machu Picchu) //
             var t = amount * sign(out);
-            var s = 1;
+            var s = 1; // 1 = hard, 20 = soft
             out = out - ( (((t + (1-t)) - (out * sign(out))) / s) * (out % t) );
             break;
 
@@ -59,7 +60,7 @@ function waveShaper(input,amount,curve) {
         case 5:
             // robotic //
             var t = amount * sign(out);
-            var s = 8;
+            var s = 8; // should prob stay around 8
             out = out - ( (((t + (1-t)) - (-out * sign(out))) / s) * (out % t) );
             break;
 
@@ -67,7 +68,7 @@ function waveShaper(input,amount,curve) {
         case 6:
             // square peaks //
             var t = amount * sign(out);
-            var s = 0.5; // 0 - 1
+            var s = 1; // 0 - 1
             out = out - ( ((out - t) / (2-s)) * (Math.abs(out) > amount) );
             var r = 1 - ((1-amount) / (2-s));
             out *= (r/(r*r));
