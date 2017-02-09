@@ -59,7 +59,8 @@ proto.chooseVoice = function() {
         pitch: tombola.rangeFloat(200,600),
         detune: detune,
         volume: volume,
-        hp: tombola.rangeFloat(2100,7000)
+        hp: tombola.rangeFloat(2100,7000),
+        expand: tombola.item([0,tombola.range(1,20)])
     };
 };
 
@@ -69,29 +70,29 @@ proto.chooseEnvelope = function() {
 
     var oscEnv = [];
 
-    var envStyle = tombola.range(0,4);
+    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple'],[1,0.5,1,1,0.8]);
     switch (envStyle) {
 
-        case 0:
+        case 'decay':
             // straight decay //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
             break;
 
-        case 1:
+        case 'shaker':
             // shaker //
             oscEnv.push(new common.EnvelopePoint(tombola.range(18,30), 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,10), 0, 'Out'));
             break;
 
-        case 2:
+        case 'holdDecay':
             // slight hold & decay //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(5, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
             break;
 
-        case 3:
+        case 'double':
             // double Attack //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
@@ -99,7 +100,7 @@ proto.chooseEnvelope = function() {
             oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
             break;
 
-        case 4:
+        case 'triple':
             // triple Attack //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
@@ -193,7 +194,12 @@ function Hat(parentArray,envelope,voice,drive) {
     // filter //
     this.filter = new MultiPass.stereo();
     this.hp = voice.hp;
-    this.expander = new Expander();
+
+    // expander //
+    this.width = voice.expand;
+    if (this.width > 0) {
+        this.expander = new Expander();
+    }
 
 }
 proto = Hat.prototype;
@@ -231,7 +237,10 @@ proto.process = function(input,level) {
     signal = this.filter.process(signal,'HP',this.hp, 1.49);
 
     // expander //
-    signal = this.expander.process(signal,10);
+    if (this.expander) {
+        signal = this.expander.process(signal,this.width);
+    }
+
 
     // drive //
     signal = Saturation(signal,0.6,1);

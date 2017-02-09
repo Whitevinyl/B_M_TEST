@@ -56,7 +56,7 @@ var proto = KickPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var type = tombola.weightedItem([SineSquare, SineTriangle], [1, 2]);
+    var type = tombola.weightedItem([SineSquare, SineTriangle], [1, 3]);
     var pitch = tombola.rangeFloat(32, 47);
 
 
@@ -115,6 +115,14 @@ proto.chooseVoice = function() {
     click = 1;*/
 
 
+    // pitch drift //
+    var drift = 0;
+    if (tombola.percent(5)) {
+        drift = tombola.rangeFloat(0,1.1); // up
+    }
+    if (tombola.percent(50)) {
+        drift = tombola.rangeFloat(0.7,0); // down
+    }
 
     // generate object //
     return {
@@ -125,7 +133,7 @@ proto.chooseVoice = function() {
         ratio: tombola.rangeFloat(8, 30), // height of transient pitch
         thump: tombola.range(22, 39), // transient thump length in ms
         click: click, // transient click - phase offset on oscillator
-        drift: tombola.rangeFloat(0.75,1.2) // body pitch drift
+        drift: drift // body pitch drift
     };
 };
 
@@ -133,7 +141,7 @@ proto.chooseVoice = function() {
 // ENVELOPE //
 proto.chooseEnvelope = function() {
 
-    var adsr = [0,tombola.range(80,210),tombola.rangeFloat(0.9,1),tombola.range(120,420)];
+    var adsr = [0,tombola.range(80,170),tombola.rangeFloat(0.89,1),tombola.range(120,390)];
     var duration = adsr[0] + adsr[1] + adsr[3] + 10;
 
     return {

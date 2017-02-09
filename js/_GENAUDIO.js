@@ -469,6 +469,11 @@ proto.generateHit = function() {
         signal = signalTest(process, signal,i);
 
 
+
+        // HAT //
+        process = hat.process(signal, 0.5, i);
+        signal = signalTest(process, signal,i);
+
         // KICK //
         process = kick.process(signal, 1, i);
         signal = signalTest(process, signal,i);
@@ -478,9 +483,7 @@ proto.generateHit = function() {
         process = snare.process(signal, 1, i);
         signal = signalTest(process, signal,i);*/
 
-        // HAT //
-        process = hat.process(signal, 0.5, i);
-        signal = signalTest(process, signal,i);
+
 
 
         /*var n = fm.process(261.63,fmp[0],fmp[1],fmp[2],fmv[0],fmv[1],fmv[2]) * 0.1;
