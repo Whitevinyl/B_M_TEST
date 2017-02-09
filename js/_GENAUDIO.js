@@ -410,7 +410,7 @@ proto.generateHit = function() {
 
     // SETUP THIS AUDIO //
     var seconds = 0.3;
-    //seconds = 1;
+    seconds = (60/70) - 0.05;
 
     var l = Math.round(sampleRate * seconds);
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -470,8 +470,8 @@ proto.generateHit = function() {
 
 
         // KICK //
-        /*process = kick.process(signal, 1, i);
-        signal = signalTest(process, signal,i);*/
+        process = kick.process(signal, 1, i);
+        signal = signalTest(process, signal,i);
 
 
         /*// SNARE //
@@ -479,7 +479,7 @@ proto.generateHit = function() {
         signal = signalTest(process, signal,i);*/
 
         // HAT //
-        process = hat.process(signal, 1, i);
+        process = hat.process(signal, 0.5, i);
         signal = signalTest(process, signal,i);
 
 

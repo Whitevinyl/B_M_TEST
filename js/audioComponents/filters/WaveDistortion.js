@@ -29,19 +29,6 @@ function waveShaper(input,amount,curve) {
 
 
         case 2:
-            // sine peaks //
-            out = out * 0.686306;
-            var a = 1 + Math.exp(Math.sqrt(Math.abs(out)) * -0.75);
-            if (out > 0) {
-                out = (Math.exp(out) - Math.exp(-out * a)) / (Math.exp(out) + Math.exp(-out));
-            } else {
-                out = -((Math.exp(-out) - Math.exp(out * a)) / (Math.exp(-out) + Math.exp(out)));
-            }
-            out *= (0.686306/(0.686306 * 0.686306));
-            break;
-
-
-        case 3:
             // stepped wave staggering (the Batman) //
             var t = amount * sign(out);
             var s = 1; // 1 = hard, 20 = soft
@@ -49,7 +36,7 @@ function waveShaper(input,amount,curve) {
             break;
 
 
-        case 4:
+        case 3:
             // stepped screamer (Machu Picchu) //
             var t = amount * sign(out);
             var s = 1; // 1 = hard, 20 = soft
@@ -57,7 +44,7 @@ function waveShaper(input,amount,curve) {
             break;
 
 
-        case 5:
+        case 4:
             // robotic //
             var t = amount * sign(out);
             var s = 8; // should prob stay around 8
@@ -65,10 +52,10 @@ function waveShaper(input,amount,curve) {
             break;
 
 
-        case 6:
+        case 5:
             // square peaks //
             var t = amount * sign(out);
-            var s = 1; // 0 - 1
+            var s = 0.9; // 0 - 1
             out = out - ( ((out - t) / (2-s)) * (Math.abs(out) > amount) );
             var r = 1 - ((1-amount) / (2-s));
             out *= (r/(r*r));

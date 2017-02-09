@@ -150,11 +150,12 @@ proto.chooseDrive = function() {
 
     // generate object //
     return {
-        type: tombola.item([WaveShaper]), //FoldBack,FoldBackII,Saturation,
+        type: tombola.item([FoldBack,FoldBackII,Saturation,WaveShaper]), //
         threshold: tombola.rangeFloat(0.1,0.6),
         power: tombola.range(0,8),
         envelope: [attack,0,1,tombola.range(0,100-attack)],
-        mix: tombola.weightedItem([0,tombola.rangeFloat(0.1,0.5)],[1,3])
+        mix: tombola.weightedItem([0,tombola.rangeFloat(0.1,0.5)],[1,3]),
+        style: tombola.range(0,5)
     };
 };
 
@@ -198,7 +199,6 @@ function Kick(parentArray,envelope,voice,drive) {
 
     // envelope / duration //
     this.i = 0;
-    this.a = 0;
     this.duration = envelope.duration;
     this.adsr = envelope.adsr;
     this.curves = envelope.curves;
@@ -218,8 +218,6 @@ function Kick(parentArray,envelope,voice,drive) {
     // filter //
     this.filter = new Q.stereo();
 
-    // expander //
-    this.expander = new Expander();
 
     // drive //
     this.drive = drive.type;
@@ -227,6 +225,7 @@ function Kick(parentArray,envelope,voice,drive) {
     this.threshold = drive.threshold;
     this.power = drive.power;
     this.driveMix = drive.mix;
+    this.driveStyle = drive.style;
 }
 proto = Kick.prototype;
 
@@ -244,7 +243,7 @@ proto.process = function(input,level) {
 
 
     // envelope //
-    this.a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
+    var a = common.ADSREnvelopeII(this.i, this.duration, this.adsr, this.curves);
 
 
     // voice //
@@ -256,8 +255,8 @@ proto.process = function(input,level) {
 
 
     var signal = [
-        n * ((1 + -this.p) * this.a),
-        n * ((1 +  this.p) * this.a)
+        n * ((1 + -this.p) * a),
+        n * ((1 +  this.p) * a)
     ];
 
 
@@ -274,7 +273,7 @@ proto.process = function(input,level) {
         signal = this.drive(signal,this.threshold,da * (this.driveMix*2));
     }
     if (this.drive === WaveShaper) {
-        signal = this.drive(signal,0.1, 4, 1); // this.threshold + 0.2
+        signal = this.drive(signal,this.threshold, this.driveStyle, da * (this.driveMix*2));
     }
 
     // filter //
@@ -284,8 +283,8 @@ proto.process = function(input,level) {
     // return with ducking //
     var ducking = 0.8;
     return [
-        (input[0] * (1-(this.a * ducking))) + signal[0],
-        (input[1] * (1-(this.a * ducking))) + signal[1]
+        (input[0] * (1-(a * ducking))) + signal[0],
+        (input[1] * (1-(a * ducking))) + signal[1]
     ];
 };
 

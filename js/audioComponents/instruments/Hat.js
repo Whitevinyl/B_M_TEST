@@ -36,6 +36,9 @@ function HatPlayer() {
     console.log(this.drive);
 
     this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('16'),1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('16') * 2,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('16') * 3,1,440,this.adsr,this.envelope.duration));
     //this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,this.envelope.duration));
 
 }
