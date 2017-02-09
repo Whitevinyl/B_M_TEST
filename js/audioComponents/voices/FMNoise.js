@@ -2,7 +2,7 @@ var utils = require('../../lib/utils');
 
 var Oscillator = require('./Oscillator');
 
-// Oscillator based noise using phase modulation
+// Oscillator based noise using phase modulation. Like Ableton Operator default routing.
 
 //-------------------------------------------------------------------------------------------
 //  INIT
@@ -21,15 +21,24 @@ var proto = FMNoise.prototype;
 //  PROCESS
 //-------------------------------------------------------------------------------------------
 
-proto.process = function(frequency,d1,d2,d3) {
+proto.process = function(frequency,d1,d2,d3,g1,g2,g3) {
 
-    var level = 0.004;
-    var phase = 0;
-    phase = this.mod3.process('sine',frequency,d3);
-    phase = this.mod2.process('sine',frequency,d2,phase,level);
-    phase = this.mod1.process('sine',frequency,d1,phase,level);
+    // init //
+    d1 = utils.arg(d1,0);
+    d2 = utils.arg(d2,0);
+    d3 = utils.arg(d3,0);
+    g1 = utils.arg(g1,1);
+    g2 = utils.arg(g2,1);
+    g3 = utils.arg(g3,1);
 
-    return this.osc.process('sine',frequency,0,phase,level);
+    var level = 0.0035; // 0.0035 - good match to Ableton's Operator
+    var fm = 0;
+
+    // process, passing fm from one mod to next //
+    fm = this.mod3.process('sine',frequency,d3,fm,level) * g3;
+    fm = this.mod2.process('sine',frequency,d2,fm,level) * g2;
+    fm = this.mod1.process('sine',frequency,d1,fm,level) * g1;
+    return this.osc.process('sine',frequency,0,fm,level);
 };
 
 

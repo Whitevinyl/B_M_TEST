@@ -426,7 +426,8 @@ proto.generateHit = function() {
     var voice2 = new audio.HarmonicVoice();
 
     var fm = new audio.FMNoise();
-    var fmp = [tombola.rangeFloat(-1,1),tombola.rangeFloat(-1,1),tombola.rangeFloat(-1,1)];
+    var fmp = [tombola.rangeFloat(0,7),tombola.rangeFloat(0,7),tombola.rangeFloat(0,7)];
+    var fmv = [tombola.rangeFloat(0,1),tombola.rangeFloat(0,1),tombola.rangeFloat(0,1)];
 
     var tri = new audio.Triangle();
     var saw = new audio.SawTooth();
@@ -477,7 +478,7 @@ proto.generateHit = function() {
         signal = signalTest(process, signal,i);*/
 
 
-        var n = fm.process(261.63,fmp[0],fmp[1],fmp[2]);
+        var n = fm.process(261.63,fmp[0],fmp[1],fmp[2],fmv[0],fmv[1],fmv[2]) * 0.1;
         //console.log(n);
         signal = [
             signal[0] + n,
