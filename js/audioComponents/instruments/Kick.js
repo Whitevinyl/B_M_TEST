@@ -56,7 +56,7 @@ var proto = KickPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var type = tombola.weightedItem([SineSquare, SineTriangle], [1, 4]);
+    var type = tombola.weightedItem([SineSquare, SineTriangle], [1, 6]);
     var pitch = tombola.rangeFloat(32, 47);
 
 

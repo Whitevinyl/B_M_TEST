@@ -68,9 +68,9 @@ proto.chooseVoice = function() {
 
 proto.chooseEnvelope = function() {
 
+    // MAIN ENVELOPE //
     var oscEnv = [];
-
-    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple','hold'],[1,0.5,1,1,0.8,1]);
+    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple','hold'],[1,0.35,1,1,0.8,0.9]);
     switch (envStyle) {
 
         case 'decay':
@@ -125,9 +125,19 @@ proto.chooseEnvelope = function() {
         duration += oscEnv[i].time;
     }
 
+    
 
-
+    // FM ENVELOPE //
     var fmEnv = [];
+    fmEnv.push(new common.EnvelopePoint(0, 1, 'In'));
+    if (tombola.percent(40)) {
+        var d = audioClock.samplesToMilliseconds(duration);
+        var t = tombola.rangeFloat(0.25, 1.2) * d;
+        console.log(t/d);
+        fmEnv.push(new common.EnvelopePoint(t, 0, 'Out'));
+    }
+
+
 
 
     return {
@@ -233,7 +243,7 @@ proto.process = function(input,level) {
 
 
     // voice //
-    var noise = this.voice.process(this.pitch,this.detune[0],this.detune[1],this.detune[2],this.volume[0],this.volume[1],this.volume[2]) * a;
+    var noise = this.voice.process(this.pitch,this.detune[0],this.detune[1],this.detune[2],this.volume[0] * fmEnv,this.volume[1] * fmEnv,this.volume[2] * fmEnv) * a;
 
     // assemble //
     var signal = [
