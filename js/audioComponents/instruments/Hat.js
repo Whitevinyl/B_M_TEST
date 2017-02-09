@@ -60,7 +60,7 @@ proto.chooseVoice = function() {
         detune: detune,
         volume: volume,
         hp: tombola.rangeFloat(2100,7000),
-        expand: tombola.item([0,tombola.range(1,20)])
+        expand: tombola.weightedItem([0,tombola.range(1,20)], [3,1])
     };
 };
 
@@ -70,7 +70,7 @@ proto.chooseEnvelope = function() {
 
     var oscEnv = [];
 
-    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple'],[1,0.5,1,1,0.8]);
+    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple','hold'],[1,0.5,1,1,0.8,1]);
     switch (envStyle) {
 
         case 'decay':
@@ -108,6 +108,15 @@ proto.chooseEnvelope = function() {
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
+            break;
+
+        case 'hold':
+            // square hold //
+            var hold = tombola.range(5,20);
+            var vol = 1 - (hold * 0.02);
+            oscEnv.push(new common.EnvelopePoint(0, vol, 'In'));
+            oscEnv.push(new common.EnvelopePoint(hold, vol, 'In'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(1,3), 0, 'Out'));
             break;
     }
 
@@ -248,7 +257,7 @@ proto.process = function(input,level) {
     // clip any noise spikes //
     signal = common.clipStereo(signal,1);
 
-    var ducking = 0;
+    var ducking = 0.8;
     return [
         (input[0] * (1-(a * ducking))) + (signal[0] * level),
         (input[1] * (1-(a * ducking))) + (signal[1] * level)

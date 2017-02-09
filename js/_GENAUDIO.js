@@ -471,12 +471,15 @@ proto.generateHit = function() {
 
 
         // HAT //
-        process = hat.process(signal, 0.5, i);
+        process = hat.process(signal, 0.4, i);
         signal = signalTest(process, signal,i);
 
         // KICK //
         process = kick.process(signal, 1, i);
         signal = signalTest(process, signal,i);
+
+
+
 
 
         /*// SNARE //
