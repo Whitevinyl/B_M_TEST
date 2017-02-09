@@ -162,7 +162,7 @@ proto.chooseDrive = function() {
         threshold: tombola.rangeFloat(0.1,0.6),
         power: tombola.range(0,8),
         envelope: [attack,0,1,tombola.range(0,100-attack)],
-        mix: tombola.weightedItem([0,tombola.rangeFloat(0.1,0.5)],[1,0.8]),
+        mix: tombola.weightedItem([0,tombola.rangeFloat(0.1,0.5)],[1,0.9]),
         style: tombola.range(0,5)
     };
 };

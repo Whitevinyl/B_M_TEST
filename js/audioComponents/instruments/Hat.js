@@ -36,10 +36,13 @@ function HatPlayer() {
     console.log(this.drive);
 
     this.markers.push(new marker(0,1,440,this.adsr,this.envelope.duration));
-    this.markers.push(new marker(audioClock.getBeatLength('16'),1,440,this.adsr,this.envelope.duration));
-    this.markers.push(new marker(audioClock.getBeatLength('16') * 2,1,440,this.adsr,this.envelope.duration));
-    this.markers.push(new marker(audioClock.getBeatLength('16') * 3,1,440,this.adsr,this.envelope.duration));
-    //this.markers.push(new marker(audioClock.getBeatLength('16') + (audioClock.getBeatLength('16')*(tombola.range(0,14))),1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32')    ,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 2,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 3,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 4,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 5,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 6,1,440,this.adsr,this.envelope.duration));
+    this.markers.push(new marker(audioClock.getBeatLength('32') * 7,1,440,this.adsr,this.envelope.duration));
 
 }
 var proto = HatPlayer.prototype;
@@ -53,13 +56,24 @@ proto.chooseVoice = function() {
 
     var detune = [tombola.rangeFloat(0.1,12),tombola.rangeFloat(0.1,12),tombola.rangeFloat(0.1,12)];
     var volume = [tombola.rangeFloat(0.12,1),tombola.rangeFloat(0.12,1),tombola.rangeFloat(0.12,1)];
+    var pitch = tombola.rangeFloat(200,800);
+
+    /*detune = [ 8.346484602450051, 6.00391539312223, 0.9435630777951444 ];
+    volume = [ 0.8242089637374599, 0.5762752853121658, 0.8012876711600392 ];
+    pitch = 546.0663282399037;*/
+
+    // make hp relative of pitch //
+    var ceil = Math.min(7000, (pitch * 10));
+    ceil = Math.max(4000,ceil);
+    var hp = tombola.rangeFloat(2100,ceil);
+    hp =4895.935165704874;
 
     return {
         voice: FMNoise,
-        pitch: tombola.rangeFloat(200,600),
+        pitch: pitch,
         detune: detune,
         volume: volume,
-        hp: tombola.rangeFloat(2100,7000),
+        hp: hp,
         expand: tombola.weightedItem([0,tombola.range(1,20)], [3,1])
     };
 };
@@ -70,13 +84,13 @@ proto.chooseEnvelope = function() {
 
     // MAIN ENVELOPE //
     var oscEnv = [];
-    var envStyle = tombola.weightedItem(['decay','shaker','holdDecay','double','triple','hold'],[1,0.35,1,1,0.8,0.9]);
+    var envStyle = tombola.weightedItem(['decay','shaker','double','triple','hold','zip'],[1,0.35,1,0.8,0.9,1]);
     switch (envStyle) {
 
         case 'decay':
             // straight decay //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(25,50), 0, 'Out'));
             break;
 
         case 'shaker':
@@ -85,19 +99,12 @@ proto.chooseEnvelope = function() {
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,10), 0, 'Out'));
             break;
 
-        case 'holdDecay':
-            // slight hold & decay //
-            oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(5, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
-            break;
-
         case 'double':
             // double Attack //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(25,50), 0, 'Out'));
             break;
 
         case 'triple':
@@ -107,7 +114,7 @@ proto.chooseEnvelope = function() {
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(25,45), 0, 'Out'));
             break;
 
         case 'hold':
@@ -118,6 +125,14 @@ proto.chooseEnvelope = function() {
             oscEnv.push(new common.EnvelopePoint(hold, vol, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(1,3), 0, 'Out'));
             break;
+
+        case 'zip':
+            // double ramp //
+            oscEnv.push(new common.EnvelopePoint(tombola.range(5,20), 1, 'In'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(1,3), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(5,20), 1, 'In'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(1,3), 0, 'Out'));
+            break;
     }
 
     var duration = 0;
@@ -125,16 +140,19 @@ proto.chooseEnvelope = function() {
         duration += oscEnv[i].time;
     }
 
-    
+
 
     // FM ENVELOPE //
     var fmEnv = [];
     fmEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-    if (tombola.percent(40)) {
+    if (tombola.percent(25)) {
         var d = audioClock.samplesToMilliseconds(duration);
-        var t = tombola.rangeFloat(0.25, 1.2) * d;
-        console.log(t/d);
-        fmEnv.push(new common.EnvelopePoint(t, 0, 'Out'));
+        var t = tombola.rangeFloat(0.4, 1.2) * d;
+        var g = 0;
+        if (envStyle === 'shaker' || envStyle === 'zip') {
+            g = tombola.rangeFloat(0.1,0.5);
+        }
+        fmEnv.push(new common.EnvelopePoint(t, g, 'Out'));
     }
 
 

@@ -101,6 +101,7 @@ var FMNoise = require('./audioComponents/voices/FMNoise');
 var HarmonicSine = require('./audioComponents/voices/HarmonicSine');
 var HarmonicVoice = require('./audioComponents/voices/HarmonicVoice');
 var Hiss = require('./audioComponents/一graveyard/HissNoise');
+var InharmonicSine = require('./audioComponents/voices/InharmonicSine');
 var Pink = require('./audioComponents/voices/PinkNoise');
 var Perlin = require('./audioComponents/voices/Perlin');
 var PhaseSine = require('./audioComponents/voices/PhaseSine');
@@ -1114,6 +1115,7 @@ module.exports = {
     FMNoise: FMNoise,
     HarmonicSine: HarmonicSine,
     HarmonicVoice: HarmonicVoice,
+    InharmonicSine: InharmonicSine,
     Hiss: Hiss,
     Perlin: Perlin,
     Pink: Pink,

@@ -419,9 +419,9 @@ proto.generateHit = function() {
     audioClock = new audio.Clock();
     audioClock.setup();
 
-    var kick = new audio.KickPlayer();
-    var clap = new audio.ClapPlayer();
-    var hat = new audio.HatPlayer();
+    //var kick = new audio.KickPlayer();
+    //var clap = new audio.ClapPlayer();
+    //var hat = new audio.HatPlayer();
     //var snare = new audio.SnarePlayer();
     var voice = new audio.HarmonicVoice();
     var voice2 = new audio.HarmonicVoice();
@@ -437,6 +437,17 @@ proto.generateHit = function() {
     var cutoff2 = tombola.range(10,16);
     var timbre = partials.randomPartials(cutoff1);
     var timbre2 = partials.randomPartials(cutoff2);
+
+
+
+    var inharm = new audio.InharmonicSine();
+    var rat = 1;
+    var parts = [new common.Inharmonic()];
+    for (var j=1; j<12; j++) {
+        rat += tombola.rangeFloat(0.1,2);
+        parts.push(new common.Inharmonic(rat, tombola.rangeFloat(0.5,0.9)));
+    }
+    console.log(parts);
 
     var pluckScale = [
         146.83, // d
@@ -471,12 +482,12 @@ proto.generateHit = function() {
 
 
         // HAT //
-        process = hat.process(signal, 0.4, i);
+        /*process = hat.process(signal, 0.3, i);
         signal = signalTest(process, signal,i);
 
         // KICK //
         process = kick.process(signal, 1, i);
-        signal = signalTest(process, signal,i);
+        signal = signalTest(process, signal,i);*/
 
 
 
@@ -495,6 +506,11 @@ proto.generateHit = function() {
             signal[0] + n
         ];*/
 
+        var h = inharm.process(50,parts,0.3);
+        signal = [
+            signal[0] + h,
+            signal[0] + h
+        ];
 
 
         // VOICE //

@@ -17,6 +17,7 @@ var ControlRange = require('./ControlRange');
 var EnvelopeGenerator = require('./EnvelopeGenerator');
 var EnvelopePoint = require('./EnvelopePoint');
 var FadeEnvelope = require('./FadeEnvelope');
+var Inharmonic = require('./Inharmonic');
 var Interpolate = require('./Interpolate');
 var MultiEnvelope = require('./MultiEnvelope');
 var Multiply = require('./Multiply');
@@ -67,5 +68,6 @@ module.exports = {
     multiEnvelope: MultiEnvelope,
 
     // other //
-    Repeater: Repeater // should maybe be in filters?
+    Repeater: Repeater, // should maybe be in filters?
+    Inharmonic: Inharmonic
 };
