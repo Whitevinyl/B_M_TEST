@@ -412,7 +412,7 @@ proto.generateHit = function() {
     var seconds = 0.3;
     //seconds = 1;
 
-    var l = sampleRate * seconds;
+    var l = Math.round(sampleRate * seconds);
     var channels = [new Float32Array(l), new Float32Array(l)];
 
     // CREATE CLOCK //

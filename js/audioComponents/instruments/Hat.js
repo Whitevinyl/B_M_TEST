@@ -6,10 +6,8 @@ var marker = require('../core/Marker');
 var common = require('../common/Common');
 var FMNoise = require('../voices/FMNoise');
 var Expander = require('../filters/StereoExpander');
-var WaveShaper = require('../filters/WaveDistortion');
 var Saturation = require('../filters/Saturation');
-
-var Biquad = require('../filters/Biquad');
+var MultiPass = require('../filters/MultiPass');
 
 // Procedurally generates synth hi-hats, clicks, shakers & other percussive noise.
 // Individual hat hits inherit their settings from the player, but can also adapt their
@@ -51,7 +49,7 @@ var proto = HatPlayer.prototype;
 proto.chooseVoice = function() {
 
     var detune = [tombola.rangeFloat(0.1,12),tombola.rangeFloat(0.1,12),tombola.rangeFloat(0.1,12)];
-    var volume = [tombola.rangeFloat(0.15,1),tombola.rangeFloat(0.15,1),tombola.rangeFloat(0.15,1)];
+    var volume = [tombola.rangeFloat(0.12,1),tombola.rangeFloat(0.12,1),tombola.rangeFloat(0.12,1)];
 
     return {
         voice: FMNoise,
@@ -91,13 +89,17 @@ proto.chooseEnvelope = function() {
             break;
 
         case 3:
-            // longer decay //
+            // double Attack //
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
-            oscEnv.push(new common.EnvelopePoint(tombola.range(55,70), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
+            oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(25,55), 0, 'Out'));
             break;
 
         case 4:
-            // double Attack //
+            // triple Attack //
+            oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
+            oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
             oscEnv.push(new common.EnvelopePoint(tombola.range(5,15), 0, 'Out'));
             oscEnv.push(new common.EnvelopePoint(0, 1, 'In'));
@@ -116,10 +118,10 @@ proto.chooseEnvelope = function() {
 
 
     return {
-        duration: duration,
+        duration: duration * 1.6,
         oscEnvelope: oscEnv,
         fmEnvelope: fmEnv,
-        curves: tombola.item(['linear','quadratic','cubic','quartic','quintic'])
+        curves: tombola.item(['quadratic','cubic','quartic','quintic'])
     };
 };
 
@@ -186,8 +188,9 @@ function Hat(parentArray,envelope,voice,drive) {
     this.p = 0;
 
     // filter //
-    this.filter = new Biquad.stereo();
+    this.filter = new MultiPass.stereo();
     this.hp = voice.hp;
+    this.expander = new Expander();
 
 }
 proto = Hat.prototype;
@@ -220,12 +223,14 @@ proto.process = function(input,level) {
         noise * (1 +  this.p)
     ];
 
-    // high pass //
-    signal = this.filter.process(signal,'highpass',this.hp, 2, -1);
 
+    // high pass //
+    signal = this.filter.process(signal,'HP',this.hp, 1.49);
+
+    // expander //
+    signal = this.expander.process(signal,10);
 
     // drive //
-    //signal = WaveShaper(signal,0.1,6,1);
     signal = Saturation(signal,0.6,1);
 
     // clip any noise spikes //

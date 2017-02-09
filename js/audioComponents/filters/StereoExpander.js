@@ -36,7 +36,7 @@ proto.process = function(signal,delay) {
         this.memory.shift();
         signal = [
             mono,
-            mono + this.memory[0]
+            this.memory[0]
         ];
     }
     else {
