@@ -27,6 +27,7 @@ var RampEnvelope = require('./RampEnvelope');
 var RampEnvelopeII = require('./RampEnvelopeII');
 var Repeater = require('./Repeater');
 var RMS = require('./RMS');
+var SumEnvelopes = require('./SumEnvelopes');
 var ToMono = require('./ToMono');
 var ToStereo = require('./ToStereo');
 
@@ -44,10 +45,11 @@ module.exports = {
     combine: Combine,
     interpolate: Interpolate,
     multiply: Multiply,
-    range: ControlRange,
-    RMS: RMS,
     pan: Pan,
     peak: Peak,
+    range: ControlRange,
+    RMS: RMS,
+    sumEnvelopes: SumEnvelopes,
     toMono: ToMono,
     toStereo: ToStereo,
 

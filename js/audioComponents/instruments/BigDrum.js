@@ -8,6 +8,7 @@ var common = require('../common/Common');
 var InharmonicSine = require('../voices/InharmonicSine');
 var Saturation = require('../filters/Saturation');
 var Rumble = require('../mods/WalkSmooth');
+var FilterNoise = require('../voices/FilterNoise');
 var Expander = require('../filters/StereoExpander');
 var Boost = require('../filters/BoostComp');
 
@@ -28,10 +29,14 @@ function BigDrumPlayer() {
     this.envelope = this.chooseEnvelope();
 
     // drive //
+    this.transient = this.chooseTransient();
+
+    // drive //
     this.drive = this.chooseDrive();
 
 
     console.log(this.envelope);
+    console.log(this.transient);
     console.log(this.voice);
     console.log(this.drive);
 
@@ -47,36 +52,35 @@ var proto = BigDrumPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var pitch = tombola.rangeFloat(45, 110);
+    var pitch = tombola.rangeFloat(60, 150);
 
 
     // harmonics //
     var rat = 1;
-    var partials = [new common.Inharmonic(0.75,0.4),new common.Inharmonic()];
-    for (var j=1; j<50; j++) {
-        rat += tombola.rangeFloat(0.1,2);
-        partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.5,0.9)));
+    var partials = [];
+    //partials.push(new common.Inharmonic(0.75,0.4));  // sub harmonic - optional?
+    partials.push(new common.Inharmonic());
+
+    for (var j=1; j<25; j++) {
+        rat += tombola.rangeFloat(0.1,1.1);
+        partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.6,1)));
     }
 
 
     // pitch drift //
-    var drift = 0;
-    if (tombola.percent(5)) {
-        drift = tombola.rangeFloat(0,1.1); // up
-    }
-    if (tombola.percent(80)) {
-        drift = tombola.rangeFloat(0.7,0); // down
-    }
+    var drift = tombola.rangeFloat(0.65,0.99); // down
+
 
     return {
         type: InharmonicSine,
-        pitch: pitch,
         partials: partials,
+        pitch: pitch,
         drift: drift,
-        damping: tombola.rangeFloat(0.25,0.33),
-        dampAttack: tombola.rangeFloat(0.5,0.7),
+        rumblePitch: pitch * 25,
+        damping: tombola.rangeFloat(0.20,0.29), // higher = more metallic / clangy
+        dampAttack: tombola.rangeFloat(0.5,0.65),
         ratio: tombola.rangeFloat(1.01, 1.05), // height of transient pitch
-        thump: tombola.range(500, 1200) // transient thump length in ms
+        thump: tombola.range(500, 1000) // transient thump length in ms
     };
 };
 
@@ -87,20 +91,65 @@ proto.chooseEnvelope = function() {
     var env = [];
     var duration = 0;
 
-    env.push(new common.EnvelopePoint(tombola.range(2,5), 1, 'In'));
-    env.push(new common.EnvelopePoint(tombola.range(200,400), tombola.rangeFloat(0.8,1), 'In'));
-    env.push(new common.EnvelopePoint(tombola.range(1000,2500), 0, 'Out'));
+    env.push(new common.EnvelopePoint(tombola.range(1,4), 1, 'In'));
+    env.push(new common.EnvelopePoint(tombola.range(150,300), tombola.rangeFloat(0.8,1), 'In'));
+    env.push(new common.EnvelopePoint(tombola.range(850,1300), 0, 'Out'));
 
+    var envString = '';
     for (var i=0; i<env.length; i++) {
         duration += env[i].time;
+        envString += audioClock.samplesToMilliseconds(env[i].time) + ' ';
     }
+
 
     return {
         duration: audioClock.millisecondsToSamples(duration),
         envelope: env,
+        envelopeTimes: envString,
         curves: tombola.item(['quadratic','cubic','quartic','quintic'])
     };
 };
+
+
+
+// TRANSIENT //
+proto.chooseTransient = function() {
+    var env = [];
+    var envStyle = tombola.range(0,3);
+
+    switch (envStyle) {
+
+        case 0: // short sustain at 1
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),1,'In') );
+            env.push( new common.EnvelopePoint(2,1,'Out') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(4,6),0,'Out') );
+            break;
+
+        case 1: // ~ in-out curve
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),1,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(5,9),0,'InOut') );
+            break;
+
+
+        case 2: // outward bow curve
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),1,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(4,6),0,'In') );
+            break;
+
+        case 3: // flam
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),0.5,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(4,6),0,'Out') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(1,3),1,'In') );
+            env.push( new common.EnvelopePoint(tombola.rangeFloat(4,6),0,'Out') );
+            break;
+
+    }
+    return {
+        type: FilterNoise,
+        envelope: env
+    };
+};
+
 
 
 // DRIVE //
@@ -128,7 +177,7 @@ proto.process = function(signal,level,index) {
         var marker = this.markers[i];
         if (index === (audioClock.getMeasureIndex() + marker.time)) {
             this.instances = []; // clear for mono
-            this.instances.push( new BigDrum(this.instances,this.envelope,this.voice,this.drive));
+            this.instances.push( new BigDrum(this.instances,this.envelope,this.voice,this.transient,this.drive));
         }
     }
 
@@ -146,7 +195,7 @@ proto.process = function(signal,level,index) {
 //  BIG DRUM INIT
 //-------------------------------------------------------------------------------------------
 
-function BigDrum(parentArray,envelope,voice,drive) {
+function BigDrum(parentArray,envelope,voice,transient) {
 
     // where we're stored //
     this.parentArray = parentArray;
@@ -170,19 +219,25 @@ function BigDrum(parentArray,envelope,voice,drive) {
     this.p = 0; // panning;
 
 
+    // transient //
+    this.transient = new transient.type();
+    this.transientEnvelope = transient.envelope;
+
     // rumble //
     this.rumble = new Rumble();
+    this.rumblePitch = voice.rumblePitch;
 
+
+    // expander //
     this.expander = new Expander();
 
+
+    // boost //
     this.boost = new Boost();
     this.boost.setParameter(0,0.4);
     this.boost.setParameter(2,0.26);
 
-    // drive //
-    this.drive = drive.type;
-    this.driveThreshold = drive.threshold;
-    this.driveMix = drive.mix;
+
 
 
 }
@@ -204,33 +259,48 @@ proto.process = function(input,level) {
 
     // envelope //
     var a = common.multiEnvelope(this.i, this.duration, this.envelope, this.curves);
+    var transEnv = common.multiEnvelope(this.i, this.duration, this.transientEnvelope, this.curves);
+    transEnv *= 0.1; // adjust //
+    var bodyEnv = 1;
 
+    var envs = [transEnv,bodyEnv];
+    var te = common.sumEnvelopes(envs,0);
+    var ae = common.sumEnvelopes(envs,1);
+
+
+    // transient //
+    var trans = this.transient.process(0.3,1) * te;
 
     // voice //
     var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
-    var da = common.rampEnvelopeII(this.i, this.duration, 1, this.damping, 0, this.thump * 0.7, 'quinticOut');
+    var da = common.rampEnvelopeII(this.i, this.duration, 1.01, this.damping, 0, this.thump * 0.7, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
-    var n = this.voice.process(pb * pd, this.partials,da);
+    var body = this.voice.process(pb * pd, this.partials,da);
+
+
 
     // rumble //
-    var rumbleGain = 0.02;
-    n *= (1 - rumbleGain);
-    var rumble = this.rumble.process(3500,10) * rumbleGain;
+    var rumbleGain = 0.1;
+    body *= (1 - rumbleGain);
+    var ra = common.rampEnvelopeII(this.i, this.duration, this.rumblePitch * 2, this.rumblePitch, 0, this.thump * 0.3, 'quinticOut');
+    var rumble = this.rumble.process(ra,10) * rumbleGain;
+
+    // combined gain of body & rumble //
+    var bodyRumble = (body + rumble) * ae;
+
 
     var signal = [
-        (n + rumble) * ((1 + -this.p) * a),
-        (n + rumble) * ((1 +  this.p) * a)
+        (trans + bodyRumble) * ((1 + -this.p) * a),
+        (trans + bodyRumble) * ((1 +  this.p) * a)
     ];
 
 
     // expander //
-    //signal = this.expander.process(signal,15);
+    signal = this.expander.process(signal,15);
 
 
     signal = this.boost.process(signal);
 
-    // drive //
-    //signal = this.drive(signal,this.driveThreshold,this.driveMix);
 
     // return with ducking //
     var ducking = 0.8;

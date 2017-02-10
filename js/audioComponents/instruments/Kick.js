@@ -118,10 +118,10 @@ proto.chooseVoice = function() {
     // pitch drift //
     var drift = 0;
     if (tombola.percent(5)) {
-        drift = tombola.rangeFloat(0,1.1); // up
+        drift = tombola.rangeFloat(1,1.1); // up
     }
     if (tombola.percent(50)) {
-        drift = tombola.rangeFloat(0.7,0); // down
+        drift = tombola.rangeFloat(0.7,1); // down
     }
 
     // generate object //
