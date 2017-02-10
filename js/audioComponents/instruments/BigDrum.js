@@ -199,7 +199,8 @@ proto.chooseTransient = function() {
     }
     return {
         type: FilterNoise,
-        envelope: env
+        envelope: env,
+        pitch: this.voice.pitch/333
     };
 };
 
@@ -275,6 +276,7 @@ function BigDrum(parentArray,envelope,voice,transient) {
     // transient //
     this.transient = new transient.type();
     this.transientEnvelope = transient.envelope;
+    this.transientPitch = transient.pitch;
 
     // rumble //
     this.rumble = new Rumble();
@@ -324,8 +326,8 @@ proto.process = function(input,level) {
     var ae = common.sumEnvelopes(envs,1);
 
 
-    // transient //
-    var trans = this.transient.process(0.3,1) * te;
+    // transient // 0.3
+    var trans = this.transient.process(this.transientPitch,1) * te;
 
     // voice //
     var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
