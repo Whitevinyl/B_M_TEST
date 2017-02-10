@@ -89,6 +89,7 @@ var SweepII = require('./audioComponents/generators/SweepII');
 var Testing = require('./audioComponents/一graveyard/Testing');
 
 // INSTRUMENTS //
+var BigDrumPlayer = require('./audioComponents/instruments/BigDrum');
 var ClapPlayer = require('./audioComponents/instruments/Clap');
 var HatPlayer = require('./audioComponents/instruments/Hat');
 var KickPlayer = require('./audioComponents/instruments/Kick');
@@ -1169,6 +1170,7 @@ module.exports = {
     SweepII: SweepII,
 
 
+    BigDrumPlayer: BigDrumPlayer,
     ClapPlayer: ClapPlayer,
     HatPlayer: HatPlayer,
     KickPlayer: KickPlayer,

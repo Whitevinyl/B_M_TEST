@@ -439,15 +439,16 @@ proto.generateHit = function() {
     var timbre2 = partials.randomPartials(cutoff2);
 
 
+    var big = new audio.BigDrumPlayer();
 
-    var inharm = new audio.InharmonicSine();
+    /*var inharm = new audio.InharmonicSine();
     var rat = 1;
     var parts = [new common.Inharmonic()];
     for (var j=1; j<12; j++) {
         rat += tombola.rangeFloat(0.1,2);
         parts.push(new common.Inharmonic(rat, tombola.rangeFloat(0.5,0.9)));
     }
-    console.log(parts);
+    console.log(parts);*/
 
     var pluckScale = [
         146.83, // d
@@ -490,7 +491,9 @@ proto.generateHit = function() {
         signal = signalTest(process, signal,i);*/
 
 
-
+        // BIG DRUM //
+        process = big.process(signal, 1, i);
+        signal = signalTest(process, signal,i);
 
 
         /*// SNARE //
@@ -506,11 +509,11 @@ proto.generateHit = function() {
             signal[0] + n
         ];*/
 
-        var h = inharm.process(50,parts,0.3);
+        /*var h = inharm.process(50,parts,0.3);
         signal = [
             signal[0] + h,
             signal[0] + h
-        ];
+        ];*/
 
 
         // VOICE //
