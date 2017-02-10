@@ -11,6 +11,7 @@ var Rumble = require('../mods/WalkSmooth');
 var FilterNoise = require('../voices/FilterNoise');
 var Expander = require('../filters/StereoExpander');
 var Boost = require('../filters/BoostComp');
+var WaveShaper = require('../filters/WaveDistortion');
 
 // Procedurally generates improbable large acoustic drums
 
@@ -106,6 +107,13 @@ proto.chooseVoice = function() {
     var ratio = tombola.rangeFloat(1.02, 1.04); // height of transient pitch
     var thump = tombola.range(500, 1000); // transient thump length in ms
 
+    // rumble //
+    var rumbleGain = 0.1;
+    if (tombola.percent(5)) {
+        rumbleGain = tombola.rangeFloat(0.05,0.25);
+        //rumbleGain = tombola.rangeFloat(0.5,0.85); // noisy, good for low freq noise drums
+        //rumbleGain = tombola.rangeFloat(0.01,0.05); // clean
+    }
 
     // testing //
     /*pitch = 180;
@@ -121,6 +129,7 @@ proto.chooseVoice = function() {
         pitch: pitch,
         drift: drift,
         rumblePitch: pitch * 25,
+        rumbleGain: rumbleGain,
         damping: damping,
         dampAttack: dampAttack,
         ratio: ratio,
@@ -270,10 +279,13 @@ function BigDrum(parentArray,envelope,voice,transient) {
     // rumble //
     this.rumble = new Rumble();
     this.rumblePitch = voice.rumblePitch;
+    this.rumbleGain = voice.rumbleGain;
 
 
     // expander //
     this.expander = new Expander();
+
+    this.distortion = WaveShaper;
 
 
     // boost //
@@ -324,10 +336,9 @@ proto.process = function(input,level) {
 
 
     // rumble //
-    var rumbleGain = 0.1;
-    body *= (1 - rumbleGain);
+    body *= (1 - this.rumbleGain);
     var ra = common.rampEnvelopeII(this.i, this.duration, this.rumblePitch * 2, this.rumblePitch, 0, this.thump * 0.3, 'quinticOut');
-    var rumble = this.rumble.process(ra,10) * rumbleGain;
+    var rumble = this.rumble.process(ra,10) * this.rumbleGain;
 
     // combined gain of body & rumble //
     var bodyRumble = (body + rumble) * ae;
@@ -343,8 +354,12 @@ proto.process = function(input,level) {
     signal = this.expander.process(signal,15);
 
 
+    // boost //
     signal = this.boost.process(signal);
 
+
+    // waveshape //
+    //signal = this.distortion(signal,0.7,5,1);
 
     // return with ducking //
     var ducking = 0.8;
