@@ -52,7 +52,7 @@ var proto = BigDrumPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var pitch = tombola.rangeFloat(60, 150);
+    var pitch = tombola.rangeFloat(40, 150);
 
 
     // harmonics //
@@ -62,14 +62,58 @@ proto.chooseVoice = function() {
     partials.push(new common.Inharmonic());
 
     for (var j=1; j<25; j++) {
-        rat += tombola.rangeFloat(0.1,1.1);
+
+        // testing different harmonic spacings here //
+
+        var jump = tombola.rangeFloat(0.1,1.1); // taiko
+
+        //var jump = tombola.item([0.5,1]); // square open powerful, pingy at high pitches
+
+        //var jump = tombola.item([0.3333,0.6666,1]) + tombola.rangeFloat(-0.01,0.01); // growly, harmonic scale just audible
+
+        //var jump = 1 + tombola.rangeFloat(-0.5,0.5); // tight ringy, clear inharmonics
+
+        //var jump = 1.333 + tombola.rangeFloat(-0.1,0.1); // inharmonic tubey, metal pole, open ringy
+
+
+
+        rat += jump;
         partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.6,1)));
     }
 
 
-    // pitch drift //
-    var drift = tombola.rangeFloat(0.65,0.99); // down
+    // concentrated clusters // (reduce noise & transient for this)
+    /*var cluster = 1;
+    for (var j=0; j<6; j++) {
+        for (var h=0; h<4; h++) {
+            var ha = cluster + tombola.rangeFloat(-0.1, 0.1);
+            partials.push(new common.Inharmonic(ha, tombola.rangeFloat(0.6, 1)));
+        }
+        cluster += tombola.rangeFloat(1.5,2);
+    }*/
 
+
+    // pitch drift //
+    var drift = tombola.rangeFloat(0.6,0.99); // down
+
+
+    // damping //
+    var damping = tombola.rangeFloat(0.19,0.29); // higher = more metallic / clangy
+    var dampAttack = tombola.rangeFloat(0.7,1.5);
+
+
+    // thump //
+    var ratio = tombola.rangeFloat(1.02, 1.04); // height of transient pitch
+    var thump = tombola.range(500, 1000); // transient thump length in ms
+
+
+    // testing //
+    /*pitch = 180;
+    drift = 0.84;
+    damping = 0.2;
+    dampAttack = 1.5;
+    ratio = 1.04;
+    thump = 1000;*/
 
     return {
         type: InharmonicSine,
@@ -77,10 +121,10 @@ proto.chooseVoice = function() {
         pitch: pitch,
         drift: drift,
         rumblePitch: pitch * 25,
-        damping: tombola.rangeFloat(0.20,0.29), // higher = more metallic / clangy
-        dampAttack: tombola.rangeFloat(0.5,0.65),
-        ratio: tombola.rangeFloat(1.01, 1.05), // height of transient pitch
-        thump: tombola.range(500, 1000) // transient thump length in ms
+        damping: damping,
+        dampAttack: dampAttack,
+        ratio: ratio,
+        thump: thump
     };
 };
 
@@ -234,7 +278,7 @@ function BigDrum(parentArray,envelope,voice,transient) {
 
     // boost //
     this.boost = new Boost();
-    this.boost.setParameter(0,0.4);
+    this.boost.setParameter(0,0.3);
     this.boost.setParameter(2,0.26);
 
 
