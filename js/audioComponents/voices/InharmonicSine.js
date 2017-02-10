@@ -12,6 +12,7 @@ var common = require('../common/Common');
 
 function InharmonicSine() {
     this.i = 0;
+    this.partials = [];
 }
 var proto = InharmonicSine.prototype;
 
@@ -39,7 +40,11 @@ proto.process = function(frequency,partials,resonance) {
     for (var i=0; i<l; i++) {
 
         var f = frequency * partials[i].ratio;
+        var f2 = (f*4)/sampleRate;
         var g = partials[i].gain;
+
+        // if partial currently non-existent, zero it //
+        if (!this.partials[i]) this.partials[i] = 0;
 
         // good frequency? //
         if (f<20000) {
@@ -48,7 +53,15 @@ proto.process = function(frequency,partials,resonance) {
             if (i>0) {
                 m = Math.pow(resonance,i);
             }
-            out += ((Math.sin(f * (this.i * utils.TAU)) * g) * m);
+
+            // calculate sine //
+            this.partials[i] += f2;
+            if(this.partials[i] > 2) this.partials[i] -= 4;
+            var p = this.partials[i]*(2-Math.abs(this.partials[i]));
+
+            // var p = Math.sin(f * (this.i * utils.TAU));
+
+            out += ((p * g) * m);
             totalLevel += (Math.abs(g) * m);
         }
     }

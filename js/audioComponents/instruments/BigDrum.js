@@ -6,6 +6,10 @@ var tombola = new Tombola();
 var marker = require('../core/Marker');
 var common = require('../common/Common');
 var InharmonicSine = require('../voices/InharmonicSine');
+var Saturation = require('../filters/Saturation');
+var Rumble = require('../mods/WalkSmooth');
+var Expander = require('../filters/StereoExpander');
+var Boost = require('../filters/BoostComp');
 
 // Procedurally generates improbable large acoustic drums
 
@@ -43,13 +47,13 @@ var proto = BigDrumPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var pitch = tombola.rangeFloat(50, 60);
+    var pitch = tombola.rangeFloat(45, 110);
 
 
     // harmonics //
     var rat = 1;
-    var partials = [new common.Inharmonic()];
-    for (var j=1; j<12; j++) {
+    var partials = [new common.Inharmonic(0.75,0.4),new common.Inharmonic()];
+    for (var j=1; j<50; j++) {
         rat += tombola.rangeFloat(0.1,2);
         partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.5,0.9)));
     }
@@ -60,7 +64,7 @@ proto.chooseVoice = function() {
     if (tombola.percent(5)) {
         drift = tombola.rangeFloat(0,1.1); // up
     }
-    if (tombola.percent(50)) {
+    if (tombola.percent(80)) {
         drift = tombola.rangeFloat(0.7,0); // down
     }
 
@@ -68,9 +72,11 @@ proto.chooseVoice = function() {
         type: InharmonicSine,
         pitch: pitch,
         partials: partials,
-        damping: tombola.rangeFloat(0.25,0.45),
-        ratio: tombola.rangeFloat(8, 30), // height of transient pitch
-        thump: tombola.range(22, 39), // transient thump length in ms
+        drift: drift,
+        damping: tombola.rangeFloat(0.25,0.33),
+        dampAttack: tombola.rangeFloat(0.5,0.7),
+        ratio: tombola.rangeFloat(1.01, 1.05), // height of transient pitch
+        thump: tombola.range(500, 1200) // transient thump length in ms
     };
 };
 
@@ -81,8 +87,9 @@ proto.chooseEnvelope = function() {
     var env = [];
     var duration = 0;
 
-    env.push(new common.EnvelopePoint(tombola.range(1,6), 1, 'In'));
-    env.push(new common.EnvelopePoint(tombola.range(150,600), 0, 'InOut'));
+    env.push(new common.EnvelopePoint(tombola.range(2,5), 1, 'In'));
+    env.push(new common.EnvelopePoint(tombola.range(200,400), tombola.rangeFloat(0.8,1), 'In'));
+    env.push(new common.EnvelopePoint(tombola.range(1000,2500), 0, 'Out'));
 
     for (var i=0; i<env.length; i++) {
         duration += env[i].time;
@@ -100,7 +107,9 @@ proto.chooseEnvelope = function() {
 proto.chooseDrive = function() {
 
     return {
-
+        type: Saturation,
+        threshold: tombola.rangeFloat(0.7,0.8),
+        mix: tombola.rangeFloat(0.4,0.7)
     };
 };
 
@@ -154,10 +163,26 @@ function BigDrum(parentArray,envelope,voice,drive) {
     this.pitch = voice.pitch;
     this.partials = voice.partials;
     this.damping = voice.damping;
+    this.dampAttack = voice.dampAttack;
     this.pitchRatio = voice.ratio;
     this.thump = voice.thump;
     this.drift = voice.drift;
     this.p = 0; // panning;
+
+
+    // rumble //
+    this.rumble = new Rumble();
+
+    this.expander = new Expander();
+
+    this.boost = new Boost();
+    this.boost.setParameter(0,0.4);
+    this.boost.setParameter(2,0.26);
+
+    // drive //
+    this.drive = drive.type;
+    this.driveThreshold = drive.threshold;
+    this.driveMix = drive.mix;
 
 
 }
@@ -183,16 +208,29 @@ proto.process = function(input,level) {
 
     // voice //
     var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
+    var da = common.rampEnvelopeII(this.i, this.duration, 1, this.damping, 0, this.thump * 0.7, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
-    var n = this.voice.process(pb * pd, this.partials,this.damping);
+    var n = this.voice.process(pb * pd, this.partials,da);
 
-
+    // rumble //
+    var rumbleGain = 0.02;
+    n *= (1 - rumbleGain);
+    var rumble = this.rumble.process(3500,10) * rumbleGain;
 
     var signal = [
-        n * ((1 + -this.p) * a),
-        n * ((1 +  this.p) * a)
+        (n + rumble) * ((1 + -this.p) * a),
+        (n + rumble) * ((1 +  this.p) * a)
     ];
 
+
+    // expander //
+    //signal = this.expander.process(signal,15);
+
+
+    signal = this.boost.process(signal);
+
+    // drive //
+    //signal = this.drive(signal,this.driveThreshold,this.driveMix);
 
     // return with ducking //
     var ducking = 0.8;

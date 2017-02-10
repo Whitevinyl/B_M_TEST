@@ -411,6 +411,7 @@ proto.generateHit = function() {
     // SETUP THIS AUDIO //
     var seconds = 0.3;
     seconds = (60/70) - 0.05;
+    seconds = 3;
 
     var l = Math.round(sampleRate * seconds);
     var channels = [new Float32Array(l), new Float32Array(l)];

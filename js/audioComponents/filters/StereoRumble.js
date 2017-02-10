@@ -25,8 +25,8 @@ StereoRumble.prototype.process = function(signal,frequency,ducking,gain) {
     gain = utils.arg(gain,0.5);
 
     return [
-        (signal[0]*(1-ducking)) + (this.r1.process(frequency,10) * gain),
-        (signal[1]*(1-ducking)) + (this.r2.process(frequency,10) * gain)
+        (signal[0]*(1-(ducking * gain))) + (this.r1.process(frequency,10) * gain),
+        (signal[1]*(1-(ducking * gain))) + (this.r2.process(frequency,10) * gain)
     ];
 };
 
