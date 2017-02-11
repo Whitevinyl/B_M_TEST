@@ -113,7 +113,7 @@ proto.chooseVoice = function() {
     //damping = 0.25;
 
     // thump //
-    var ratio = tombola.rangeFloat(1.01, 2); // height of transient pitch
+    var ratio = tombola.rangeFloat(1.01, 1.04); // height of transient pitch
     var thump = tombola.range(300, 400); // transient thump length in ms
 
     // rumble //
@@ -158,17 +158,38 @@ proto.chooseEnvelope = function() {
         envString += audioClock.samplesToMilliseconds(env[i].time) + ' ';
     }
 
+    var dampEnv = this.generateDampEnvelope(duration);
 
     return {
         duration: audioClock.millisecondsToSamples(duration),
         envelope: env,
         envelopeTimes: envString,
+        dampEnvelope: dampEnv,
         curves: tombola.item(['quadratic','cubic','quartic','quintic'])
     };
 };
 
 
+proto.generateDampEnvelope = function(d) {
+    var types = ['hardInUp', 'hardInDown', 'hardOutUp', 'hardOutDown', 'hardInOutUp', 'hardInOutDown'];
 
+    var env = [];
+    var time;
+    var minTime = 50;
+    var maxTime = 200;
+
+    while (d > 0) {
+
+        // set or randomise time //
+        time = tombola.range(minTime,maxTime);
+
+        // create & add a shape //
+        env = common.addShape(env, common.getShape(time,tombola.item(types),tombola.rangeFloat(0.85,1)));
+        d -= time;
+    }
+
+    return env;
+};
 
 
 
@@ -268,6 +289,7 @@ function Metallic(parentArray,envelope,voice,transient) {
     this.rootPartials = JSON.parse(JSON.stringify(voice.partials));
     this.damping = voice.damping;
     this.dampAttack = voice.dampAttack;
+    this.dampEnvelope = envelope.dampEnvelope;
     this.pitchRatio = voice.ratio;
     this.thump = voice.thump;
     this.drift = voice.drift;
@@ -317,18 +339,20 @@ proto.process = function(input,level) {
 
     // mess with partials //
     var l = this.partials.length;
-    var range = 0.3;
+    var movement = 3;
+    var range = 5;
+    var up = 1 + range;
+    var down = 1 / up;
     for (var i=0; i<l; i++) {
-        this.partials[i].ratio += tombola.rangeFloat(-range,range);
-        //console.log(this.partials[i].ratio);
-        //console.log(this.rootPartials[i].ratio);
-        this.partials[i].ratio = utils.valueInRange(this.partials[i].ratio,this.rootPartials[i].ratio/2,this.rootPartials[i].ratio*2);
+        this.partials[i].ratio += tombola.rangeFloat(-movement,movement);
+        this.partials[i].ratio = utils.valueInRange(this.partials[i].ratio,this.rootPartials[i].ratio * down,this.rootPartials[i].ratio * up);
     }
 
 
     // envelope //
     var a = common.multiEnvelope(this.i, this.duration, this.envelope, this.curves);
     var transEnv = common.multiEnvelope(this.i, this.duration, this.transientEnvelope, this.curves);
+    var dampEnv = common.multiEnvelope(this.i, this.duration, this.dampEnvelope, this.curves);
     transEnv *= 0.1; // adjust //
     var bodyEnv = 1;
     transEnv = 0;
@@ -345,7 +369,7 @@ proto.process = function(input,level) {
     var pb = common.rampEnvelopeII(this.i, this.duration, this.pitch * this.pitchRatio, this.pitch, 0, this.thump, 'quinticOut');
     var da = common.rampEnvelopeII(this.i, this.duration, 1.01, this.damping, 0, this.thump * 0.7, 'quinticOut');
     var pd = common.rampEnvelope(this.i, this.duration, 1, this.drift, 0, 100,'linearOut');
-    var body = this.voice.process(pb * pd, this.partials,da);
+    var body = this.voice.process(pb * pd, this.partials,1 * dampEnv);
 
 
 
