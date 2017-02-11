@@ -13,7 +13,8 @@ var Expander = require('../filters/StereoExpander');
 var Boost = require('../filters/BoostComp');
 var WaveShaper = require('../filters/WaveDistortion');
 
-// Procedurally generates improbable large acoustic drums
+
+// Procedurally generates metallic percussion
 
 //-------------------------------------------------------------------------------------------
 //  PLAYER INIT
@@ -50,7 +51,10 @@ var proto = MetallicPlayer.prototype;
 // VOICE //
 proto.chooseVoice = function() {
 
-    var pitch = tombola.rangeFloat(100, 200);
+    var pitch = tombola.rangeFloat(70, 350);
+
+    //pitch = 185;
+    pitch = 250;
 
 
     // harmonics //
@@ -58,35 +62,63 @@ proto.chooseVoice = function() {
     var partials = [];
     partials.push(new common.Inharmonic());
 
-    for (var j=1; j<25; j++) {
+    /*partials.push(new common.Inharmonic(0.76,0.9));
+    partials.push(new common.Inharmonic(0.44,0.7));
+    partials.push(new common.Inharmonic(0.22,0.6));
 
-        // testing different harmonic spacings here //
+    partials.push(new common.Inharmonic(1.14,0.6));
+    partials.push(new common.Inharmonic(1.30,0.4));*/
 
-        //var jump = tombola.item([0.5,1]); // square open powerful, pingy at high pitches
-        var jump = 1.333 + tombola.rangeFloat(-0.1,0.1); // inharmonic tubey, metal pole, open ringy
+    var jump = tombola.rangeFloat(0.7,1.7);
+    jump = 1;
+    //jump = 0.86;
 
-        rat += jump;
-        partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.6,1)));
+    /*var cluster = 1;
+    for (var h=0; h<3; h++) {
+
+        for (var j = 1; j < 6; j++) {
+
+            // testing different harmonic spacings here //
+
+            //var jump = tombola.rangeFloat(0.1,1.1);
+            //var jump = tombola.item([0.5,1]); // square open powerful, pingy at high pitches
+            //var jump = tombola.item([0.05,1,1.05]); // square open powerful, pingy at high pitches
+            //var jump = 1.333 + tombola.rangeFloat(-0.2,0.2); // inharmonic tubey, metal pole, open ringy
+
+            //var jump = 1.55;
+
+            rat += jump;
+
+            rat = cluster + tombola.rangeFloat(0.91, 1.1) - 1;
+            partials.push(new common.Inharmonic(rat, tombola.rangeFloat(0.6, 1)));
+        }
+        cluster += tombola.rangeFloat(0.5,1);
+    }*/
+
+    for (var j = 0; j < 10; j++) {
+
+        jump += 1 + tombola.rangeFloat(-0.2, 0.2);
+        partials.push(new common.Inharmonic(jump, tombola.rangeFloat(0.4, 0.7)));
     }
-
-
 
 
     // pitch drift //
     var drift = tombola.rangeFloat(0.6,0.99); // down
+    drift = 0;
 
 
     // damping //
-    var damping = tombola.rangeFloat(0.25,0.30); // higher = more metallic / clangy
-    var dampAttack = tombola.rangeFloat(1,2);
-
+    var damping = tombola.rangeFloat(0.3,0.9); // higher = more metallic / clangy
+    var dampAttack = tombola.rangeFloat(1.5,3);
+    //damping = 0.25;
 
     // thump //
-    var ratio = tombola.rangeFloat(1.02, 1.04); // height of transient pitch
-    var thump = tombola.range(500, 1000); // transient thump length in ms
+    var ratio = tombola.rangeFloat(1.01, 2); // height of transient pitch
+    var thump = tombola.range(300, 400); // transient thump length in ms
 
     // rumble //
-    var rumbleGain = 0.1;
+    var rumbleGain = 0.02;
+    rumbleGain = 0;
 
     // testing //
     /*pitch = 180;
@@ -118,7 +150,7 @@ proto.chooseEnvelope = function() {
     var duration = 0;
 
     env.push(new common.EnvelopePoint(tombola.range(1,4), 1, 'In'));
-    env.push(new common.EnvelopePoint(tombola.range(800,1200), 0, 'Out'));
+    env.push(new common.EnvelopePoint(tombola.range(800,900), 0, 'Out'));
 
     var envString = '';
     for (var i=0; i<env.length; i++) {
@@ -134,6 +166,11 @@ proto.chooseEnvelope = function() {
         curves: tombola.item(['quadratic','cubic','quartic','quintic'])
     };
 };
+
+
+
+
+
 
 
 
@@ -227,7 +264,8 @@ function Metallic(parentArray,envelope,voice,transient) {
     // voice //
     this.voice = new voice.type();
     this.pitch = voice.pitch;
-    this.partials = voice.partials;
+    this.partials = JSON.parse(JSON.stringify(voice.partials));
+    this.rootPartials = JSON.parse(JSON.stringify(voice.partials));
     this.damping = voice.damping;
     this.dampAttack = voice.dampAttack;
     this.pitchRatio = voice.ratio;
@@ -277,11 +315,23 @@ proto.process = function(input,level) {
     }
 
 
+    // mess with partials //
+    var l = this.partials.length;
+    var range = 0.3;
+    for (var i=0; i<l; i++) {
+        this.partials[i].ratio += tombola.rangeFloat(-range,range);
+        //console.log(this.partials[i].ratio);
+        //console.log(this.rootPartials[i].ratio);
+        this.partials[i].ratio = utils.valueInRange(this.partials[i].ratio,this.rootPartials[i].ratio/2,this.rootPartials[i].ratio*2);
+    }
+
+
     // envelope //
     var a = common.multiEnvelope(this.i, this.duration, this.envelope, this.curves);
     var transEnv = common.multiEnvelope(this.i, this.duration, this.transientEnvelope, this.curves);
     transEnv *= 0.1; // adjust //
     var bodyEnv = 1;
+    transEnv = 0;
 
     var envs = [transEnv,bodyEnv];
     var te = common.sumEnvelopes(envs,0);
@@ -315,11 +365,11 @@ proto.process = function(input,level) {
 
 
     // expander //
-    signal = this.expander.process(signal,15);
+    //signal = this.expander.process(signal,15);
 
 
     // boost //
-    signal = this.boost.process(signal);
+    //signal = this.boost.process(signal);
 
 
     // return with ducking //

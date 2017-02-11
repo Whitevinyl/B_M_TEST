@@ -114,6 +114,7 @@ proto.chooseVoice = function() {
         //rumbleGain = tombola.rangeFloat(0.5,0.85); // noisy, good for low freq noise drums
         //rumbleGain = tombola.rangeFloat(0.01,0.05); // clean
     }
+    //rumbleGain = 0.04;
 
     // testing //
     /*pitch = 180;

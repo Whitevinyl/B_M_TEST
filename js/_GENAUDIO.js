@@ -411,7 +411,7 @@ proto.generateHit = function() {
     // SETUP THIS AUDIO //
     var seconds = 0.3;
     seconds = (60/70) - 0.05;
-    seconds = 3;
+    seconds = 2;
 
     var l = Math.round(sampleRate * seconds);
     var channels = [new Float32Array(l), new Float32Array(l)];
@@ -441,6 +441,7 @@ proto.generateHit = function() {
 
 
     var big = new audio.BigDrumPlayer();
+    var metal = new audio.MetallicPlayer();
 
     /*var inharm = new audio.InharmonicSine();
     var rat = 1;
@@ -493,7 +494,11 @@ proto.generateHit = function() {
 
 
         // BIG DRUM //
-        process = big.process(signal, 1, i);
+        /*process = big.process(signal, 1, i);
+        signal = signalTest(process, signal,i);*/
+
+        // METALLIC //
+        process = metal.process(signal, 1, i);
         signal = signalTest(process, signal,i);
 
 
